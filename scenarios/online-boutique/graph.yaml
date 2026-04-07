@@ -1,0 +1,58 @@
+services:
+  frontend:
+    v1: specs/frontend/v1/openapi.yaml
+    v2: specs/frontend/v2/openapi.yaml
+  checkout:
+    v1: specs/checkout/v1/openapi.yaml
+    v2: specs/checkout/v2/openapi.yaml
+  shipping:
+    v1: specs/shipping/v1/openapi.yaml
+    v2: specs/shipping/v2/openapi.yaml
+  email:
+    v1: specs/email/v1/openapi.yaml
+  productcatalog:
+    v1: specs/productcatalog/v1/openapi.yaml
+    v2: specs/productcatalog/v2/openapi.yaml
+
+edges:
+  - name: frontend->checkout
+    from: frontend
+    to: checkout
+    method: POST
+    path: /placeorder
+
+  - name: frontend->shipping-quote
+    from: frontend
+    to: shipping
+    method: POST
+    path: /shipping/quote
+
+  - name: frontend->productcatalog
+    from: frontend
+    to: productcatalog
+    method: GET
+    path: /products
+
+  - name: checkout->shipping-quote
+    from: checkout
+    to: shipping
+    method: POST
+    path: /shipping/quote
+
+  - name: checkout->shipping-ship
+    from: checkout
+    to: shipping
+    method: POST
+    path: /shipping/ship
+
+  - name: checkout->email
+    from: checkout
+    to: email
+    method: POST
+    path: /send-order-confirmation
+
+  - name: checkout->productcatalog
+    from: checkout
+    to: productcatalog
+    method: GET
+    path: /products/{id}

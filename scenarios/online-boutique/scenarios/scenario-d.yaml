@@ -1,0 +1,12 @@
+name: "Scenario D: Chain break (order_id optional)"
+description: "Checkout v2 makes order_id optional; email requires it"
+baseline:
+  checkout: v1
+  frontend: v1
+upgrades:
+  checkout: v2
+expect:
+  gus: FAIL
+  breaks:
+    - edge: frontend->checkout
+      rule: RES.4

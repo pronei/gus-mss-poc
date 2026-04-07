@@ -1,0 +1,55 @@
+openapi: "3.0.0"
+info:
+  title: ProductCatalog Service
+  version: "2.0"
+paths:
+  /products:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /products/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+components:
+  schemas:
+    Product:
+      type: object
+      required: [id, name, description, categories]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        categories:
+          type: string
+          # v2: adds "new-arrivals" to response enum
+          enum:
+            - clothing
+            - accessories
+            - footwear
+            - decor
+            - kitchen
+            - vintage
+            - garden
+            - electronics
+            - music
+            - new-arrivals

@@ -1,0 +1,11 @@
+# Binaries
+/gus
+*.exe
+
+# Go
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp

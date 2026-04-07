@@ -1,0 +1,12 @@
+name: "Scenario B: Product category enum widening"
+description: "ProductCatalog v2 adds new-arrivals to categories enum in response"
+baseline:
+  productcatalog: v1
+  frontend: v1
+upgrades:
+  productcatalog: v2
+expect:
+  gus: FAIL
+  breaks:
+    - edge: frontend->productcatalog
+      rule: enum-response-widening

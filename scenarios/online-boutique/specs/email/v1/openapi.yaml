@@ -1,0 +1,68 @@
+openapi: "3.0.0"
+info:
+  title: Email Service
+  version: "1.0"
+paths:
+  /send-order-confirmation:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, email, order]
+              properties:
+                order_id:
+                  type: string
+                  x-requires: "order-identity"
+                email:
+                  type: string
+                  format: email
+                order:
+                  $ref: '#/components/schemas/OrderSummary'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+components:
+  schemas:
+    OrderSummary:
+      type: object
+      properties:
+        order_id:
+          type: string
+        shipping_tracking_id:
+          type: string
+        shipping_cost:
+          $ref: '#/components/schemas/Money'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+    CartItem:
+      type: object
+      required: [product_id, quantity]
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+    Money:
+      type: object
+      required: [currency_code, units, nanos]
+      properties:
+        currency_code:
+          type: string
+        units:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32

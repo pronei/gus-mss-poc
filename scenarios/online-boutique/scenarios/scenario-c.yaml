@@ -1,0 +1,15 @@
+name: "Scenario C: Priority enum cascade"
+description: "Shipping v2 changes priority enum; frontend v2 widens it; checkout stays v1 sending [standard, express] which v2 shipping no longer accepts"
+baseline:
+  frontend: v1
+  checkout: v1
+  shipping: v1
+upgrades:
+  shipping: v2
+  frontend: v2
+expect:
+  gus: FAIL
+  mss: []
+  breaks:
+    - edge: checkout->shipping-quote
+      rule: enum-request-narrowing
