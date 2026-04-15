@@ -39,6 +39,8 @@ func main() {
 		runConsistent(os.Args[2:])
 	case "validate":
 		runValidate(os.Args[2:])
+	case "viz":
+		runViz(os.Args[2:])
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n", os.Args[1])
 		usage()
@@ -54,6 +56,7 @@ Commands:
   mss         Compute Maximal Safe Subset when GUS=NO
   consistent  Verify a single deployment state is internally compatible
   validate    Run all scenarios in a directory and check expected results
+  viz         Emit JSON artifact for the browser-based scenario visualizer
 
 Flags:
   --graph       Path to graph.yaml (service mesh topology)

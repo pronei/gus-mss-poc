@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GUS Scenario Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Lora:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --anthropic-dark: #141413;
+      --anthropic-light: #faf9f5;
+      --anthropic-mid-gray: #b0aea5;
+      --anthropic-light-gray: #e8e6dc;
+      --anthropic-orange: #d97757;
+      --anthropic-blue: #6a9bcc;
+      --anthropic-green: #788c5d;
+      --anthropic-red: #c45a4a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--anthropic-light) 0%, #f5f3ee 100%);
+      min-height: 100vh;
+      color: var(--anthropic-dark);
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    /* Main stage: header + canvas */
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px 28px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
+    }
+
+    .header h1 {
+      font-family: 'Lora', serif;
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--anthropic-dark);
+      margin-bottom: 6px;
+    }
+
+    .header .scenario-name {
+      color: var(--anthropic-orange);
+      font-weight: 500;
+    }
+
+    .header .decision {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-left: 12px;
+      vertical-align: middle;
+    }
+
+    .decision.pass { background: #e5ecdb; color: var(--anthropic-green); }
+    .decision.fail { background: #f7d9d1; color: var(--anthropic-red); }
+
+    .canvas-wrap {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
+      padding: 16px;
+      position: relative;
+      min-height: 620px;
+      overflow: hidden;
+    }
+
+    #canvas-container { width: 100%; height: 100%; }
+    #canvas-container canvas { display: block; border-radius: 8px; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 380px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
+      overflow-y: auto;
+      max-height: calc(100vh - 40px);
+    }
+
+    .sidebar h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--anthropic-dark);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--anthropic-light-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .description {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #4a4842;
+      white-space: pre-wrap;
+    }
+
+    .mss-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .mss-row .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      min-width: 60px;
+      text-align: center;
+    }
+    .mss-row .badge.safe { background: #e5ecdb; color: var(--anthropic-green); }
+    .mss-row .badge.removed { background: #f7d9d1; color: var(--anthropic-red); }
+    .mss-row .reason {
+      font-size: 11px;
+      color: var(--anthropic-mid-gray);
+    }
+
+    .edge-list { max-height: 380px; overflow-y: auto; }
+    .edge-card {
+      padding: 10px 12px;
+      border: 1px solid var(--anthropic-light-gray);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 12px;
+    }
+    .edge-card:hover {
+      border-color: var(--anthropic-orange);
+      background: #fdf6f2;
+    }
+    .edge-card .edge-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .edge-card .rules {
+      color: var(--anthropic-red);
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Tooltip (floating) */
+    .tooltip {
+      position: absolute;
+      z-index: 50;
+      background: rgba(20, 20, 19, 0.97);
+      color: var(--anthropic-light);
+      padding: 14px 18px;
+      border-radius: 8px;
+      width: 480px;
+      max-width: 480px;
+      max-height: 70vh;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.5;
+      pointer-events: none;
+      display: none;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .tooltip.pinned {
+      pointer-events: auto;
+      border: 1px solid var(--anthropic-orange);
+    }
+
+    .tooltip .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      width: 22px;
+      height: 22px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--anthropic-mid-gray);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .tooltip .close-btn:hover { color: var(--anthropic-light); background: rgba(255, 255, 255, 0.15); }
+    .tooltip.pinned .close-btn { display: flex; }
+    .tooltip.pinned h4 { padding-right: 32px; }
+
+    .pin-hint {
+      font-size: 10.5px;
+      color: var(--anthropic-mid-gray);
+      margin: 6px 0 10px;
+      font-style: italic;
+    }
+    .tooltip.pinned .pin-hint { display: none; }
+
+    .edge-group {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .edge-group .edge-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #ffb786;
+      margin-bottom: 6px;
+    }
+
+    .tooltip h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--anthropic-orange);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tooltip .violation {
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      background: rgba(196, 90, 74, 0.15);
+      border-left: 3px solid var(--anthropic-red);
+      border-radius: 4px;
+    }
+
+    .tooltip .violation .rule {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffb5a6;
+      margin-bottom: 4px;
+    }
+
+    .tooltip .violation .path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--anthropic-mid-gray);
+      margin-bottom: 4px;
+    }
+
+    .tooltip .violation .explanation {
+      color: #eeebe0;
+      font-size: 11.5px;
+      line-height: 1.55;
+    }
+
+    .tooltip .violation .types {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      margin-top: 4px;
+      color: #cfcdc3;
+    }
+
+    .tooltip pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 380px;
+      overflow-y: auto;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+    }
+
+    .diff-row { display: block; }
+    .diff-row.add { background: rgba(120, 140, 93, 0.25); }
+    .diff-row.del { background: rgba(196, 90, 74, 0.25); }
+    .diff-row.chg { background: rgba(217, 119, 87, 0.25); }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--anthropic-mid-gray);
+      margin-bottom: 8px;
+    }
+    .legend .item { display: flex; align-items: center; gap: 6px; }
+    .legend .swatch { width: 12px; height: 12px; border-radius: 50%; }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .load-panel {
+      padding: 40px;
+      text-align: center;
+    }
+    .load-panel h2 { margin-bottom: 12px; font-family: 'Lora', serif; }
+    .load-panel textarea {
+      width: 100%;
+      min-height: 160px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      border: 1px solid var(--anthropic-light-gray);
+      border-radius: 6px;
+      resize: vertical;
+    }
+    .load-panel button {
+      margin-top: 10px;
+      padding: 10px 24px;
+      background: var(--anthropic-orange);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="root">
+    <div class="stage">
+      <div class="header">
+        <h1>
+          GUS Scenario Visualizer
+          <span id="decision-badge" class="decision"></span>
+        </h1>
+        <div class="scenario-name" id="scenario-name">Loading…</div>
+      </div>
+      <div class="canvas-wrap">
+        <div id="canvas-container"></div>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="section">
+        <h3>Description</h3>
+        <div class="description" id="description"></div>
+      </div>
+      <div class="section">
+        <h3>MSS — Maximal Safe Subset</h3>
+        <div id="mss-list"></div>
+      </div>
+      <div class="section">
+        <h3>Legend</h3>
+        <div class="legend">
+          <div class="item"><span class="swatch" style="background:#141413"></span>unchanged</div>
+          <div class="item"><span class="swatch" style="background:#788c5d"></span>safe upgrade</div>
+          <div class="item"><span class="swatch" style="background:#c45a4a"></span>excluded</div>
+        </div>
+        <div class="legend">
+          <div class="item"><span class="swatch" style="background:#c45a4a;width:16px;height:3px;border-radius:0"></span>broken edge</div>
+          <div class="item"><span class="swatch" style="background:#b0aea5;width:16px;height:3px;border-radius:0"></span>safe edge</div>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Broken Edges</h3>
+        <div class="edge-list" id="edge-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data: replaced by `gus viz --html` or loaded at runtime -->
+  <script id="viz-data" type="application/json">/*__VIZ_DATA__*/</script>
+
+  <script>
+    // -------- Data loading --------
+    let DATA = null;
+    function tryLoadEmbeddedOrFetch() {
+      const el = document.getElementById('viz-data');
+      const raw = el && el.textContent ? el.textContent.trim() : '';
+      if (raw && !raw.startsWith('/*')) {
+        try { DATA = JSON.parse(raw); return Promise.resolve(DATA); }
+        catch (e) { console.warn('Embedded JSON parse failed, falling back to fetch', e); }
+      }
+      const params = new URLSearchParams(window.location.search);
+      const src = params.get('data') || './data.json';
+      return fetch(src).then(r => {
+        if (!r.ok) throw new Error('fetch failed: ' + r.status);
+        return r.json();
+      }).then(d => { DATA = d; return d; });
+    }
+
+    // -------- Layout: hierarchical (tiers by topological depth) --------
+    // Places nodes in horizontal rows where row = longest path from a root.
+    // Within each row, sorts by barycenter of predecessors to minimize crossings.
+    function hierarchicalLayout(serviceIds, edges, width, height) {
+      const preds = {}, succs = {};
+      for (const id of serviceIds) { preds[id] = []; succs[id] = []; }
+      for (const e of edges) {
+        if (e.from in preds) succs[e.from].push(e.to);
+        if (e.to in preds) preds[e.to].push(e.from);
+      }
+
+      // Longest path from any root (node with no predecessors) = tier.
+      const tier = {};
+      function computeTier(id, stack) {
+        if (id in tier) return tier[id];
+        if (stack.has(id)) return 0; // cycle guard
+        stack.add(id);
+        if (preds[id].length === 0) { tier[id] = 0; stack.delete(id); return 0; }
+        let t = 0;
+        for (const p of preds[id]) t = Math.max(t, computeTier(p, stack) + 1);
+        tier[id] = t;
+        stack.delete(id);
+        return t;
+      }
+      for (const id of serviceIds) computeTier(id, new Set());
+
+      const tiers = {};
+      for (const id of serviceIds) {
+        (tiers[tier[id]] = tiers[tier[id]] || []).push(id);
+      }
+      const maxTier = Math.max(0, ...Object.keys(tiers).map(Number));
+
+      // Initial positions: alphabetical within tier, evenly spaced.
+      const pos = {};
+      const marginTop = 100, marginBottom = 80;
+      const marginX = 80;
+      const tierY = (t) => {
+        if (maxTier === 0) return height / 2;
+        return marginTop + (height - marginTop - marginBottom) * (t / maxTier);
+      };
+      const assignXs = (row, t) => {
+        const y = tierY(t);
+        const span = width - 2 * marginX;
+        const n = row.length;
+        for (let i = 0; i < n; i++) {
+          const x = n === 1 ? width / 2 : marginX + span * (i / (n - 1));
+          pos[row[i]] = { x, y };
+        }
+      };
+      for (let t = 0; t <= maxTier; t++) {
+        if (!tiers[t]) continue;
+        tiers[t].sort();
+        assignXs(tiers[t], t);
+      }
+
+      // Barycenter passes (down then up) to reduce crossings.
+      for (let iter = 0; iter < 8; iter++) {
+        const down = iter % 2 === 0;
+        for (let t = 1; t <= maxTier; t++) {
+          if (!tiers[t]) continue;
+          const row = tiers[t];
+          row.sort((a, b) => {
+            const neighborsA = down ? preds[a] : succs[a];
+            const neighborsB = down ? preds[b] : succs[b];
+            const mean = (ns) => ns.length === 0 ? width / 2 : ns.reduce((s, p) => s + (pos[p]?.x ?? width/2), 0) / ns.length;
+            return mean(neighborsA) - mean(neighborsB);
+          });
+          assignXs(row, t);
+        }
+      }
+
+      const nodes = {};
+      for (const id of serviceIds) nodes[id] = { id, ...pos[id] };
+      return { nodes, width, height, tiers, maxTier };
+    }
+
+    // -------- p5 sketch --------
+    let layout = null;
+    let hoverNode = null;
+    let hoverEdge = null;
+    let pinnedTarget = null; // 'node:id' | 'edge:name' | null
+
+    function setup() {
+      const container = document.getElementById('canvas-container');
+      const w = container.clientWidth, h = container.clientHeight;
+      const c = createCanvas(w, h);
+      c.parent('canvas-container');
+      if (DATA) buildLayout(w, h);
+    }
+
+    function buildLayout(w, h) {
+      const ids = DATA.services.map(s => s.id);
+      layout = hierarchicalLayout(ids, DATA.edges, w, h);
+    }
+
+    function windowResized() {
+      const container = document.getElementById('canvas-container');
+      resizeCanvas(container.clientWidth, container.clientHeight);
+      if (DATA) buildLayout(container.clientWidth, container.clientHeight);
+    }
+
+    function draw() {
+      if (!DATA || !layout) {
+        background(250, 249, 245);
+        return;
+      }
+      background(250, 249, 245);
+
+      // Grid backdrop
+      stroke(232, 230, 220);
+      strokeWeight(1);
+      for (let x = 0; x < width; x += 40) line(x, 0, x, height);
+      for (let y = 0; y < height; y += 40) line(0, y, width, y);
+
+      // Edges
+      drawEdges();
+      // Nodes
+      drawNodes();
+
+      // Hover detection
+      detectHover();
+    }
+
+    // Per-edge offset to avoid perfect overlap when multiple edges share endpoints.
+    function edgeOffset(e, idx) {
+      return (idx % 2 === 0 ? 1 : -1) * Math.min(18, 4 + idx * 2);
+    }
+
+    // Geometry for a single edge: returns {a,b,ux,uy,startX,startY,endX,endY,midX,midY,angle}.
+    // nodeR is the node radius at which lines should terminate.
+    function edgeGeom(from, to, nodeR = 28) {
+      const dx = to.x - from.x, dy = to.y - from.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const ux = dx / d, uy = dy / d;
+      return {
+        a: from, b: to,
+        ux, uy, d,
+        startX: from.x + ux * nodeR,
+        startY: from.y + uy * nodeR,
+        endX:   to.x   - ux * nodeR,
+        endY:   to.y   - uy * nodeR,
+        midX:   (from.x + to.x) / 2,
+        midY:   (from.y + to.y) / 2,
+      };
+    }
+
+    function edgeStyle(e, isHighlighted) {
+      if (!e.ok) {
+        return { stroke: [196, 90, 74], weight: isHighlighted ? 3.4 : 2.6, alpha: 255 };
+      }
+      if (e.affected_by_upgrade) {
+        return { stroke: [120, 140, 93], weight: isHighlighted ? 2.6 : 2.0, alpha: 230 };
+      }
+      return { stroke: [176, 174, 165], weight: isHighlighted ? 2.0 : 1.4, alpha: 180 };
+    }
+
+    function drawEdges() {
+      for (const e of DATA.edges) {
+        const a = layout.nodes[e.from], b = layout.nodes[e.to];
+        if (!a || !b) continue;
+
+        const g = edgeGeom(a, b);
+        const isHovered = (hoverEdge && hoverEdge.name === e.name) ||
+                          (pinnedTarget === 'edge:' + e.name);
+        const s = edgeStyle(e, isHovered);
+
+        stroke(s.stroke[0], s.stroke[1], s.stroke[2], s.alpha);
+        strokeWeight(s.weight);
+        line(g.startX, g.startY, g.endX, g.endY);
+
+        // Arrowhead — matching the edge color, solid.
+        drawArrowhead(g, s.stroke);
+      }
+
+      // Draw pill labels on broken edges on top of edges.
+      for (const e of DATA.edges) {
+        if (e.ok || !e.violations?.length) continue;
+        const a = layout.nodes[e.from], b = layout.nodes[e.to];
+        if (!a || !b) continue;
+        const g = edgeGeom(a, b);
+        drawRulePill(e, g);
+      }
+    }
+
+    function drawArrowhead(g, color) {
+      const tipX = g.endX, tipY = g.endY;
+      const SIZE = 13;    // length of arrowhead along the line
+      const HALF = 7;     // half-width of base
+      const bx = tipX - g.ux * SIZE;
+      const by = tipY - g.uy * SIZE;
+      // Perpendicular
+      const px = -g.uy, py = g.ux;
+      noStroke();
+      fill(color[0], color[1], color[2]);
+      triangle(tipX, tipY, bx + px * HALF, by + py * HALF, bx - px * HALF, by - py * HALF);
+    }
+
+    function drawRulePill(e, g) {
+      const rule = e.violations[0].rule;
+      textFont('JetBrains Mono');
+      textSize(10.5);
+      textStyle(BOLD);
+      textAlign(CENTER, CENTER);
+      const tw = textWidth(rule);
+      const padX = 8, h = 18;
+      const w = tw + padX * 2;
+      const x = g.midX, y = g.midY;
+      // White pill with red outline for readability
+      strokeWeight(1.4);
+      stroke(196, 90, 74);
+      fill(250, 249, 245);
+      rect(x - w / 2, y - h / 2, w, h, 9);
+      noStroke();
+      fill(196, 90, 74);
+      text(rule, x, y - 0.5);
+      textStyle(NORMAL);
+    }
+
+    function drawNodes() {
+      for (const s of DATA.services) {
+        const n = layout.nodes[s.id];
+        if (!n) continue;
+
+        // Halo ring for upgrade status
+        let ringColor = null;
+        if (s.is_upgrading && s.is_excluded) ringColor = [196, 90, 74];
+        else if (s.is_upgrading) ringColor = [120, 140, 93];
+        // else no ring for unchanged services
+
+        if (ringColor) {
+          noFill();
+          stroke(ringColor[0], ringColor[1], ringColor[2], 220);
+          strokeWeight(3.5);
+          circle(n.x, n.y, 58);
+        }
+
+        // Inner black circle
+        noStroke();
+        fill(20, 20, 19);
+        circle(n.x, n.y, 50);
+
+        // Version text inside
+        fill(250, 249, 245);
+        textFont('JetBrains Mono');
+        textSize(13);
+        textStyle(BOLD);
+        textAlign(CENTER, CENTER);
+        const versionLabel = s.is_upgrading ? `${s.baseline_version}→${s.current_version}` : s.current_version;
+        textSize(s.is_upgrading ? 10 : 13);
+        text(versionLabel, n.x, n.y);
+
+        // Service name below
+        textStyle(NORMAL);
+        textFont('Poppins');
+        fill(20, 20, 19);
+        textSize(12);
+        text(s.id, n.x, n.y + 38);
+      }
+    }
+
+    function distToSegment(px, py, x1, y1, x2, y2) {
+      const dx = x2 - x1, dy = y2 - y1;
+      const len2 = dx*dx + dy*dy;
+      if (len2 === 0) return Math.hypot(px - x1, py - y1);
+      const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / len2));
+      const projx = x1 + t * dx, projy = y1 + t * dy;
+      return Math.hypot(px - projx, py - projy);
+    }
+
+    // Return what's under the cursor (node or edge or null).
+    function hitTest(mx, my) {
+      // Node first — accept either the circle (halo radius 29) OR the service
+      // label below it (centered at n.y+38, ~80px wide, ~14px tall).
+      for (const s of DATA.services) {
+        const n = layout.nodes[s.id];
+        if (!n) continue;
+        if (Math.hypot(mx - n.x, my - n.y) < 32) {
+          return { kind: 'node', svc: s };
+        }
+        // Label zone under the node.
+        if (Math.abs(mx - n.x) < 48 && my > n.y + 28 && my < n.y + 48) {
+          return { kind: 'node', svc: s };
+        }
+      }
+      // Edge pill zone — check midpoint pill first (easy target).
+      for (const e of DATA.edges) {
+        if (e.ok || !e.violations?.length) continue;
+        const a = layout.nodes[e.from], b = layout.nodes[e.to];
+        if (!a || !b) continue;
+        const midx = (a.x + b.x) / 2, midy = (a.y + b.y) / 2;
+        if (Math.abs(mx - midx) < 40 && Math.abs(my - midy) < 12) {
+          return { kind: 'edge', edge: e };
+        }
+      }
+      // Edge line proximity (broken edges only).
+      for (const e of DATA.edges) {
+        if (e.ok || !e.violations?.length) continue;
+        const a = layout.nodes[e.from], b = layout.nodes[e.to];
+        if (!a || !b) continue;
+        const g = edgeGeom(a, b);
+        if (distToSegment(mx, my, g.startX, g.startY, g.endX, g.endY) < 8) {
+          return { kind: 'edge', edge: e };
+        }
+      }
+      return null;
+    }
+
+    function detectHover() {
+      if (pinnedTarget) return;
+      const hit = hitTest(mouseX, mouseY);
+      hoverNode = hit && hit.kind === 'node' ? hit.svc : null;
+      hoverEdge = hit && hit.kind === 'edge' ? hit.edge : null;
+      updateTooltip();
+    }
+
+    // p5 mousePressed: pin/unpin on click.
+    function mousePressed() {
+      if (!DATA) return;
+      const hit = hitTest(mouseX, mouseY);
+      if (!hit) { pinnedTarget = null; hoverNode = null; hoverEdge = null; updateTooltip(); return; }
+      const newTarget = hit.kind === 'node' ? 'node:' + hit.svc.id : 'edge:' + hit.edge.name;
+      if (pinnedTarget === newTarget) {
+        pinnedTarget = null;
+        hoverNode = null; hoverEdge = null;
+      } else {
+        pinnedTarget = newTarget;
+        hoverNode = hit.kind === 'node' ? hit.svc : null;
+        hoverEdge = hit.kind === 'edge' ? hit.edge : null;
+      }
+      updateTooltip();
+    }
+
+    // -------- Tooltip rendering --------
+    function updateTooltip() {
+      const el = document.getElementById('tooltip');
+      const pinned = !!pinnedTarget;
+      el.classList.toggle('pinned', pinned);
+
+      if (hoverNode) {
+        el.style.display = 'block';
+        el.innerHTML = renderNodeTooltip(hoverNode, pinned) + renderCloseBtn();
+        wireCloseBtn(el);
+        positionTooltip(el, pinned);
+      } else if (hoverEdge) {
+        el.style.display = 'block';
+        el.innerHTML = renderEdgeTooltip(hoverEdge, pinned) + renderCloseBtn();
+        wireCloseBtn(el);
+        positionTooltip(el, pinned);
+      } else {
+        el.style.display = 'none';
+      }
+    }
+
+    function renderCloseBtn() {
+      return `<button class="close-btn" type="button" title="close (or click again)">×</button>`;
+    }
+    function wireCloseBtn(el) {
+      const btn = el.querySelector('.close-btn');
+      if (!btn) return;
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        pinnedTarget = null;
+        hoverNode = null; hoverEdge = null;
+        updateTooltip();
+      });
+    }
+
+    function positionTooltip(el, pinned) {
+      const wrapRect = document.querySelector('.canvas-wrap').getBoundingClientRect();
+      const canvasRect = document.getElementById('canvas-container').getBoundingClientRect();
+
+      if (pinned) {
+        // Anchor the pinned tooltip in the top-right of the canvas area.
+        el.style.left = (canvasRect.width - 480 - 24) + 'px';
+        el.style.top = '24px';
+        return;
+      }
+      // Follow mouse with a small offset; clamp to canvas bounds.
+      const tw = 480, th = Math.min(el.offsetHeight || 300, 500);
+      let x = mouseX + 18, y = mouseY + 18;
+      if (x + tw > canvasRect.width - 8) x = mouseX - tw - 18;
+      if (y + th > canvasRect.height - 8) y = Math.max(8, canvasRect.height - th - 8);
+      if (x < 8) x = 8;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+
+    // ---- Violation-focused node tooltip ----
+    // For a given service, list violations on edges where it's caller OR provider,
+    // plus a one-line schema-change summary when upgrading. No full-spec dump.
+    function renderNodeTooltip(svc, pinned) {
+      const title = `${svc.id}  —  ${svc.is_upgrading ? `${svc.baseline_version} → ${svc.current_version}` : svc.current_version}`;
+
+      let statusLine = '';
+      if (svc.is_upgrading) {
+        if (svc.is_excluded) {
+          statusLine = `<div style="color:#ffb5a6;margin-bottom:6px;">⊘ excluded from MSS — ${escapeHtml(svc.status_reason || '')}</div>`;
+        } else {
+          statusLine = `<div style="color:#b6c99e;margin-bottom:6px;">✓ safe in MSS</div>`;
+        }
+      } else {
+        statusLine = `<div style="color:#cfcdc3;margin-bottom:6px;">· unchanged in this scenario</div>`;
+      }
+
+      const involvedBroken = DATA.edges.filter(e => !e.ok && (e.from === svc.id || e.to === svc.id));
+      let body = '';
+      if (involvedBroken.length) {
+        body = `<div style="margin-top:8px;font-size:11px;color:#cfcdc3;">Violations on edges involving <b>${escapeHtml(svc.id)}</b>:</div>`;
+        for (const e of involvedBroken) {
+          body += renderEdgeGroup(e, svc.id);
+        }
+      } else if (svc.is_upgrading) {
+        // Safe upgrade — show a compact diff summary of changed keys only.
+        body = `<div style="margin-top:8px;font-size:11px;color:#cfcdc3;">No violations on this service's edges.</div>`;
+        const summary = compactDiffSummary(svc.baseline_spec || {}, svc.current_spec || {});
+        if (summary.length) {
+          body += `<pre>${summary.map(escapeHtml).join('\n')}</pre>`;
+        }
+      } else {
+        body = `<div style="margin-top:8px;font-size:11px;color:#cfcdc3;">This service is not part of the scenario upgrade.</div>`;
+      }
+
+      const hint = pinned ? '' : `<div class="pin-hint">click to pin · scroll inside when pinned</div>`;
+      return `<h4>${escapeHtml(title)}</h4>${statusLine}${hint}${body}`;
+    }
+
+    function renderEdgeGroup(e, focusSvc) {
+      let html = `<div class="edge-group"><div class="edge-header">${escapeHtml(e.from)} → ${escapeHtml(e.to)} · ${escapeHtml(e.method)} ${escapeHtml(e.path)}${focusSvc && e.from === focusSvc ? ' <i style="color:#cfcdc3">(outbound)</i>' : focusSvc && e.to === focusSvc ? ' <i style="color:#cfcdc3">(inbound)</i>' : ''}</div>`;
+      for (const v of e.violations) {
+        html += renderViolation(v);
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    function renderViolation(v) {
+      return `<div class="violation">
+        <div class="rule">[C${escapeHtml(v.conjunct || '?')}] ${escapeHtml(v.rule)}</div>
+        <div class="path">${escapeHtml(v.path || '(root)')}</div>
+        <div class="explanation">${escapeHtml(v.explanation)}</div>
+        ${v.old_type || v.new_type ? `<div class="types">old: ${escapeHtml(v.old_type || '<absent>')} → new: ${escapeHtml(v.new_type || '<absent>')}</div>` : ''}
+      </div>`;
+    }
+
+    function renderEdgeTooltip(e, pinned) {
+      const head = `<h4>${escapeHtml(e.from)} → ${escapeHtml(e.to)}  ·  ${escapeHtml(e.method)} ${escapeHtml(e.path)}</h4>`;
+      const hint = pinned ? '' : `<div class="pin-hint">click to pin · scroll inside when pinned</div>`;
+      let body = '';
+      if (!e.violations?.length) {
+        body = `<div style="color:#b6c99e;">No violations on this edge.</div>`;
+      } else {
+        for (const v of e.violations) body += renderViolation(v);
+      }
+      return head + hint + body;
+    }
+
+    // Compact multi-line summary of structural changes between two OpenAPI docs.
+    // Walks paths + components.schemas and emits "+ added / - removed / ~ changed" lines.
+    function compactDiffSummary(oldSpec, newSpec) {
+      const out = [];
+      function walk(prefix, o, n) {
+        if (!isObj(o) && !isObj(n)) {
+          if (JSON.stringify(o) !== JSON.stringify(n)) {
+            out.push(`~ ${prefix}: ${short(o)} → ${short(n)}`);
+          }
+          return;
+        }
+        const oKeys = new Set(Object.keys(o || {}));
+        const nKeys = new Set(Object.keys(n || {}));
+        for (const k of oKeys) {
+          if (!nKeys.has(k)) { out.push(`- ${prefix}${prefix ? '.' : ''}${k}`); continue; }
+          walk(prefix ? `${prefix}.${k}` : k, o[k], n[k]);
+        }
+        for (const k of nKeys) {
+          if (!oKeys.has(k)) { out.push(`+ ${prefix}${prefix ? '.' : ''}${k}: ${short(n[k])}`); }
+        }
+      }
+      walk('', oldSpec, newSpec);
+      // Cap summary to keep the tooltip compact.
+      if (out.length > 20) {
+        const extra = out.length - 20;
+        return out.slice(0, 20).concat([`… and ${extra} more change(s)`]);
+      }
+      return out;
+    }
+
+    // -------- JSON diff (simple recursive) --------
+    function renderJsonDiff(oldVal, newVal) {
+      const lines = [];
+      diffValue('', oldVal, newVal, 0, lines);
+      return lines.join('\n');
+    }
+
+    function diffValue(key, o, n, depth, lines) {
+      const pad = '  '.repeat(depth);
+      const keyStr = key ? `<span style="color:#ffb786">${escapeHtml(key)}</span>: ` : '';
+      if (isObj(o) && isObj(n)) {
+        lines.push(`${pad}${keyStr}{`);
+        const allKeys = new Set([...Object.keys(o), ...Object.keys(n)]);
+        for (const k of allKeys) {
+          if (!(k in o)) {
+            lines.push(`<span class="diff-row add">${pad}  + ${escapeHtml(k)}: ${escapeHtml(short(n[k]))}</span>`);
+          } else if (!(k in n)) {
+            lines.push(`<span class="diff-row del">${pad}  - ${escapeHtml(k)}: ${escapeHtml(short(o[k]))}</span>`);
+          } else {
+            diffValue(k, o[k], n[k], depth + 1, lines);
+          }
+        }
+        lines.push(`${pad}}`);
+      } else if (Array.isArray(o) && Array.isArray(n)) {
+        if (JSON.stringify(o) === JSON.stringify(n)) {
+          lines.push(`${pad}${keyStr}${escapeHtml(short(o))}`);
+        } else {
+          lines.push(`<span class="diff-row chg">${pad}${keyStr}${escapeHtml(short(o))} → ${escapeHtml(short(n))}</span>`);
+        }
+      } else {
+        if (o === n) {
+          lines.push(`${pad}${keyStr}${escapeHtml(String(o))}`);
+        } else {
+          lines.push(`<span class="diff-row chg">${pad}${keyStr}${escapeHtml(String(o))} → ${escapeHtml(String(n))}</span>`);
+        }
+      }
+    }
+
+    function short(v) {
+      if (v === null || v === undefined) return String(v);
+      if (typeof v === 'string') return JSON.stringify(v);
+      if (Array.isArray(v)) return `[${v.length} items]`;
+      if (typeof v === 'object') {
+        const keys = Object.keys(v);
+        if (keys.length <= 3) return JSON.stringify(v);
+        return `{${keys.length} keys}`;
+      }
+      return String(v);
+    }
+
+    function highlightJson(v) {
+      return escapeHtml(JSON.stringify(v, null, 2));
+    }
+
+    function isObj(x) { return x !== null && typeof x === 'object' && !Array.isArray(x); }
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return '';
+      return String(s).replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
+    }
+
+    // -------- Sidebar rendering --------
+    function renderSidebar() {
+      document.getElementById('scenario-name').textContent = DATA.scenario.name || '';
+      document.getElementById('description').textContent = DATA.scenario.description || '';
+
+      // Decision badge based on MSS + edges
+      const anyBroken = DATA.edges.some(e => !e.ok);
+      const badge = document.getElementById('decision-badge');
+      badge.textContent = anyBroken ? 'GUS: FAIL' : 'GUS: PASS';
+      badge.classList.add(anyBroken ? 'fail' : 'pass');
+
+      // MSS
+      const mss = document.getElementById('mss-list');
+      mss.innerHTML = '';
+      if (DATA.mss && DATA.mss.computed) {
+        for (const s of DATA.mss.safe || []) {
+          const row = document.createElement('div');
+          row.className = 'mss-row';
+          row.innerHTML = `<span class="badge safe">SAFE</span><span>${escapeHtml(s.service)}</span><span class="reason">${escapeHtml(s.from_ver)} → ${escapeHtml(s.to_ver)}</span>`;
+          mss.appendChild(row);
+        }
+        for (const r of DATA.mss.removed || []) {
+          const row = document.createElement('div');
+          row.className = 'mss-row';
+          row.innerHTML = `<span class="badge removed">REMOVED</span><span>${escapeHtml(r.service)}</span><span class="reason">${escapeHtml(r.reason)}</span>`;
+          mss.appendChild(row);
+        }
+        if ((DATA.mss.safe || []).length === 0 && (DATA.mss.removed || []).length === 0) {
+          mss.innerHTML = `<div style="font-size:12px;color:#b0aea5">No upgrades proposed.</div>`;
+        }
+      }
+
+      // Edge list
+      const list = document.getElementById('edge-list');
+      list.innerHTML = '';
+      const broken = DATA.edges.filter(e => !e.ok);
+      if (broken.length === 0) {
+        list.innerHTML = `<div style="font-size:12px;color:#b0aea5">No broken edges.</div>`;
+      }
+      for (const e of broken) {
+        const card = document.createElement('div');
+        card.className = 'edge-card';
+        const rules = [...new Set(e.violations.map(v => v.rule))].join(', ');
+        card.innerHTML = `<div class="edge-name">${escapeHtml(e.from)} → ${escapeHtml(e.to)}</div><div class="rules">${escapeHtml(rules)}</div>`;
+        card.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const target = 'edge:' + e.name;
+          pinnedTarget = pinnedTarget === target ? null : target;
+          hoverEdge = pinnedTarget ? e : null;
+          hoverNode = null;
+          updateTooltip();
+        });
+        list.appendChild(card);
+      }
+    }
+
+    // -------- Boot --------
+    tryLoadEmbeddedOrFetch().then(() => {
+      renderSidebar();
+      // p5.js boots automatically via setup/draw
+    }).catch(err => {
+      document.getElementById('root').innerHTML = `
+        <div class="load-panel">
+          <h2>GUS Scenario Visualizer</h2>
+          <p style="color:#b0aea5;margin-bottom:16px;font-size:13px;">
+            No data loaded. Paste JSON from <code>gus viz --graph ... --scenario ...</code> below,
+            or serve this file next to <code>data.json</code>, or use <code>--data=URL</code>.
+          </p>
+          <textarea id="json-paste" placeholder='{"scenario":{...},"services":[...],"edges":[...],"mss":{...}}'></textarea>
+          <br><button id="load-btn">Load</button>
+        </div>`;
+      document.getElementById('load-btn').addEventListener('click', () => {
+        try {
+          DATA = JSON.parse(document.getElementById('json-paste').value);
+          location.reload();
+          // Store so reload keeps it
+          sessionStorage.setItem('viz-data', JSON.stringify(DATA));
+        } catch (e) { alert('Invalid JSON: ' + e.message); }
+      });
+      // Try sessionStorage recovery
+      const stored = sessionStorage.getItem('viz-data');
+      if (stored) {
+        try { DATA = JSON.parse(stored); location.href = location.pathname; } catch {}
+      }
+    });
+
+    // Note: unpinning is handled inside mousePressed (empty canvas click), the
+    // × close button, and clicking a target a second time. A document-level
+    // click handler was removed because it raced with p5's mousePressed and
+    // sometimes cleared the pin before the UI updated.
+  </script>
+</body>
+</html>
