@@ -1,0 +1,53 @@
+openapi: "3.0.0"
+info:
+  title: Product Catalog Service
+  version: "3.0"
+  description: >
+    Replaces the flat categories enum with a recursive Category tree.
+    This is a type kind change (enum -> array of recursive objects) that
+    breaks all consumers expecting the enum format.
+paths:
+  /products:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /products/{id}:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+components:
+  schemas:
+    Product:
+      type: object
+      required: [id, name, description, categories]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    Category:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'

@@ -1,0 +1,53 @@
+openapi: "3.0.0"
+info:
+  title: Currency Service
+  version: "1.0"
+paths:
+  /convert:
+    post:
+      summary: Convert between currencies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Money'
+  /currencies:
+    get:
+      summary: List supported currency codes
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+components:
+  schemas:
+    ConversionRequest:
+      type: object
+      required: [from, to_code]
+      properties:
+        from:
+          $ref: '#/components/schemas/Money'
+        to_code:
+          type: string
+    Money:
+      type: object
+      required: [currency_code, units, nanos]
+      properties:
+        currency_code:
+          type: string
+        units:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32

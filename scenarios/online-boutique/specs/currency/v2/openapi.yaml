@@ -1,0 +1,53 @@
+openapi: "3.0.0"
+info:
+  title: Currency Service
+  version: "2.0"
+  description: >
+    Hasty refactor: replaced Money{currency_code, units, nanos} with
+    Money{currency_code, amount}. Breaks all consumers that send or
+    expect the old units/nanos split.
+paths:
+  /convert:
+    post:
+      summary: Convert between currencies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Money'
+  /currencies:
+    get:
+      summary: List supported currency codes
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+components:
+  schemas:
+    ConversionRequest:
+      type: object
+      required: [from, to_code]
+      properties:
+        from:
+          $ref: '#/components/schemas/Money'
+        to_code:
+          type: string
+    Money:
+      type: object
+      required: [currency_code, amount]
+      properties:
+        currency_code:
+          type: string
+        amount:
+          type: number

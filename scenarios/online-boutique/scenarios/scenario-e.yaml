@@ -1,0 +1,21 @@
+name: "Scenario E: Hasty Money restructure"
+description: >
+  Currency v2 replaces Money{currency_code, units, nanos} with
+  Money{currency_code, amount} — a rushed simplification. Both checkout
+  and frontend call /convert, so two edges break simultaneously from one
+  object refactor. Tests REQ.1 (new required field) and RES.1 (required
+  field removed). Pact would flag each edge independently but cannot
+  compute which upgrades remain deployable.
+baseline:
+  frontend: v1
+  checkout: v1
+  currency: v1
+upgrades:
+  currency: v2
+expect:
+  gus: FAIL
+  breaks:
+    - edge: checkout->currency
+      rule: REQ.1
+    - edge: frontend->currency
+      rule: RES.1

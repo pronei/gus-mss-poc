@@ -1,0 +1,78 @@
+openapi: "3.0.0"
+info:
+  title: Cart Service
+  version: "1.0"
+paths:
+  /cart:
+    get:
+      summary: Get cart for user
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+  /cart/add:
+    post:
+      summary: Add item to cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, item]
+              properties:
+                user_id:
+                  type: string
+                item:
+                  $ref: '#/components/schemas/CartItem'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+  /cart/empty:
+    post:
+      summary: Empty the cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+components:
+  schemas:
+    Cart:
+      type: object
+      required: [user_id, items]
+      properties:
+        user_id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+    CartItem:
+      type: object
+      required: [product_id, quantity]
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: integer
+          format: int32

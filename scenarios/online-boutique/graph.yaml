@@ -5,16 +5,30 @@ services:
   checkout:
     v1: specs/checkout/v1/openapi.yaml
     v2: specs/checkout/v2/openapi.yaml
+    v3: specs/checkout/v3/openapi.yaml
   shipping:
     v1: specs/shipping/v1/openapi.yaml
     v2: specs/shipping/v2/openapi.yaml
+    v3: specs/shipping/v3/openapi.yaml
   email:
     v1: specs/email/v1/openapi.yaml
+    v2: specs/email/v2/openapi.yaml
   productcatalog:
     v1: specs/productcatalog/v1/openapi.yaml
     v2: specs/productcatalog/v2/openapi.yaml
+    v3: specs/productcatalog/v3/openapi.yaml
+  currency:
+    v1: specs/currency/v1/openapi.yaml
+    v2: specs/currency/v2/openapi.yaml
+  cart:
+    v1: specs/cart/v1/openapi.yaml
+  recommendation:
+    v1: specs/recommendation/v1/openapi.yaml
+  payment:
+    v1: specs/payment/v1/openapi.yaml
 
 edges:
+  # --- frontend outbound ---
   - name: frontend->checkout
     from: frontend
     to: checkout
@@ -33,6 +47,25 @@ edges:
     method: GET
     path: /products
 
+  - name: frontend->currency
+    from: frontend
+    to: currency
+    method: POST
+    path: /convert
+
+  - name: frontend->cart
+    from: frontend
+    to: cart
+    method: GET
+    path: /cart
+
+  - name: frontend->recommendation
+    from: frontend
+    to: recommendation
+    method: GET
+    path: /recommendations
+
+  # --- checkout outbound ---
   - name: checkout->shipping-quote
     from: checkout
     to: shipping
@@ -56,3 +89,28 @@ edges:
     to: productcatalog
     method: GET
     path: /products/{id}
+
+  - name: checkout->currency
+    from: checkout
+    to: currency
+    method: POST
+    path: /convert
+
+  - name: checkout->cart
+    from: checkout
+    to: cart
+    method: GET
+    path: /cart
+
+  - name: checkout->payment
+    from: checkout
+    to: payment
+    method: POST
+    path: /charge
+
+  # --- recommendation outbound ---
+  - name: recommendation->productcatalog
+    from: recommendation
+    to: productcatalog
+    method: GET
+    path: /products

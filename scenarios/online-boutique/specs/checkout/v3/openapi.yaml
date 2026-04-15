@@ -1,0 +1,160 @@
+openapi: "3.0.0"
+info:
+  title: Checkout Service
+  version: "3.0"
+  description: >
+    Adds idempotency_key to PlaceOrder request (REQ.1 break) and changes
+    order_id type from string to integer. The order_id change is safe in
+    one lattice direction (integer ≤ string) but breaks in the reverse
+    (string NOT ≤ integer), exposing 4-pairing asymmetry unique to GUS.
+    The x-provides "order-identity" chain to email's x-requires is now
+    integer→string — a type mismatch the lattice masks.
+paths:
+  /placeorder:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, address, items, credit_card, idempotency_key]
+              properties:
+                email:
+                  type: string
+                  format: email
+                address:
+                  $ref: '#/components/schemas/Address'
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CartItem'
+                credit_card:
+                  $ref: '#/components/schemas/CreditCard'
+                idempotency_key:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResult'
+  # --- outbound calls this service makes ---
+  /shipping/quote:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [address, items]
+              properties:
+                address:
+                  $ref: '#/components/schemas/Address'
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CartItem'
+                priority:
+                  type: string
+                  enum: [standard, express]
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cost_usd]
+                properties:
+                  cost_usd:
+                    $ref: '#/components/schemas/Money'
+  /send-order-confirmation:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, email, order]
+              properties:
+                order_id:
+                  type: integer
+                email:
+                  type: string
+                  format: email
+                order:
+                  $ref: '#/components/schemas/OrderResult'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+components:
+  schemas:
+    OrderResult:
+      type: object
+      required: [order_id, shipping_tracking_id, shipping_cost, items]
+      properties:
+        order_id:
+          type: integer
+          x-provides: "order-identity"
+        shipping_tracking_id:
+          type: string
+        shipping_cost:
+          $ref: '#/components/schemas/Money'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+    Address:
+      type: object
+      required: [street_address, city, country, zip_code]
+      properties:
+        street_address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        zip_code:
+          type: string
+    CartItem:
+      type: object
+      required: [product_id, quantity]
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+    CreditCard:
+      type: object
+      required: [number, cvv, expiration_year, expiration_month]
+      properties:
+        number:
+          type: string
+        cvv:
+          type: integer
+        expiration_year:
+          type: integer
+        expiration_month:
+          type: integer
+    Money:
+      type: object
+      required: [currency_code, units, nanos]
+      properties:
+        currency_code:
+          type: string
+        units:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32

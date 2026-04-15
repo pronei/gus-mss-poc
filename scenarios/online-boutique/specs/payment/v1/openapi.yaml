@@ -1,0 +1,60 @@
+openapi: "3.0.0"
+info:
+  title: Payment Service
+  version: "1.0"
+paths:
+  /charge:
+    post:
+      summary: Process credit card charge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargeRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargeResult'
+components:
+  schemas:
+    ChargeRequest:
+      type: object
+      required: [amount, credit_card]
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+        credit_card:
+          $ref: '#/components/schemas/CreditCard'
+    ChargeResult:
+      type: object
+      required: [transaction_id]
+      properties:
+        transaction_id:
+          type: string
+    Money:
+      type: object
+      required: [currency_code, units, nanos]
+      properties:
+        currency_code:
+          type: string
+        units:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32
+    CreditCard:
+      type: object
+      required: [number, cvv, expiration_year, expiration_month]
+      properties:
+        number:
+          type: string
+        cvv:
+          type: integer
+        expiration_year:
+          type: integer
+        expiration_month:
+          type: integer

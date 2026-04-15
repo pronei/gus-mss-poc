@@ -1,0 +1,102 @@
+openapi: "3.0.0"
+info:
+  title: Shipping Service
+  version: "3.0"
+  description: >
+    Safe upgrade: adds optional estimated_delivery to quote response
+    and x-provides "shipment-tracking" on tracking_id. No breaking
+    changes — designed to survive the MSS exclusion cascade.
+paths:
+  /shipping/quote:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [address, items]
+              properties:
+                address:
+                  $ref: '#/components/schemas/Address'
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CartItem'
+                priority:
+                  type: string
+                  enum: [standard, express]
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cost_usd]
+                properties:
+                  cost_usd:
+                    $ref: '#/components/schemas/Money'
+                  estimated_delivery:
+                    type: string
+  /shipping/ship:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [address, items]
+              properties:
+                address:
+                  $ref: '#/components/schemas/Address'
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CartItem'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tracking_id]
+                properties:
+                  tracking_id:
+                    type: string
+                    x-provides: "shipment-tracking"
+components:
+  schemas:
+    Address:
+      type: object
+      required: [street_address, city, country, zip_code]
+      properties:
+        street_address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        zip_code:
+          type: string
+    CartItem:
+      type: object
+      required: [product_id, quantity]
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+    Money:
+      type: object
+      required: [currency_code, units, nanos]
+      properties:
+        currency_code:
+          type: string
+        units:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32

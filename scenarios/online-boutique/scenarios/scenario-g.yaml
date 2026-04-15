@@ -1,0 +1,28 @@
+name: "Scenario G: Composite upgrade with non-trivial MSS"
+description: >
+  Three services upgrade simultaneously: currency v2 (Money restructure),
+  productcatalog v2 (new-arrivals category), and email v2 (adds optional
+  delivery_estimate to response). Currency and productcatalog break their
+  consumers via unit clauses. Email v2 is independently safe — its only
+  caller (checkout) is not upgrading, and the optional response field
+  addition violates no rules. MSS = {email}: only the email upgrade can
+  proceed. This demonstrates GUS answering "what CAN we deploy?" when
+  multiple changes are in flight — a question Pact/Buf cannot answer.
+baseline:
+  checkout: v1
+  frontend: v1
+  currency: v1
+  productcatalog: v1
+  email: v1
+upgrades:
+  currency: v2
+  productcatalog: v2
+  email: v2
+expect:
+  gus: FAIL
+  mss: [email]
+  breaks:
+    - edge: checkout->currency
+      rule: REQ.1
+    - edge: frontend->productcatalog
+      rule: enum-response-widening
