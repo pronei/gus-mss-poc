@@ -1,27 +1,11 @@
 name: "Scenario I: Full-mesh upgrade storm"
 description: >
-  Six of nine services upgrade simultaneously; recommendation stays at v1.
-  This single holdout triggers a cascade: productcatalog v2 widens the
-  categories response enum, generating a unit clause on the
-  recommendation→productcatalog edge. Bidirectional clauses propagate
-  the exclusion to frontend, checkout, and currency — four services
-  removed. Shipping v3 and email v2 survive because their changes are
-  safe (optional response fields) and they share no violation-linked
-  edges with the excluded cluster.
-
-  Rules exercised across the graph:
-  - enum-response-widening (productcatalog v2 — the cascade trigger)
-  - REQ.1 (checkout v3 adds idempotency_key; currency v2 adds amount)
-  - RES.1 (currency v2 removes units/nanos from Money)
-  - prim-mismatch (checkout v3 changes order_id string→integer; C3
-    passes because integer ≤ string in JSON lattice, but C4 fails
-    because string NOT ≤ integer — a 4-pairing asymmetry unique to GUS)
-
-  Chain annotations: checkout v3 x-provides "order-identity" as integer,
-  email v2 x-requires "order-identity" as string. The direct compat check
-  says "safe" via the lattice, but the data-flow chain has a type mismatch
-  that neither Pact nor Buf can detect. Shipping v3 adds x-provides
-  "shipment-tracking" on the /ship response tracking_id.
+  Six services upgrade at once; recommendation stays at v1 and becomes
+  the lynchpin. productcatalog v2 widens the categories response enum,
+  and bidirectional compat clauses cascade the exclusion through
+  frontend, checkout, and currency — four services removed from the MSS.
+  Shipping v3 and email v2 survive (optional-only response additions,
+  no violation-linked edges with the excluded cluster).
 baseline:
   frontend: v1
   checkout: v1

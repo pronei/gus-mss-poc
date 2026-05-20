@@ -151,28 +151,117 @@
     }
 
     .edge-list { max-height: 380px; overflow-y: auto; }
-    .edge-card {
-      padding: 10px 12px;
-      border: 1px solid var(--anthropic-light-gray);
+
+    /* GUS findings — only-caught-by-GUS callout (C3/C4 asymmetry, kind/prim mismatches) */
+    .section.gus-findings {
+      background: linear-gradient(135deg, rgba(217, 119, 87, 0.08) 0%, rgba(217, 119, 87, 0.02) 100%);
+      border: 1px solid rgba(217, 119, 87, 0.28);
+      border-left: 3px solid var(--anthropic-orange);
       border-radius: 8px;
+      padding: 14px 14px 10px;
+      margin-bottom: 24px;
+    }
+    .section.gus-findings h3 {
+      color: var(--anthropic-orange);
+      border-bottom-color: rgba(217, 119, 87, 0.22);
+    }
+    .gus-findings-subtitle {
+      font-size: 11px;
+      color: #867470;
+      margin: -4px 0 10px;
+      font-style: italic;
+      line-height: 1.4;
+    }
+    .gus-finding-card {
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 6px;
+      padding: 10px 12px;
       margin-bottom: 8px;
       cursor: pointer;
+      border: 1px solid transparent;
       transition: all 0.15s ease;
-      font-size: 12px;
     }
-    .edge-card:hover {
+    .gus-finding-card:last-child { margin-bottom: 0; }
+    .gus-finding-card:hover {
       border-color: var(--anthropic-orange);
       background: #fdf6f2;
     }
-    .edge-card .edge-name {
+    .gus-finding-card .finding-rule {
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-    .edge-card .rules {
-      color: var(--anthropic-red);
       font-size: 11px;
+      font-weight: 600;
+      color: var(--anthropic-orange);
+      margin-bottom: 3px;
+    }
+    .gus-finding-card .finding-edge {
       font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #4a4842;
+      margin-bottom: 6px;
+    }
+    .gus-finding-card .finding-narrative {
+      font-size: 11.5px;
+      color: #4a4842;
+      line-height: 1.45;
+    }
+
+    /* Rule-grouped violations (replaces per-edge broken-edge cards) */
+    .rule-group {
+      border: 1px solid var(--anthropic-light-gray);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .rule-group .rule-header {
+      padding: 7px 12px;
+      background: rgba(196, 90, 74, 0.08);
+      border-bottom: 1px solid var(--anthropic-light-gray);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .rule-group .rule-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--anthropic-red);
+    }
+    .rule-group .rule-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--anthropic-mid-gray);
+      white-space: nowrap;
+    }
+    .rule-group .rule-edges { padding: 4px 8px 6px; }
+    .rule-group .rule-edge {
+      padding: 5px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.1s ease;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .rule-group .rule-edge:hover { background: #fdf6f2; }
+    .rule-group .rule-edge .endpoints {
+      color: var(--anthropic-dark);
+      font-weight: 500;
+    }
+    .rule-group .rule-edge .rule-path {
+      color: var(--anthropic-mid-gray);
+      font-size: 10.5px;
+    }
+    .rule-group .rule-edge .conj-tag {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--anthropic-mid-gray);
+      padding: 1px 5px;
+      background: rgba(176, 174, 165, 0.15);
+      border-radius: 3px;
     }
 
     /* Tooltip (floating) */
@@ -372,6 +461,11 @@
         <h3>MSS — Maximal Safe Subset</h3>
         <div id="mss-list"></div>
       </div>
+      <div class="section gus-findings" id="gus-findings-section" style="display:none;">
+        <h3>What only GUS catches</h3>
+        <div class="gus-findings-subtitle">4-pairing checks (C3/C4) that Pact and Buf can't express.</div>
+        <div id="gus-findings-list"></div>
+      </div>
       <div class="section">
         <h3>Legend</h3>
         <div class="legend">
@@ -385,7 +479,7 @@
         </div>
       </div>
       <div class="section">
-        <h3>Broken Edges</h3>
+        <h3>Violations by rule</h3>
         <div class="edge-list" id="edge-list"></div>
       </div>
     </div>
@@ -990,25 +1084,139 @@
         }
       }
 
-      // Edge list
+      // GUS findings (only when we detect whitelisted 4-pairing-unique breaks).
+      renderGusFindings();
+
+      // Rule-grouped violations (replaces per-edge card list).
+      renderViolationsByRule();
+    }
+
+    // Rules where GUS's 4-pairing directionality (C3/C4) catches breaks that
+    // provider-only tests (Pact) or payload compat checkers (Buf) miss.
+    const GUS_UNIQUE_RULES = new Set(['prim-mismatch', 'enum-request-narrowing', 'kind-mismatch']);
+
+    function renderGusFindings() {
+      const section = document.getElementById('gus-findings-section');
+      const list = document.getElementById('gus-findings-list');
+      list.innerHTML = '';
+
+      // Dedupe by edge+rule+path; aggregate conjuncts so the same logical
+      // finding reported across C3/C4 collapses into one card.
+      const grouped = new Map();
+      for (const e of DATA.edges) {
+        if (!e.violations) continue;
+        for (const v of e.violations) {
+          if (!GUS_UNIQUE_RULES.has(v.rule)) continue;
+          const key = `${e.name}|${v.rule}|${v.path || ''}`;
+          let g = grouped.get(key);
+          if (!g) {
+            g = { edge: e, rule: v.rule, path: v.path, v, conjuncts: new Set() };
+            grouped.set(key, g);
+          }
+          if (v.conjunct) g.conjuncts.add(String(v.conjunct));
+        }
+      }
+      const findings = Array.from(grouped.values());
+      if (findings.length === 0) { section.style.display = 'none'; return; }
+      section.style.display = 'block';
+
+      for (const { edge, rule, path, v, conjuncts } of findings) {
+        const cTag = conjuncts.size > 0
+          ? '[' + Array.from(conjuncts).sort().map(c => 'C' + c).join('+') + ']'
+          : '';
+        const card = document.createElement('div');
+        card.className = 'gus-finding-card';
+        card.innerHTML = `
+          <div class="finding-rule">${escapeHtml(cTag)} ${escapeHtml(rule)}</div>
+          <div class="finding-edge">${escapeHtml(edge.from)} → ${escapeHtml(edge.to)} · ${escapeHtml(path || '(root)')}</div>
+          <div class="finding-narrative">${escapeHtml(gusUniqueNarrative(v))}</div>`;
+        card.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const target = 'edge:' + edge.name;
+          pinnedTarget = pinnedTarget === target ? null : target;
+          hoverEdge = pinnedTarget ? edge : null;
+          hoverNode = null;
+          updateTooltip();
+        });
+        list.appendChild(card);
+      }
+    }
+
+    function gusUniqueNarrative(v) {
+      const old_ = v.old_type || '?';
+      const new_ = v.new_type || '?';
+      switch (v.rule) {
+        case 'prim-mismatch':
+          return `Primitive shift ${old_} → ${new_}. One 4-pairing direction passes via the JSON lattice, the other fails — an asymmetry simpler tools can't express.`;
+        case 'enum-request-narrowing':
+          return `Request enum narrowed — old callers may still send values the new provider rejects. Only caught when both directions of the 4-pairing are checked.`;
+        case 'kind-mismatch':
+          return `Type kind changed (${old_} → ${new_}). No 4-pairing direction can bridge this; every conjunct touching the field fails.`;
+        default:
+          return v.explanation || '';
+      }
+    }
+
+    function renderViolationsByRule() {
       const list = document.getElementById('edge-list');
       list.innerHTML = '';
+
       const broken = DATA.edges.filter(e => !e.ok);
       if (broken.length === 0) {
         list.innerHTML = `<div style="font-size:12px;color:#b0aea5">No broken edges.</div>`;
+        return;
       }
+
+      // Group: rule -> Map(edgeName+path -> {edge, path, conjuncts})
+      const byRule = new Map();
       for (const e of broken) {
+        for (const v of e.violations) {
+          if (!byRule.has(v.rule)) byRule.set(v.rule, new Map());
+          const edges = byRule.get(v.rule);
+          const key = e.name + '|' + (v.path || '');
+          if (!edges.has(key)) edges.set(key, { edge: e, path: v.path || '', conjuncts: new Set() });
+          edges.get(key).conjuncts.add(v.conjunct || '?');
+        }
+      }
+
+      // Sort: rules with more distinct edges first; ties alphabetical.
+      const groups = [...byRule.entries()]
+        .map(([rule, edgeMap]) => ({ rule, items: [...edgeMap.values()] }))
+        .sort((a, b) => b.items.length - a.items.length || a.rule.localeCompare(b.rule));
+
+      for (const group of groups) {
+        const allConj = new Set();
+        group.items.forEach(it => it.conjuncts.forEach(c => allConj.add(c)));
+        const conjList = [...allConj].sort().map(c => 'C' + c).join(',');
+
+        const rows = group.items.map(it => {
+          const tag = [...it.conjuncts].sort().map(c => 'C' + c).join(',');
+          return `<div class="rule-edge" data-edge="${escapeHtml(it.edge.name)}">
+            <span class="endpoints">${escapeHtml(it.edge.from)} → ${escapeHtml(it.edge.to)}</span>
+            <span class="rule-path">${escapeHtml(it.path || '(root)')}</span>
+            <span class="conj-tag">${tag}</span>
+          </div>`;
+        }).join('');
+
         const card = document.createElement('div');
-        card.className = 'edge-card';
-        const rules = [...new Set(e.violations.map(v => v.rule))].join(', ');
-        card.innerHTML = `<div class="edge-name">${escapeHtml(e.from)} → ${escapeHtml(e.to)}</div><div class="rules">${escapeHtml(rules)}</div>`;
-        card.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          const target = 'edge:' + e.name;
-          pinnedTarget = pinnedTarget === target ? null : target;
-          hoverEdge = pinnedTarget ? e : null;
-          hoverNode = null;
-          updateTooltip();
+        card.className = 'rule-group';
+        card.innerHTML = `
+          <div class="rule-header">
+            <span class="rule-name">${escapeHtml(group.rule)}</span>
+            <span class="rule-meta">${group.items.length} edge${group.items.length > 1 ? 's' : ''} · ${conjList}</span>
+          </div>
+          <div class="rule-edges">${rows}</div>`;
+        card.querySelectorAll('.rule-edge').forEach(el => {
+          el.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            const edge = DATA.edges.find(e => e.name === el.dataset.edge);
+            if (!edge) return;
+            const target = 'edge:' + edge.name;
+            pinnedTarget = pinnedTarget === target ? null : target;
+            hoverEdge = pinnedTarget ? edge : null;
+            hoverNode = null;
+            updateTooltip();
+          });
         });
         list.appendChild(card);
       }
