@@ -1,0 +1,664 @@
+%% GUS/MSS workshop paper draft.
+%% Compile on Overleaf: pdfLaTeX + BibTeX (acmart is preinstalled).
+%% Two-column workshop format (HotOS/PaPoC shape); adjust class options
+%% to the venue CFP once chosen.
+%%
+%% Places that need the author's input are marked \todoinput{...}.
+
+\begin{filecontents*}[overwrite]{gus.bib}
+@article{gay2005subtyping,
+  author  = {Gay, Simon and Hole, Malcolm},
+  title   = {Subtyping for session types in the pi calculus},
+  journal = {Acta Informatica},
+  volume  = {42},
+  number  = {2--3},
+  pages   = {191--225},
+  year    = {2005}
+}
+@inproceedings{honda2008multiparty,
+  author    = {Honda, Kohei and Yoshida, Nobuko and Carbone, Marco},
+  title     = {Multiparty Asynchronous Session Types},
+  booktitle = {Proc.\ POPL},
+  year      = {2008}
+}
+@article{dowling1984linear,
+  author  = {Dowling, William F. and Gallier, Jean H.},
+  title   = {Linear-time algorithms for testing the satisfiability of propositional {Horn} formulae},
+  journal = {Journal of Logic Programming},
+  volume  = {1},
+  number  = {3},
+  pages   = {267--284},
+  year    = {1984}
+}
+@article{khanna2001approximability,
+  author  = {Khanna, Sanjeev and Sudan, Madhu and Trevisan, Luca and Williamson, David P.},
+  title   = {The Approximability of Constraint Satisfaction Problems},
+  journal = {SIAM Journal on Computing},
+  volume  = {30},
+  number  = {6},
+  pages   = {1863--1920},
+  year    = {2001}
+}
+@inproceedings{ajmani2006modular,
+  author    = {Ajmani, Sameer and Liskov, Barbara and Shrira, Liuba},
+  title     = {Modular Software Upgrades for Distributed Systems},
+  booktitle = {Proc.\ ECOOP},
+  year      = {2006}
+}
+@inproceedings{zhang2021understanding,
+  author    = {Zhang, Yongle and Yang, Junwen and Jin, Zhuqi and Sethi, Utsav and Rodrigues, Kirk and Lu, Shan and Yuan, Ding},
+  title     = {Understanding and Detecting Software Upgrade Failures in Distributed Systems},
+  booktitle = {Proc.\ SOSP},
+  year      = {2021}
+}
+@inproceedings{alvaro2015lineage,
+  author    = {Alvaro, Peter and Rosen, Joshua and Hellerstein, Joseph M.},
+  title     = {Lineage-driven Fault Injection},
+  booktitle = {Proc.\ SIGMOD},
+  year      = {2015}
+}
+@article{litt2020cambria,
+  author  = {Litt, Geoffrey and van Hardenberg, Peter and Good, Orion Henry},
+  title   = {Project Cambria: Translate your data with lenses},
+  journal = {Ink \& Switch technical report},
+  year    = {2020},
+  note    = {\url{https://www.inkandswitch.com/cambria/}}
+}
+@inproceedings{seco2020robust,
+  author    = {Costa Seco, Jo{\~a}o and Ferreira, Paulo and Louren{\c c}o, Hugo and Ferreira, Carla and Ferr{\~a}o, Lu{\'i}s},
+  title     = {Robust Contract Evolution in a TypeSafe MicroServices Architecture},
+  booktitle = {The Art, Science, and Engineering of Programming},
+  year      = {2020}
+}
+@inproceedings{raemaekers2014semantic,
+  author    = {Raemaekers, Steven and van Deursen, Arie and Visser, Joost},
+  title     = {Semantic Versioning versus Breaking Changes: A Study of the {Maven} Repository},
+  booktitle = {Proc.\ SCAM},
+  year      = {2014}
+}
+@article{lercher2024microservice,
+  author  = {Lercher, Alexander and Glock, Johann and Macho, Christian and Pinzger, Martin},
+  title   = {Microservice {API} Evolution in Practice: A Study on Strategies and Challenges},
+  journal = {Journal of Systems and Software},
+  volume  = {215},
+  year    = {2024}
+}
+@misc{confluentcompat,
+  author = {{Confluent, Inc.}},
+  year   = {2026},
+  title  = {Schema Evolution and Compatibility (Confluent Schema Registry)},
+  note   = {\url{https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html}}
+}
+@misc{pactcanideploy,
+  author = {{Pact Foundation}},
+  year   = {2026},
+  title  = {Can {I} Deploy (Pact Broker documentation)},
+  note   = {\url{https://docs.pact.io/pact_broker/can_i_deploy}}
+}
+@misc{bufbreaking,
+  author = {{Buf Technologies}},
+  year   = {2026},
+  title  = {Buf breaking change detection rules},
+  note   = {\url{https://buf.build/docs/breaking/rules/}}
+}
+@misc{oasdiff,
+  author = {{Tufin (oasdiff maintainers)}},
+  year   = {2026},
+  title  = {oasdiff: {OpenAPI} diff and breaking changes},
+  note   = {\url{https://github.com/oasdiff/oasdiff}}
+}
+@misc{serviceweaver,
+  author = {{Google (Service Weaver team)}},
+  year   = {2026},
+  title  = {Service Weaver documentation: versioned rollouts},
+  note   = {\url{https://serviceweaver.dev/docs.html}}
+}
+@misc{awsrollback,
+  author = {Pokkunuri, Sandeep},
+  year   = {2020},
+  title  = {Ensuring rollback safety during deployments},
+  note   = {Amazon Builders' Library. \url{https://aws.amazon.com/builders-library/ensuring-rollback-safety-during-deployments/}}
+}
+@misc{protobufrequired,
+  author = {{Google (Protocol Buffers team)}},
+  year   = {2026},
+  title  = {Protocol Buffers Dos and Don'ts},
+  note   = {\url{https://protobuf.dev/best-practices/dos-donts/}}
+}
+@misc{apicontextdrift,
+  author = {{APIContext}},
+  year   = {2026},
+  title  = {The {API} Drift White Paper},
+  note   = {\url{https://apicontext.com/resources/api-drift-white-paper/}}
+}
+\end{filecontents*}
+
+\documentclass[sigconf,nonacm]{acmart}
+\settopmatter{printacmref=false}
+
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+
+\newcommand{\todoinput}[1]{\begin{tcolorbox}[colback=orange!12,colframe=orange!70!black,title=\textbf{needs your input}]\small #1\end{tcolorbox}}
+
+\newcommand{\Send}{\mathsf{Send}}
+\newcommand{\Accept}{\mathsf{Accept}}
+\newcommand{\Return}{\mathsf{Return}}
+\newcommand{\Expect}{\mathsf{Expect}}
+\newcommand{\leqreq}{\leq_{\mathsf{req}}}
+\newcommand{\leqres}{\leq_{\mathsf{res}}}
+\newcommand{\GUS}{\mathrm{GUS}}
+
+\begin{document}
+
+\title{What Can We Deploy Today?\\ Checking Upgrade Batches Against Every Version Pair}
+
+\author{[AUTHOR NAME]}
+\affiliation{\institution{[AFFILIATION]}\city{}\country{}}
+\email{[EMAIL]}
+
+\begin{abstract}
+Schema-compatibility tools check one boundary between two versions.
+Rolling deployments break that model in three ways: several services
+upgrade as a batch, old and new instances of each service run
+concurrently while the batch rolls, and some invariants span chains of
+services rather than single call edges. We state the resulting problem
+plainly: given a mesh of versioned, typed interfaces and a proposed
+batch, is every version pair that can be live on any edge during the
+rollout compatible? When the answer is no, the useful output is not a
+verdict but a plan --- the subset of the batch that can ship, and the
+order in which to ship it. Compatibility violations translate into
+Horn clauses paired with ordering constraints. For the implication
+fragment of that system a unique largest subset exists and unit
+propagation finds it in linear time; conflicts --- target-state
+failures and ordering cycles --- make maximality NP-hard and are
+excluded conservatively. Every plan is
+certified by replaying its stages. Finally, we show that batch
+checking is still blind along the time axis: a guarantee can be
+weakened in a rollout where nothing depends on it, and the violation
+appears only when a dependent arrives several rollouts later, where a
+per-rollout checker necessarily blames the wrong change. A small
+ledger of guarantees, carried across rollouts, is enough to name the
+rollout that weakened the guarantee. We develop the ideas
+qualitatively on a nine-service mesh evolved through eleven synthetic
+but plausible rollouts.
+\end{abstract}
+
+\maketitle
+
+\todoinput{Author block above: name, affiliation, email. Also pick the
+title --- alternatives: ``Ship What You Can: Checking Microservice
+Upgrade Batches''; ``Upgrade Batches, Version Pairs, and Rollout
+Order''. Delete the \texttt{nonacm} class option if the venue supplies
+rights info.}
+
+%% ---------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+
+During a rolling upgrade a mesh runs a mixture of versions. Every
+request may be served by an old or a new instance of its provider, and
+issued by an old or a new instance of its caller. A change that is
+compatible version-to-version can still break one of these transient
+pairings, and the pairing occurs only in production. This failure
+class is well documented: a study of 123 upgrade failures across eight
+widely used distributed systems attributes about two thirds to
+incompatible interaction between two coexisting versions, 40\% of
+those through network messages~\cite{zhang2021understanding}.
+
+Existing tools check pairs of versions at single boundaries. Pact
+verifies consumer--provider contracts and gates deployment on recorded
+verifications~\cite{pactcanideploy}; Buf classifies protobuf diffs by
+wire compatibility~\cite{bufbreaking}; schema registries enforce
+backward/forward compatibility per topic~\cite{confluentcompat};
+\texttt{oasdiff} classifies OpenAPI diffs~\cite{oasdiff}. These are
+sound answers to a smaller question. Three things are missing:
+
+\begin{enumerate}
+\item \textbf{Batches.} Per-boundary verdicts do not compose into a
+  verdict for a set of simultaneous upgrades, and no per-boundary tool
+  answers the operative question when a batch fails: which subset can
+  ship?
+\item \textbf{Order.} Many ``breaking'' changes are only
+  \emph{order}-constrained. A provider that starts requiring a field
+  its callers have agreed to send is safe exactly when every caller
+  finishes rolling before the provider starts. The correct output is a
+  schedule, and pairwise tools cannot express one.
+\item \textbf{History.} A guarantee can be weakened in a rollout where
+  nothing depends on it; every check passes and the change ships. When
+  a dependent appears several rollouts later, the check that finally
+  fails sits in the wrong diff. Attribution requires state that
+  survives across rollouts.
+\end{enumerate}
+
+\begin{tcolorbox}[colback=black!4,colframe=black!60,title=\textbf{Problem statement}]
+\small
+Given a mesh of services with versioned, typed interfaces, a current
+deployment state, and a proposed upgrade batch:
+\textbf{(1)}~decide whether every version pair that can be live on any
+edge during the rollout is compatible, and whether declared
+cross-service dataflow chains hold in the resulting state;
+\textbf{(2)}~if not, produce a subset of the batch and a stage order
+that pass the same checks, certified by replaying the stages;
+\textbf{(3)}~when a chain violation is exposed by a new dependent,
+identify the earlier rollout that weakened the guarantee.
+\end{tcolorbox}
+
+We built a proof-of-concept checker, GUS (\emph{global upgrade
+safety}), over OpenAPI interfaces, and evolved a nine-service mesh
+through eleven synthetic rollouts to exercise it. The contribution of
+this paper is the problem formulation and the shape of the solution:
+compatibility as a check over all live version pairs
+(\S\ref{sec:model}--\ref{sec:edge}), plans as a Horn system with
+ordering constraints and a replay certificate (\S\ref{sec:mss}), and a
+guarantee ledger for attribution across rollouts
+(\S\ref{sec:ledger}). All evaluation is qualitative
+(\S\ref{sec:casestudy}); \S\ref{sec:limits} states what the approach
+cannot see.
+
+\todoinput{One paragraph only you can write: who runs a reviewed batch
+in practice (platform teams shipping umbrella releases, monorepo
+deploy trains, on-prem vendors), and why that is your target user.
+Teams that deploy each service independently and continuously have no
+batch, so this framing matters for the paper's relevance claim.}
+
+%% ---------------------------------------------------------------
+\section{Model}
+\label{sec:model}
+
+A mesh is a directed graph $G = (S, E)$; an edge $e = (u \to v)$ is an
+RPC endpoint on provider $v$ called by $u$. Each service has totally
+ordered versions. A \emph{deployment state} is a map
+$\theta : S \to \mathbb{V}$; an upgrade batch is a partial map $U$,
+and the target state is $\theta' = \theta \oplus U$.
+
+Each version of a service fixes four schemas per edge it participates
+in: the caller's request body ($\Send$) and response expectation
+($\Expect$), and the provider's request schema ($\Accept$) and
+response body ($\Return$). Callers and providers are typed separately
+because caller code drifts from provider contracts. When a caller
+declares no outbound contract, the checker anchors
+$\Send := \Accept(e,\theta)$ and $\Expect := \Return(e,\theta)$ at the
+\emph{old} provider version --- the caller is assumed to have been
+built against the contract that was live --- which reduces the check
+to ordinary backward-compatibility rather than inventing caller-side
+change.
+
+Rolling semantics: replacing instances service by service means that,
+at any instant, each upgrading service has live instances at
+$\theta(s)$, at $\theta'(s)$, or both. We assume at most two versions
+of a service are ever live (no canary with three), and that the mesh
+routes a request to any live provider instance. Consequently the
+version pairs that can be live on edge $u \to v$ during an
+unconstrained rollout of $U$ are exactly
+$\{\theta(u), \theta'(u)\} \times \{\theta(v), \theta'(v)\}$.
+A \emph{staged} rollout restricts which pairs occur: if $u$ finishes
+before $v$ starts, the pair $(\theta(u), \theta'(v))$ never exists.
+
+%% ---------------------------------------------------------------
+\section{Edge compatibility over version pairs}
+\label{sec:edge}
+
+Compatibility of one version pair is subtyping with the standard
+variance split, as in binary session
+subtyping~\cite{gay2005subtyping}. Writing $i$ for a caller version
+and $j$ for a provider version on edge $e$:
+\[
+\mathrm{ok}_e(i,j) \;\triangleq\;
+\Send_e(i) \leqreq \Accept_e(j)
+\;\wedge\;
+\Return_e(j) \leqres \Expect_e(i).
+\]
+The request relation $\leqreq$ requires everything the caller may send
+to be admitted by the provider; the response relation $\leqres$
+requires everything the provider may return to be understood by the
+caller. Both are structural over a JSON type language: primitives
+under a partial order, enums as value sets, records with
+width and optionality rules, unions with existential matching, and
+equi-recursive references handled by cycle detection with a
+coinductive assumption at back-edges. The primitive order is strict:
+an integer is \emph{not} assumed readable where a string is declared,
+because production decoders reject such tokens. Findings that are
+range risks rather than shape breaks (e.g.\ a response widening from
+32- to 64-bit integers) are reported as warnings and do not fail a
+batch.
+
+Edge compatibility for the transition $\theta \to \theta'$ is the
+conjunction over all live pairs:
+\[
+\mathrm{EdgeOK}(e, \theta, \theta') \;\triangleq\;
+\bigwedge_{\substack{i \,\in\, \{\theta(u),\,\theta'(u)\}\\
+                     j \,\in\, \{\theta(v),\,\theta'(v)\}}}
+\mathrm{ok}_e(i,j).
+\]
+The $(\theta,\theta)$ conjunct is the precondition that the current
+state is internally consistent, checked separately; the two mixed
+conjuncts and the $(\theta',\theta')$ conjunct are what the transition
+adds. $\GUS(\theta, U)$ is $\mathrm{EdgeOK}$ over all edges touched by
+$U$, together with chain integrity in the target state
+(\S\ref{sec:ledger}); a chain already broken in the baseline is
+reported as pre-existing rather than attributed to the batch.
+
+\begin{proposition}[Adequacy for edges]
+\label{prop:adequacy}
+Assume at most two live versions per service and uniform routing, and
+that $\theta$ is consistent. The batch $U$, rolled without ordering
+constraints, exposes no incompatible (caller, provider) version pair
+on any edge iff $\mathrm{EdgeOK}(e,\theta,\theta')$ holds for every
+edge $e$.
+\end{proposition}
+\begin{proof}[Proof sketch]
+Each direction is immediate from the pair enumeration above: every
+reachable pair is one of the four conjuncts, and each mixed or target
+pair is realized by some interleaving (roll only $v$ partway; only
+$u$; complete both).
+\end{proof}
+
+We scope the proposition deliberately: it speaks of edge-local pairs
+only. Chain integrity (\S\ref{sec:ledger}) is checked in the endpoint
+states $\theta$ and $\theta'$, not in transient mixtures; a chain that
+breaks only mid-rollout is outside the current formulation, and we
+flag this honestly in \S\ref{sec:limits}.
+
+The value of checking mixed pairs is that the two relations are
+asymmetric, so the same change can break one pair and leave the other
+intact. In the case study, a provider adds a value to a response enum
+while its caller upgrades in the same batch. The pair (old caller, new
+provider) fails --- an old caller can receive the new value and has no
+case for it --- while the pair (new caller, old provider) passes,
+since old provider instances return only the original values. The violation is therefore not ``this change is
+breaking'' but ``these two versions must not coexist,'' which is an
+ordering fact; the next section turns such facts into plans.
+
+%% ---------------------------------------------------------------
+\section{From violations to plans}
+\label{sec:mss}
+
+When $\GUS(\theta,U)$ fails, the operative question is what subset of
+$U$ can ship, and how. Define a \emph{plan} as a subset
+$U' \subseteq U$ together with a partition of $U'$ into ordered stages.
+
+\begin{definition}[Plan safety]
+\label{def:plan}
+A plan is safe from $\theta$ iff, taking $\theta_0 = \theta$ and
+$\theta_k = \theta_{k-1} \oplus U'_k$ for stage $k$, each stage
+satisfies $\GUS(\theta_{k-1}, U'_k)$.
+\end{definition}
+
+By Proposition~\ref{prop:adequacy} applied stage by stage, a safe plan
+exposes no incompatible edge pair at any point of its execution, and
+plan safety is directly checkable: \emph{replay} the stages, running
+the full check against each accumulated intermediate state. The
+checker always emits this certificate check; the solver below is a
+candidate generator whose output is verified by replay, so its
+soundness does not rest on the completeness of any encoding.
+
+\paragraph{Generating candidates.}
+Each violated conjunct pins one service of the batch at its new
+version and one at its old version, and therefore reads as an ordering
+fact. If the pair (old $u$, new $v$) is incompatible on either leg,
+then new-$v$ instances must never coexist with old-$u$ instances: if
+$u$'s contract cannot change ($u \notin U$, or $u$ has no declared
+outbound contract), the violation is unconditional and $v$ is excluded
+($\neg x_v$); otherwise $v$ may ship only if $u$ ships first --- the
+definite clause $\neg x_v \vee x_u$ together with the precedence
+$u \prec v$. Incompatibility of the symmetric pair (new $u$, old $v$)
+swaps the roles. Incompatibility of the target pair
+$(\theta',\theta')$ pins both services at their new versions; no order
+avoids that pair, so the two upgrades conflict outright.
+
+\begin{proposition}[Easy fragment]
+\label{prop:easy}
+For clause sets containing only definite clauses ($\neg a \vee b$) and
+negative units ($\neg a$), the true-sets of satisfying assignments are
+closed under union; hence a unique maximum exists, and propagating
+falsity from the units computes it in $O(|\mathit{clauses}| + |U|)$.
+\end{proposition}
+\begin{proof}[Proof sketch]
+If $a \in T_1 \cup T_2$ then $a \in T_i$ for some $i$, so any clause
+$a \to b$ puts $b \in T_i \subseteq T_1 \cup T_2$; negative units hold
+in both. The union of all models is then the maximum model.
+Propagation is the classical linear-time procedure for Horn
+theories~\cite{dowling1984linear}.
+\end{proof}
+
+\begin{proposition}[Hard boundary]
+\label{prop:hard}
+Once conflict clauses $\neg x_u \vee \neg x_v$ are admitted, deciding
+a maximum-cardinality satisfying subset is NP-hard.
+\end{proposition}
+\begin{proof}[Proof sketch]
+Such clauses are still Horn, so satisfiability stays linear; but
+union-closure fails ($\{u\}$ and $\{v\}$ are models, $\{u,v\}$ is
+not), and maximizing true variables with one conflict clause per graph
+edge is maximum independent set. This is the Max-Ones classification
+for this constraint family~\cite{khanna2001approximability}.
+\end{proof}
+
+The two propositions dictate the design. Unit propagation resolves the
+easy fragment exactly. Conflicts --- target-pair failures, and cycles
+in the precedence relation --- are resolved conservatively: the
+checker excludes every member of a conflicting group and
+re-propagates, rather than making an arbitrary choice or solving an
+NP-hard optimization inside a safety tool. Cycles arise naturally. In
+the case study, checkout starts requiring an idempotency key its old
+callers do not send, so frontend must finish rolling first; in the
+same version it changes a response field from string to integer while
+frontend upgrades to expect the integer, so checkout must finish first
+--- old checkout instances still answer with strings. The two
+constraints are contradictory: no rolling order ships the pair, and
+the checker excludes both. The result is sound but not maximum-cardinality, and the
+tool says so. Surviving precedences are topologically sorted into the
+plan's stages, and the plan is certified by replay
+(Definition~\ref{def:plan}).
+
+%% ---------------------------------------------------------------
+\section{Chains and the guarantee ledger}
+\label{sec:ledger}
+
+Some invariants span more than one edge. In the case-study mesh,
+checkout mints an order identifier that must arrive intact at the
+email service; the intermediate schemas mark the field optional, which
+is precisely why no edge-local check fires if checkout stops
+guaranteeing it. The failure class is real: enforcing required fields
+at intermediate hops of forwarding chains caused enough production
+incidents that protobuf removed \texttt{required}
+entirely~\cite{protobufrequired}.
+
+The checker supports declared chains: a source annotates the field
+that originates an identity (\texttt{x-provides}), a sink annotates
+where it must arrive (\texttt{x-requires}), and intermediates annotate
+only renames (\texttt{x-alias}). $\mathrm{chain\_ok}(K, \theta)$
+enumerates the call paths from source to sink and requires the
+identity to be present, non-null, and type-stable at the source and at
+every intermediate hop, validated against what each hop \emph{sends
+onward} (its outbound contract) --- which is what makes a rename
+detectable at all. Because a mesh may route the identity along several
+paths, every simple path between source and sink is checked.
+Identity types must be stable end-to-end: an identity is stored and
+joined on, not merely parsed.
+
+\paragraph{Why one batch is not enough.}
+Chain integrity at a state $\theta_k$ is a predicate on that state
+alone, but the change responsible for a violation may sit in an
+earlier rollout. The concrete sequence from the case study: rollout
+$i$ makes checkout's \texttt{shipment\_ref} optional while no service
+requires it --- there is no chain, nothing fails, the change ships;
+rollout $k > i$ adds the requirement in email; the check at $k$ fails.
+The only change a per-rollout checker can act on at step $k$ is
+email's, and excluding email is what the solver correctly does for
+that batch --- but the defect was introduced at step $i$, and the
+repair belongs at checkout.
+
+The fix is bookkeeping, not new theory. The checker maintains a
+\emph{ledger}: after each rollout, for every provided identity ---
+whether or not anything requires it yet --- it records the guarantee
+as a tuple (provider service, field, type, required, nullable,
+carrying paths), and appends an event when the tuple changes:
+\textsf{born}, \textsf{eroded} (required became optional, or non-null
+became nullable), \textsf{restored}, \textsf{demanded},
+\textsf{violated}. The ledger is a JSON file persisted between
+invocations; steps already recorded are skipped, so it accumulates
+across rollouts exactly like the mesh it describes. When a chain check
+fails, the ledger reports the most recent weakening event for that
+identity alongside the failure. Attribution within the failing batch
+is by reverting each on-path upgrade in isolation and re-checking; a
+change whose revert repairs (or dissolves) the chain is marked a
+culprit. This revert-and-recheck style of attribution is the static
+analogue of the counterfactual reasoning used by lineage-driven fault
+injection~\cite{alvaro2015lineage}, and we claim no more for it than
+that.
+
+For the sequence above the ledger output is (abridged):
+
+{\small\begin{verbatim}
+identity "shipment-tracking" -- EXPOSED
+ born     @03: checkout provides shipment_ref
+               (string, required)
+ eroded   @07: required -> optional at checkout
+ demanded @11: required by email -- REJECTED
+ violated @11: chain-weakened
+   -- guarantee last weakened at step 07
+\end{verbatim}}
+
+\noindent Step 11's batch is correctly blocked; step 07 is correctly
+named. Neither statement is available to a checker that sees one
+rollout at a time.
+
+%% ---------------------------------------------------------------
+\section{Case study}
+\label{sec:casestudy}
+
+We ported Google's Online Boutique demo to a nine-service mesh
+(frontend, checkout, shipping, product catalog, currency, cart,
+recommendation, payment, email; 14 RPC edges) with OpenAPI interfaces,
+including caller-declared outbound contracts, and wrote an
+\emph{evolution suite}: eleven rollout steps shaped like ordinary
+feature work, where each step's baseline is what the previous step's
+plan actually shipped. The scenarios are synthetic and constructed to
+jointly cover the checker's rules; the suite doubles as its regression
+oracle (expected verdicts, exact safe subsets, stage orders, and chain
+outcomes are asserted). Table~\ref{tab:steps} summarizes; three steps
+carry the argument.
+
+\begin{table}
+\caption{The eleven-step evolution suite. Bold rows are outcomes a
+per-boundary, per-rollout checker cannot produce.}
+\label{tab:steps}
+\small
+\begin{tabular}{@{}llp{3.6cm}@{}}
+\toprule
+Step & Outcome & Notes\\
+\midrule
+01 wishlist & ships & additive response fields\\
+02 cart & blocked & response guarantee regressed\\
+\textbf{03 accounts} & \textbf{ships in 2 stages} & callers first, then shipping\\
+04 payments & blocked & response enum widened; nullable id\\
+\textbf{05 payments} & \textbf{ships in 2 stages} & checkout before payment\\
+06 money, expand & partial & widening ships as a warning; a map value change is blocked\\
+\textbf{07 money, contract} & \textbf{ships in 2 stages} & four violation kinds, one order; quietly weakens a guarantee\\
+\textbf{08 tracing} & \textbf{partial} & rename without alias: only the chain fails\\
+09 tracing & ships & alias bridges the rename\\
+\textbf{10 promo} & \textbf{blocked} & every mixed pair passes; only the target pair conflicts\\
+\textbf{11 notifications} & \textbf{blocked} & step-07 weakening exposed; ledger names step 07\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{Order (step 03).} Shipping begins requiring an
+\texttt{account\_tier} field that both callers simultaneously upgrade
+to send. Every pairwise tool classifies the provider change as
+breaking. The checker instead emits a two-stage plan --- callers, then
+shipping --- and the replay certificate passes: the only bad pair (old
+caller, new provider) never exists under that order.
+
+\emph{Target state (step 10).} Shipping accepts an optional
+enum-valued promo code; frontend upgrades to always send a free-form
+string. Both mixed pairs pass: old frontends omit the optional field,
+and old shippings ignore the unknown field. Only the
+$(\theta',\theta')$ pair conflicts. Registry-style
+backward/forward checking relates successive versions of \emph{one}
+schema; this failure lies between two parties' new schemas, a pair no
+per-schema check ever relates --- here it is the entire failure.
+
+\emph{History (steps 07 and 11).} As in \S\ref{sec:ledger}: the
+weakening ships silently at step 07 because nothing requires the
+identity; the requirement arrives at step 11 and is blocked; the
+ledger names step 07. Without the ledger, step 11's failure is
+attributed to email, which is the one service that did nothing wrong.
+
+%% ---------------------------------------------------------------
+\section{Related work}
+\label{sec:related}
+
+Per-boundary compatibility checking is mature. Pact's broker verifies
+a candidate against the versions recorded as deployed --- a dynamic,
+example-based check of mixed pairs for one consumer--provider
+relationship~\cite{pactcanideploy}. Confluent's
+\textsc{full\_transitive} mode is the both-directions condition for
+pub/sub topics~\cite{confluentcompat}. Buf~\cite{bufbreaking} and
+\texttt{oasdiff}~\cite{oasdiff} classify two-version diffs with
+direction awareness. None of these composes verdicts across a mesh,
+outputs an order, computes a shippable subset, or spans multiple hops.
+Mixed-version operation has long been studied at the node level:
+Ajmani et al.\ run simulation objects so nodes interoperate across
+versions during asynchronous upgrades~\cite{ajmani2006modular};
+Service Weaver avoids cross-version communication entirely by routing
+each request within one application version~\cite{serviceweaver};
+Amazon's rollback-safety guidance prescribes two-phase serialization
+changes as an operational discipline~\cite{awsrollback}. Typed
+evolution has been addressed with language support (contract evolution
+with runtime adaptation~\cite{seco2020robust}) and with bidirectional
+lenses that translate between schema versions~\cite{litt2020cambria}
+--- repair, where this work does detection. The per-pair subtype
+relations are those of binary session subtyping~\cite{gay2005subtyping};
+we do not use multiparty session types~\cite{honda2008multiparty},
+since no global protocol is checked here. The solver core is
+Dowling--Gallier propagation~\cite{dowling1984linear}, and the
+hardness boundary is the Max-Ones
+classification~\cite{khanna2001approximability}. That declared
+versions understate breakage is well
+evidenced~\cite{raemaekers2014semantic,lercher2024microservice}.
+
+%% ---------------------------------------------------------------
+\section{Limitations}
+\label{sec:limits}
+
+\emph{Specs, not behavior.} The checker judges declared contracts.
+Measured drift between production APIs and their OpenAPI documents is
+substantial~\cite{apicontextdrift}, so a passing verdict means ``no
+statically visible hazard in the declared mesh''; failing verdicts are
+near-certain wire breaks. The asymmetry should be stated wherever the
+tool is used. \emph{Chains in transient states.} Chain integrity is
+checked in the endpoint states of each rollout, not in mid-rollout
+mixtures (Proposition~\ref{prop:adequacy} deliberately excludes it);
+extending the pair-enumeration argument to chains is open.
+\emph{Two live versions.} Canary deployments hold three or more
+versions; the pair enumeration generalizes, the tool does not yet.
+\emph{Annotations.} Chains require hand-written
+provides/requires/alias annotations and caller-declared outbound
+contracts; stale annotations corrupt verdicts silently. Inferring both
+from traffic or source is the obvious next layer of this work.
+\emph{Conservative choices.} Conflict groups and culprit sets are
+excluded wholesale where choosing among them is NP-hard; a weighted
+formulation would let operators express preferences.
+\emph{Response-carried identities.} Chain discovery follows forward
+call edges, so identities carried in responses are out of scope.
+\emph{Rollback.} An aborted rollout traverses the same pairs in
+reverse; the model covers it by swapping $\theta$ and $\theta'$, the
+tool does not yet.
+
+\todoinput{Evaluation plan: commit to what you will actually do next
+(replaying public OpenAPI version histories; reproducing documented
+upgrade failures from the SOSP'21 taxonomy as mesh scenarios; or a
+case study with a platform team's umbrella releases), and what you
+will measure.}
+
+\todoinput{Acknowledgments, venue footnote, and whether to link the
+artifact repository.}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{gus}
+
+\end{document}

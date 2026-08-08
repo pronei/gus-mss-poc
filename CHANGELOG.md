@@ -5,7 +5,140 @@ All notable changes to this repository are tracked here. Format follows
 anchored to the GUS/MSS paper submission rather than semver — until the
 formalism stabilises, API changes are expected.
 
-## [Unreleased]
+## 0.3.0 — evolution suite, provenance ledger, visualizer rebuild, paper (2026-07-06)
+
+### Added
+- `gus evolve`: replays ordered rollout steps and maintains a persistent
+  per-identity provenance ledger (`pkg/evolve`). Detects guarantees that
+  erode while nothing requires them and traces later violations to the
+  origin step. Ledger records all carrying paths (`chain.AllPaths`).
+- Evolution suite: `scenarios/online-boutique/evolution/` — 11 steps of
+  plausible feature development covering every rule, staged rollout
+  orders, the TGT deadlock, x-alias rename bridging, and the silent-
+  erosion-then-exposure story (step 07 → step 11).
+- Rollout-order expectations (`expect.order`) in scenario YAML; staged
+  post-hoc verification replays MSS stages instead of a naive
+  simultaneous re-check.
+- Edge-directed chain hop lookup: intermediates are validated against
+  what they SEND toward the next hop, making x-alias renames checkable.
+- New spec versions: frontend v4–v7, checkout v4–v8, shipping v4–v5,
+  currency v3–v4, payment v2, cart v2, recommendation v2–v3, email v3–v4.
+- Workshop paper draft (`docs/paper/gus-workshop.tex`, single-file,
+  compiles on Overleaf; rendered PDF included). Scoped strictly to the
+  implemented artifact: pair-quantified edge compatibility, plan safety
+  with staged-replay certificates, the easy-fragment/NP-hard boundary,
+  and the guarantee ledger — no coercion-dependent claims (the paper
+  assumes strict JSON decoding throughout).
+- First-principles primer (`docs/primer.md`): the formal background —
+  variance, coinduction, Horn logic and the union-closure lemma, Max-Ones
+  hardness, rollout order theory, ledger semantics — with a theory→code
+  map and the objections to raise before an audience does.
+- Review errata (`docs/review-notes.md`): the adversarial-review findings
+  that motivated 0.2.0's design decisions.
+- `pkg/lattice` test suite (strict/lenient JSON profiles, proto
+  wire-compatibility including the deliberate absence of float⊑double).
+
+### Changed
+- Visualizer rebuilt from scratch: self-contained (no p5.js CDN, no
+  webfonts), SVG mesh, legible violation cards (window sentence, human
+  rule names, type pills), deployment-plan stages, chain cards with
+  culprit highlighting. Artifact gains failed_conjuncts, caller_spec_used,
+  mss.order, scenario.coercion; drops embedded raw specs.
+- WARN-only findings no longer break an edge (they render as warnings and
+  generate no clauses) — expand-phase changes like response format
+  widening ship with a range-risk warning instead of a false block.
+- Chains that come into existence at θ' (a new x-requires) now count
+  against the batch even if the guarantee eroded earlier; culprit
+  analysis treats a revert that dissolves the chain as a repair.
+- `chain.CheckChains` now validates EVERY simple call path between a
+  provider and requirer (bounded, deterministic shortest-first), not just
+  the BFS-shortest — a mesh can route an identity along any of them.
+  `bfsPath` removed.
+
+### Removed
+- Dead code: `edge.CheckEdgeSubscribe` (unreachable — no topic→schema
+  resolution exists; kafka edges are rejected upstream),
+  `EdgeResult.Conjunct()` (unused; `FailedConjuncts` carries the data),
+  and the write-only `schema.Spec.Schemas` component map (the sorted
+  pre-resolution loop that guarantees deterministic AST shapes remains).
+
+## 0.2.0 — soundness overhaul (2026-07-02)
+
+### Soundness review
+
+A full adversarial review of the formalism and implementation
+(`docs/review-notes.md` has the slide-by-slide findings). Everything
+below ships in this change set.
+
+#### Fixed — soundness
+- **MSS returned broken co-upgrades as "safe."** Both-endpoints-upgrading
+  broken edges were encoded as symmetric implications that unit
+  propagation can never falsify; a two-service batch failing C1+C4
+  reported the full set as its safe subset. Clause generation is now
+  conjunct-aware per the deck's pinning rule, emits rollout-ordering
+  precedences, and the solver excludes precedence deadlock cycles and
+  outputs a stage-by-stage rollout order. `mss` re-verifies its answer
+  by re-running GUS on the safe subset (post-hoc target-state check,
+  previously promised on slide 5 and unimplemented).
+- **The four-schema model was inert.** The `/_calls` caller lookup could
+  never match (method-case mismatch) and no spec used the convention, so
+  every edge ran the `Send:=Accept` fallback — C1–C4 degenerated to a
+  provider self-diff and the fallback fabricated caller drift (false
+  BREAKs on safe provider request-widening). Caller declarations are now
+  honored (`x-role: client` plain paths or `/_calls/...`), and the
+  Tier-3 fallback anchors the caller to the *old* provider contract.
+- **Silent-pass error handling.** Missing specs/versions/endpoints,
+  unknown scenario services, `allOf`/`anyOf`, dangling `$ref`s, and
+  kafka edges all degraded to warnings (or `Any`) and a passing exit
+  code. All are now hard failures (exit 2); `mss` exits non-zero when
+  the batch as proposed is unsafe.
+- **Nondeterministic verdicts on mutually recursive schemas** (component
+  resolution followed Go map order; identical inputs flipped PASS/FAIL).
+  Resolution is now sorted and deterministic; MSS output is sorted.
+- **Chain checker was dead code** (imported by nothing; no type checks;
+  x-alias tier stubbed). Now wired into `check`/`mss`/`validate`/`viz`,
+  typed (identities strictly typed end-to-end), with source-hop
+  semantics, working alias resolution, culprit attribution feeding unit
+  clauses, and chain expectations in scenario YAML.
+- **Strict-by-default JSON lattice.** `int/num/bool ≤ string` moved
+  behind an opt-in `coercion: lenient` profile (Jackson-style consumers
+  only); strict decoders reject those coercions. Proto lattice: removed
+  wire-incompatible `float ⊑ double`.
+- **Compat rules:** enum↔prim and literal value-set rules (both false
+  positives and false negatives), union WARN-escalation and width
+  subtyping, RES.5 (fields added into a closed consumer), REQ.2 default
+  awareness, direction-aware format range checks, role-neutral messages
+  with chronology-correct old/new labels for C2/C4.
+- **`gus consistent` always printed "Result: YES"** (variable
+  shadowing); also gained `--state target`.
+- **Validator was one-sided** (MSS subset-only, `mss: []` skipped,
+  extra breaks unchecked — a solver returning every upgrade as safe
+  passed 8/8). Now exact-match MSS (including empty), chain
+  expectations, and post-hoc verification.
+- **viz:** quote-escaping in `escapeHtml` (attribute-injection XSS from
+  mesh-controlled strings), spec-path confinement (`../` traversal into
+  the shareable artifact), conjunct-filtered "cross-version findings"
+  panel (C1/C2 findings are ordinary pairwise diffs and are no longer
+  labeled GUS-unique), chain rendering, robust tag parsing.
+
+#### Changed — scenarios & specs
+- Frontend v2 narrows its shipping sends to `[standard]` (the old
+  "widen own sends" change was unsafe against every provider and only
+  passed because the caller path was dead). New frontend v3 is
+  checkout-v3-aligned (sends `idempotency_key`, expects integer
+  `order_id`).
+- Scenario C now demonstrates conjunct-aware MSS: `mss: [frontend]`
+  (was `[]`), matching the README narrative for the first time.
+- Scenario D is a true chain-only break (every per-edge conjunct
+  passes; `chain-weakened` with culprit attribution) — previously it
+  validated an ordinary direct-edge RES.4.
+- Scenario I runs under `coercion: lenient`, and its MSS
+  (`{shipping, email}`) now falls out of a frontend↔checkout rollout
+  deadlock plus unit clauses instead of an accidental cascade; the
+  chain type mismatch is actually detected (`chain-type-mismatch`).
+- README rewritten with an honest tool-comparison table and framing
+  ("reports statically visible hazards", not "decides safety");
+  `docs/review-notes.md` added.
 
 ### Added
 - **Online Boutique mesh expansion** — `graph.yaml` now covers 9 services
