@@ -26,12 +26,16 @@ func runViz(args []string) {
 	fs.Parse(args)
 
 	g, sc := mustLoadInputs(*graphPath, *scenarioPath)
-	gusResult := executeGUS(g, sc)
+	loader := newSpecLoader()
+	gusResult, err := executeGUS(loader, g, sc, sc.Upgrades)
+	if err != nil {
+		fatalf("%v", err)
+	}
 
 	// Always compute MSS so the artifact carries it even on GUS=PASS.
-	clauses := buildClauses(gusResult, g, sc)
+	clauses, precedences := buildClauses(gusResult, sc)
 	proposed := buildUpgrades(sc)
-	mssResult := solver.ComputeMSS(proposed, clauses)
+	mssResult := solver.ComputeMSS(proposed, clauses, precedences)
 
 	art := viz.Build(g, sc, gusResult, &mssResult)
 

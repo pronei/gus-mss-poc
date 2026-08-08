@@ -13,7 +13,6 @@ import (
 
 // Spec holds all schemas extracted from a single spec file.
 type Spec struct {
-	Schemas   map[string]*types.Node          // component schemas by name (service-qualified)
 	Endpoints map[EndpointKey]*EndpointSchemas // per endpoint
 }
 
@@ -27,6 +26,7 @@ type EndpointKey struct {
 type EndpointSchemas struct {
 	Request  *types.Node
 	Response *types.Node
+	Role     string // "" for the service's own API; "client" for a declared outbound call
 }
 
 // Load parses a spec file and returns the extracted schemas.
@@ -50,18 +50,23 @@ func Load(path string, servicePrefix string) (*Spec, error) {
 	}
 
 	spec := &Spec{
-		Schemas:   make(map[string]*types.Node),
 		Endpoints: make(map[EndpointKey]*EndpointSchemas),
 	}
 
-	// Resolve all component schemas.
+	// Resolve all component schemas in sorted name order. Deterministic
+	// resolution order matters: under mutual recursion, whichever component
+	// resolves first gets fully inlined and the other keeps a Ref back-edge,
+	// so map-order iteration would make the AST shape (and hence check
+	// results) vary run to run.
+	componentNames := make([]string, 0, len(doc.Components.Schemas))
 	for name := range doc.Components.Schemas {
-		node, err := ctx.resolve(name)
-		if err != nil {
+		componentNames = append(componentNames, name)
+	}
+	sort.Strings(componentNames)
+	for _, name := range componentNames {
+		if _, err := ctx.resolve(name); err != nil {
 			return nil, fmt.Errorf("schema: resolve component %s: %w", name, err)
 		}
-		qualified := servicePrefix + "." + name
-		spec.Schemas[qualified] = node
 	}
 
 	// Extract endpoint schemas from paths.
@@ -80,7 +85,7 @@ func Load(path string, servicePrefix string) (*Spec, error) {
 				continue
 			}
 			key := EndpointKey{Path: pathStr, Method: method}
-			ep := &EndpointSchemas{}
+			ep := &EndpointSchemas{Role: op.XRole}
 
 			// Request schema from requestBody.
 			if op.RequestBody != nil {
@@ -94,7 +99,11 @@ func Load(path string, servicePrefix string) (*Spec, error) {
 			}
 
 			// Response schema from first 2xx status.
-			ep.Response = ctx.extractResponseSchema(op.Responses)
+			resp, err := ctx.extractResponseSchema(op.Responses)
+			if err != nil {
+				return nil, fmt.Errorf("schema: %s %s response: %w", method, pathStr, err)
+			}
+			ep.Response = resp
 
 			spec.Endpoints[key] = ep
 		}
@@ -125,8 +134,9 @@ type pathItemObj struct {
 }
 
 type operationObj struct {
-	RequestBody *requestBodyObj        `yaml:"requestBody"`
+	RequestBody *requestBodyObj         `yaml:"requestBody"`
 	Responses   map[string]*responseObj `yaml:"responses"`
+	XRole       string                  `yaml:"x-role"` // "client" marks a declared outbound call
 }
 
 type requestBodyObj struct {
@@ -152,7 +162,9 @@ type schemaObj struct {
 	Required             []string              `yaml:"required"`
 	AdditionalProperties *additionalProps      `yaml:"additionalProperties"`
 	OneOf                []*schemaObj          `yaml:"oneOf"`
-	Default              *yaml.Node            `yaml:"default"`
+	AllOf                []*schemaObj          `yaml:"allOf"`
+	AnyOf                []*schemaObj          `yaml:"anyOf"`
+	Default              interface{}           `yaml:"default"`
 
 	// GUS extensions.
 	XProvides string `yaml:"x-provides"`
@@ -238,6 +250,16 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 		return ctx.resolveRef(s.Ref)
 	}
 
+	// allOf/anyOf are not modeled. Degrading them to Any would silently
+	// disable checking for the whole subtree (a false-PASS machine), so they
+	// are hard errors until composition is implemented.
+	if len(s.AllOf) > 0 {
+		return nil, fmt.Errorf("allOf is not supported by the GUS loader (schemas using it must be flattened)")
+	}
+	if len(s.AnyOf) > 0 {
+		return nil, fmt.Errorf("anyOf is not supported by the GUS loader (schemas using it must be flattened)")
+	}
+
 	// Handle oneOf -> Union.
 	if len(s.OneOf) > 0 {
 		variants := make([]*types.Node, 0, len(s.OneOf))
@@ -284,13 +306,21 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 		node = types.Array(items)
 
 	case "object":
-		node = ctx.convertObject(s)
+		obj, err := ctx.convertObject(s)
+		if err != nil {
+			return nil, err
+		}
+		node = obj
 
 	default:
 		// No type specified: check if it has properties (implicit object)
 		// or just treat as Any.
 		if len(s.Properties) > 0 {
-			node = ctx.convertObject(s)
+			obj, err := ctx.convertObject(s)
+			if err != nil {
+				return nil, err
+			}
+			node = obj
 		} else {
 			node = types.Any()
 		}
@@ -304,7 +334,7 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 }
 
 // convertObject builds an Object node from a schema with properties.
-func (ctx *resolveCtx) convertObject(s *schemaObj) *types.Node {
+func (ctx *resolveCtx) convertObject(s *schemaObj) (*types.Node, error) {
 	requiredSet := make(map[string]bool, len(s.Required))
 	for _, r := range s.Required {
 		requiredSet[r] = true
@@ -314,8 +344,8 @@ func (ctx *resolveCtx) convertObject(s *schemaObj) *types.Node {
 	for name, propSchema := range s.Properties {
 		fieldSchema, err := ctx.convertSchema(propSchema)
 		if err != nil {
-			// On error converting a field, use Any to be permissive.
-			fieldSchema = types.Any()
+			// Propagate: degrading a field to Any silently disables checking.
+			return nil, fmt.Errorf("property %q: %w", name, err)
 		}
 
 		f := &types.Field{
@@ -348,14 +378,22 @@ func (ctx *resolveCtx) convertObject(s *schemaObj) *types.Node {
 		if s.AdditionalProperties.Bool != nil && !*s.AdditionalProperties.Bool {
 			open = false
 		}
-		// If additionalProperties is a schema object, treat it as a Map type
-		// wrapped inside the object. We keep the object open in that case.
+		// additionalProperties as a schema: a property-less object with a
+		// value schema is a Map; mixing named properties with a value schema
+		// is not modeled and would silently drop the value schema, so error.
 		if s.AdditionalProperties.Schema != nil {
-			open = true
+			if len(fields) > 0 {
+				return nil, fmt.Errorf("object mixing named properties with an additionalProperties schema is not supported")
+			}
+			val, err := ctx.convertSchema(s.AdditionalProperties.Schema)
+			if err != nil {
+				return nil, fmt.Errorf("additionalProperties: %w", err)
+			}
+			return types.Map(types.Prim("string", ""), val), nil
 		}
 	}
 
-	return types.Object(fields, open)
+	return types.Object(fields, open), nil
 }
 
 // resolveRef resolves a $ref string like "#/components/schemas/Foo".
@@ -369,9 +407,9 @@ func (ctx *resolveCtx) resolveRef(ref string) (*types.Node, error) {
 }
 
 // extractResponseSchema finds the first 2xx response with a JSON schema.
-func (ctx *resolveCtx) extractResponseSchema(responses map[string]*responseObj) *types.Node {
+func (ctx *resolveCtx) extractResponseSchema(responses map[string]*responseObj) (*types.Node, error) {
 	if len(responses) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	// Collect and sort 2xx status codes.
@@ -391,11 +429,11 @@ func (ctx *resolveCtx) extractResponseSchema(responses map[string]*responseObj) 
 		if jsonContent, ok := resp.Content["application/json"]; ok && jsonContent.Schema != nil {
 			node, err := ctx.convertSchema(jsonContent.Schema)
 			if err != nil {
-				continue
+				return nil, fmt.Errorf("status %s: %w", code, err)
 			}
-			return node
+			return node, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }

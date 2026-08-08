@@ -33,17 +33,25 @@ type scenarioYAML struct {
 	Description string            `yaml:"description"`
 	Baseline    map[string]string `yaml:"baseline"`
 	Upgrades    map[string]string `yaml:"upgrades"`
+	Coercion    string            `yaml:"coercion"`
 	Expect      *expectYAML       `yaml:"expect"`
 }
 
 type expectYAML struct {
-	GUS    string        `yaml:"gus"`
-	MSS    []string      `yaml:"mss"`
-	Breaks []breakYAML   `yaml:"breaks"`
+	GUS    string      `yaml:"gus"`
+	MSS    []string    `yaml:"mss"`
+	Order  [][]string  `yaml:"order"`
+	Breaks []breakYAML `yaml:"breaks"`
+	Chains []chainYAML `yaml:"chains"`
 }
 
 type breakYAML struct {
 	Edge string `yaml:"edge"`
+	Rule string `yaml:"rule"`
+}
+
+type chainYAML struct {
+	Key  string `yaml:"key"`
 	Rule string `yaml:"rule"`
 }
 
@@ -115,18 +123,23 @@ func LoadScenario(path string) (*ScenarioDef, error) {
 		Description: raw.Description,
 		Baseline:    raw.Baseline,
 		Upgrades:    raw.Upgrades,
+		Coercion:    raw.Coercion,
 	}
 
 	if raw.Expect != nil {
 		eb := &ExpectBlock{
-			GUS: strings.ToUpper(raw.Expect.GUS),
-			MSS: raw.Expect.MSS,
+			GUS:   strings.ToUpper(raw.Expect.GUS),
+			MSS:   raw.Expect.MSS,
+			Order: raw.Expect.Order,
 		}
 		for _, b := range raw.Expect.Breaks {
 			eb.Breaks = append(eb.Breaks, ExpectedBreak{
 				Edge: b.Edge,
 				Rule: b.Rule,
 			})
+		}
+		for _, c := range raw.Expect.Chains {
+			eb.Chains = append(eb.Chains, ExpectedChain{Key: c.Key, Rule: c.Rule})
 		}
 		sc.Expect = eb
 	}

@@ -1,6 +1,16 @@
 // Package edge implements the EdgeOK predicate from the GUS paper.
-// It checks cross-version compatibility for RPC, pub/sub, and Kafka edges,
-// including the full 4-pairing check for RPC and the Consistent(theta) predicate.
+// It checks cross-version compatibility for RPC edges — the four mixed-pairing
+// conjuncts C1–C4 plus the (θ',θ') target-state conjunct — and the
+// Consistent(θ) predicate for a single deployment state. Pub/sub edges are
+// out of scope: the loader has no topic→schema resolution, so kafka edges
+// are rejected upstream rather than silently skipped.
+//
+// Pairing bookkeeping: the two mixed deployment pairings are
+// (old caller, new provider) — checked by C1 (request leg) and C3 (response
+// leg) — and (new caller, old provider) — checked by C2 and C4. The (old,old)
+// pairing is the baseline (see Consistent); the (new,new) pairing is the
+// TGT conjunct, which is excluded from Horn clause generation (see the
+// solver) but is part of the EdgeOK decision.
 package edge
 
 import (
@@ -31,149 +41,93 @@ type VersionedSchemas struct {
 
 // EdgeResult holds the result for a single edge.
 type EdgeResult struct {
-	Edge       Edge
-	OK         bool
-	Violations []types.Violation
-	Conjunct   string // which conjunct failed: "1", "2", "3", "4", or "" if all pass
+	Edge            Edge
+	OK              bool
+	Violations      []types.Violation
+	FailedConjuncts []string // every failing conjunct, in C1..C4,TGT order
+	CallerSpecUsed  bool     // false = Tier-3 fallback (caller schemas anchored to the old provider contract)
 }
 
-// CheckEdgeRPC checks all 4 cross-version pairings for an RPC edge:
-//  1. Send(old) <= Accept(new) -- old caller, new provider        (d=REQ)
-//  2. Send(new) <= Accept(old) -- new caller, old provider        (d=REQ)
-//  3. Return(new) <= Expect(old) -- new provider resp, old caller (d=RES)
-//  4. Return(old) <= Expect(new) -- old provider resp, new caller (d=RES)
-func CheckEdgeRPC(e Edge, old, new VersionedSchemas, cfg compat.Config) EdgeResult {
-	result := EdgeResult{Edge: e, OK: true}
+// CheckEdgeRPC checks the cross-version pairings for an RPC edge:
+//
+//	C1  Send(θ)  ≤ Accept(θ')  — old caller request, new provider   (REQ)
+//	C2  Send(θ') ≤ Accept(θ)   — new caller request, old provider   (REQ)
+//	C3  Return(θ') ≤ Expect(θ) — new provider response, old caller  (RES)
+//	C4  Return(θ) ≤ Expect(θ') — old provider response, new caller  (RES)
+//	TGT Send(θ') ≤ Accept(θ') ∧ Return(θ') ≤ Expect(θ') — target state
+//
+// checkTarget should be true only when real caller schemas are in play
+// (Tier 1/2); under the Tier-3 fallback the caller schemas are anchored to
+// the old provider contract, which makes TGT a duplicate of C1/C3.
+//
+// Chronology of violation labels: compat fills OldType/NewType positionally
+// (left arg, right arg). For C2 and C4 the left argument is the θ'-side
+// schema, so the labels are swapped after the fact to keep OldType = θ and
+// NewType = θ' in every reported violation.
+func CheckEdgeRPC(e Edge, old, new VersionedSchemas, checkTarget bool, cfg compat.Config) EdgeResult {
+	result := EdgeResult{Edge: e, OK: true, CallerSpecUsed: checkTarget}
 
-	// Conjunct 1: Send(old) <= Accept(new)  [old caller sends to new provider]
-	vs := compat.Check(old.Send, new.Accept, types.DirREQ, cfg)
-	if len(vs) > 0 {
-		tagged := tagViolations(vs, "C1")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "1"
+	// A conjunct fails (and the edge breaks) only on BREAK-severity
+	// violations. WARN-only findings are recorded for display but do not
+	// block the upgrade or feed clause generation.
+	record := func(tag string, vs []types.Violation, swapChronology bool) {
+		if len(vs) == 0 {
+			return
 		}
-		result.OK = false
+		if swapChronology {
+			for i := range vs {
+				vs[i].OldType, vs[i].NewType = vs[i].NewType, vs[i].OldType
+			}
+		}
+		result.Violations = append(result.Violations, tagViolations(vs, tag)...)
+		for _, v := range vs {
+			if v.Severity == types.SevBREAK {
+				result.FailedConjuncts = append(result.FailedConjuncts, tag)
+				result.OK = false
+				break
+			}
+		}
 	}
 
-	// Conjunct 2: Send(new) <= Accept(old)  [new caller sends to old provider]
-	vs = compat.Check(new.Send, old.Accept, types.DirREQ, cfg)
-	if len(vs) > 0 {
-		tagged := tagViolations(vs, "C2")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "2"
-		}
-		result.OK = false
-	}
+	// C1: old caller sends to new provider.
+	record("C1", compat.Check(old.Send, new.Accept, types.DirREQ, cfg), false)
 
-	// Conjunct 3: Return(new) <= Expect(old)  [new provider response, old caller expects]
-	vs = compat.Check(old.Expect, new.Return, types.DirRES, cfg)
-	if len(vs) > 0 {
-		tagged := tagViolations(vs, "C3")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "3"
-		}
-		result.OK = false
-	}
+	// C2: new caller sends to old provider (left arg is θ'-side).
+	record("C2", compat.Check(new.Send, old.Accept, types.DirREQ, cfg), true)
 
-	// Conjunct 4: Return(old) <= Expect(new)  [old provider response, new caller expects]
-	vs = compat.Check(new.Expect, old.Return, types.DirRES, cfg)
-	if len(vs) > 0 {
-		tagged := tagViolations(vs, "C4")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "4"
-		}
-		result.OK = false
-	}
+	// C3: new provider responds to old caller.
+	record("C3", compat.Check(old.Expect, new.Return, types.DirRES, cfg), false)
 
-	return result
-}
+	// C4: old provider responds to new caller (left arg is θ'-side).
+	record("C4", compat.Check(new.Expect, old.Return, types.DirRES, cfg), true)
 
-// CheckEdgePublish checks a publish edge: Send(publisher) <= Accept(topic_schema).
-func CheckEdgePublish(e Edge, send, accept *types.Node, cfg compat.Config) EdgeResult {
-	result := EdgeResult{Edge: e, OK: true}
-
-	vs := compat.Check(send, accept, types.DirREQ, cfg)
-	if len(vs) > 0 {
-		tagged := tagViolations(vs, "PUB")
-		result.Violations = append(result.Violations, tagged...)
-		result.Conjunct = "1"
-		result.OK = false
-	}
-
-	return result
-}
-
-// CheckEdgeSubscribe checks a subscribe edge with 3 conjuncts including retention:
-//  1. Send(pub_new) <= Expect(sub_new) -- both upgraded
-//  2. Send(pub_new) <= Expect(sub_old) -- new publisher, old subscriber
-//  3. Send(pub_old) <= Expect(sub_new) -- buffered old messages, new subscriber (retention)
-func CheckEdgeSubscribe(e Edge, pubOld, pubNew, subOld, subNew *types.Node, cfg compat.Config) EdgeResult {
-	result := EdgeResult{Edge: e, OK: true}
-
-	// Conjunct 1: both upgraded
-	vs := compat.Check(subNew, pubNew, types.DirRES, cfg)
-	if len(vs) > 0 {
-		tagged := tagViolations(vs, "SUB-C1")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "1"
-		}
-		result.OK = false
-	}
-
-	// Conjunct 2: new publisher, old subscriber
-	vs = compat.Check(subOld, pubNew, types.DirRES, cfg)
-	if len(vs) > 0 {
-		tagged := tagViolations(vs, "SUB-C2")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "2"
-		}
-		result.OK = false
-	}
-
-	// Conjunct 3: old publisher (retention), new subscriber
-	vs = compat.Check(subNew, pubOld, types.DirRES, cfg)
-	if len(vs) > 0 {
-		tagged := tagViolations(vs, "SUB-C3")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "3"
-		}
-		result.OK = false
+	// TGT: both sides on the new version — the steady state after the roll.
+	if checkTarget {
+		var vs []types.Violation
+		vs = append(vs, compat.Check(new.Send, new.Accept, types.DirREQ, cfg)...)
+		vs = append(vs, compat.Check(new.Expect, new.Return, types.DirRES, cfg)...)
+		record("TGT", vs, false)
 	}
 
 	return result
 }
 
 // Consistent checks that a single deployment state is internally compatible:
-// Send(e,theta) <= Accept(e,theta) AND Return(e,theta) <= Expect(e,theta)
+// Send(e,θ) ≤ Accept(e,θ) AND Return(e,θ) ≤ Expect(e,θ).
 func Consistent(e Edge, schemas VersionedSchemas, cfg compat.Config) EdgeResult {
 	result := EdgeResult{Edge: e, OK: true}
 
-	// Request direction: Send <= Accept
 	vs := compat.Check(schemas.Send, schemas.Accept, types.DirREQ, cfg)
 	if len(vs) > 0 {
-		tagged := tagViolations(vs, "CONSIST-REQ")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "1"
-		}
+		result.Violations = append(result.Violations, tagViolations(vs, "CONSIST-REQ")...)
+		result.FailedConjuncts = append(result.FailedConjuncts, "CONSIST-REQ")
 		result.OK = false
 	}
 
-	// Response direction: Return <= Expect
 	vs = compat.Check(schemas.Expect, schemas.Return, types.DirRES, cfg)
 	if len(vs) > 0 {
-		tagged := tagViolations(vs, "CONSIST-RES")
-		result.Violations = append(result.Violations, tagged...)
-		if result.Conjunct == "" {
-			result.Conjunct = "2"
-		}
+		result.Violations = append(result.Violations, tagViolations(vs, "CONSIST-RES")...)
+		result.FailedConjuncts = append(result.FailedConjuncts, "CONSIST-RES")
 		result.OK = false
 	}
 
