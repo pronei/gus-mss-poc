@@ -1,7 +1,11 @@
 openapi: "3.0.0"
 info:
   title: Email Service
-  version: "1.0"
+  version: "3.0"
+  description: >
+    Session tracing sink: confirmation emails are stitched to the user
+    session — trace_id must arrive present end-to-end (x-requires
+    session-trace), though the accept schema tolerates its absence.
 paths:
   /send-order-confirmation:
     post:
@@ -18,6 +22,9 @@ paths:
                 order_id:
                   type: string
                   x-requires: "order-identity"
+                trace_id:
+                  type: string
+                  x-requires: "session-trace"
                 email:
                   type: string
                   format: email
@@ -32,6 +39,8 @@ paths:
                 required: [status]
                 properties:
                   status:
+                    type: string
+                  delivery_estimate:
                     type: string
 components:
   schemas:

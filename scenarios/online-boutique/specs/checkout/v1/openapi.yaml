@@ -71,6 +71,7 @@ paths:
               properties:
                 order_id:
                   type: string
+                  x-provides: "order-identity"
                 email:
                   type: string
                   format: email
@@ -93,7 +94,6 @@ components:
       properties:
         order_id:
           type: string
-          x-provides: "order-identity"
         shipping_tracking_id:
           type: string
         shipping_cost:

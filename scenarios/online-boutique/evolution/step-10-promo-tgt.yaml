@@ -1,0 +1,28 @@
+name: "Evolution 10: Promo codes and the final-state trap"
+description: >
+  Shipping v5 accepts an optional discount_code from a fixed enum;
+  frontend v7 always sends one as a free string. Every mixed pairing
+  passes: old frontends omit the optional field, new frontends send
+  strings old shipping ignores. Only the (new,new) steady state is
+  broken — the TGT conjunct the original design deferred and never ran.
+  It surfaces as a target-state deadlock: the pair cannot coexist, so
+  both are excluded.
+baseline:
+  cart: v1
+  checkout: v8
+  currency: v4
+  email: v3
+  frontend: v6
+  payment: v2
+  productcatalog: v1
+  recommendation: v2
+  shipping: v4
+upgrades:
+  frontend: v7
+  shipping: v5
+expect:
+  gus: FAIL
+  mss: []
+  breaks:
+    - edge: frontend->shipping-quote
+      rule: enum-request-narrowing

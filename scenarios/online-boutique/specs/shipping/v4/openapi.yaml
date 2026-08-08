@@ -1,11 +1,11 @@
 openapi: "3.0.0"
 info:
   title: Shipping Service
-  version: "3.0"
+  version: "4.0"
   description: >
-    Safe upgrade: adds optional estimated_delivery to the quote
-    response. No breaking changes — designed to survive the MSS
-    exclusion cascade.
+    Account-based quotes: priority becomes required and the new
+    account_tier field is mandatory. Callers must send both before this
+    version can roll (REQ.2 + REQ.1 with a caller-first rollout order).
 paths:
   /shipping/quote:
     post:
@@ -14,7 +14,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [address, items]
+              required: [address, items, priority, account_tier]
               properties:
                 address:
                   $ref: '#/components/schemas/Address'
@@ -25,6 +25,8 @@ paths:
                 priority:
                   type: string
                   enum: [standard, express]
+                account_tier:
+                  type: string
       responses:
         "200":
           content:

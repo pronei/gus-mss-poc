@@ -2,17 +2,31 @@ services:
   frontend:
     v1: specs/frontend/v1/openapi.yaml
     v2: specs/frontend/v2/openapi.yaml
+    v3: specs/frontend/v3/openapi.yaml
+    v4: specs/frontend/v4/openapi.yaml
+    v5: specs/frontend/v5/openapi.yaml
+    v6: specs/frontend/v6/openapi.yaml
+    v7: specs/frontend/v7/openapi.yaml
   checkout:
     v1: specs/checkout/v1/openapi.yaml
     v2: specs/checkout/v2/openapi.yaml
     v3: specs/checkout/v3/openapi.yaml
+    v4: specs/checkout/v4/openapi.yaml
+    v5: specs/checkout/v5/openapi.yaml
+    v6: specs/checkout/v6/openapi.yaml
+    v7: specs/checkout/v7/openapi.yaml
+    v8: specs/checkout/v8/openapi.yaml
   shipping:
     v1: specs/shipping/v1/openapi.yaml
     v2: specs/shipping/v2/openapi.yaml
     v3: specs/shipping/v3/openapi.yaml
+    v4: specs/shipping/v4/openapi.yaml
+    v5: specs/shipping/v5/openapi.yaml
   email:
     v1: specs/email/v1/openapi.yaml
     v2: specs/email/v2/openapi.yaml
+    v3: specs/email/v3/openapi.yaml
+    v4: specs/email/v4/openapi.yaml
   productcatalog:
     v1: specs/productcatalog/v1/openapi.yaml
     v2: specs/productcatalog/v2/openapi.yaml
@@ -20,12 +34,18 @@ services:
   currency:
     v1: specs/currency/v1/openapi.yaml
     v2: specs/currency/v2/openapi.yaml
+    v3: specs/currency/v3/openapi.yaml
+    v4: specs/currency/v4/openapi.yaml
   cart:
     v1: specs/cart/v1/openapi.yaml
+    v2: specs/cart/v2/openapi.yaml
   recommendation:
     v1: specs/recommendation/v1/openapi.yaml
+    v2: specs/recommendation/v2/openapi.yaml
+    v3: specs/recommendation/v3/openapi.yaml
   payment:
     v1: specs/payment/v1/openapi.yaml
+    v2: specs/payment/v2/openapi.yaml
 
 edges:
   # --- frontend outbound ---

@@ -1,7 +1,11 @@
 openapi: "3.0.0"
 info:
   title: Checkout Service
-  version: "2.0"
+  version: "7.0"
+  description: >
+    Session tracing, first cut: accepts client_session_id from frontend
+    and forwards it to email — but RENAMED to trace_id with no x-alias,
+    so the chain checker cannot see the identity across the hop.
 paths:
   /placeorder:
     post:
@@ -12,6 +16,8 @@ paths:
               type: object
               required: [email, address, items, credit_card]
               properties:
+                client_session_id:
+                  type: string
                 email:
                   type: string
                   format: email
@@ -38,7 +44,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [address, items]
+              required: [address, items, priority, account_tier]
               properties:
                 address:
                   $ref: '#/components/schemas/Address'
@@ -49,6 +55,8 @@ paths:
                 priority:
                   type: string
                   enum: [standard, express]
+                account_tier:
+                  type: string
       responses:
         "200":
           content:
@@ -67,14 +75,16 @@ paths:
           application/json:
             schema:
               type: object
-              # v2: order_id no longer guaranteed on the confirmation call —
-              # a code path may omit it. Every hop tolerates the optional
-              # field, so no per-edge check fires; only the chain does.
-              required: [email, order]
+              required: [order_id, email, order, trace_id]
               properties:
                 order_id:
                   type: string
                   x-provides: "order-identity"
+                trace_id:
+                  type: string
+                shipment_ref:
+                  type: string
+                  x-provides: "shipment-tracking"
                 email:
                   type: string
                   format: email
@@ -89,6 +99,66 @@ paths:
                 properties:
                   status:
                     type: string
+  /charge:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, credit_card]
+              properties:
+                amount:
+                  $ref: '#/components/schemas/Money'
+                credit_card:
+                  $ref: '#/components/schemas/CreditCard'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [transaction_id, status]
+                properties:
+                  transaction_id:
+                    type: string
+                    nullable: true
+                  status:
+                    type: string
+                    enum: [approved, declined, requires_action]
+  /convert:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to_code]
+              properties:
+                from:
+                  type: object
+                  required: [currency_code, amount]
+                  properties:
+                    currency_code:
+                      type: string
+                    amount:
+                      type: number
+                to_code:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [currency_code, amount]
+                properties:
+                  currency_code:
+                    type: string
+                  amount:
+                    type: number
 components:
   schemas:
     OrderResult:

@@ -1,0 +1,78 @@
+openapi: "3.0.0"
+info:
+  title: Currency Service
+  version: "3.0"
+  description: >
+    Money v2, expand phase: /convert additionally ACCEPTS the
+    amount-based form (units/nanos now optional in requests, amount
+    optional) and RETURNS both forms (amount always present alongside
+    units/nanos). nanos widens to int64 in responses — a range risk for
+    old int32 consumers (WARN, not a break). Optional nullable memo.
+paths:
+  /convert:
+    post:
+      summary: Convert between currencies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Money'
+  /currencies:
+    get:
+      summary: List supported currency codes
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+components:
+  schemas:
+    ConversionRequest:
+      type: object
+      required: [from, to_code]
+      properties:
+        from:
+          $ref: '#/components/schemas/RequestMoney'
+        to_code:
+          type: string
+        memo:
+          type: string
+          nullable: true
+    RequestMoney:
+      type: object
+      required: [currency_code]
+      properties:
+        currency_code:
+          type: string
+        units:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32
+        amount:
+          type: number
+    Money:
+      type: object
+      required: [currency_code, units, nanos, amount]
+      properties:
+        currency_code:
+          type: string
+        units:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int64
+        amount:
+          type: number

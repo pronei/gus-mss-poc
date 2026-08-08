@@ -1,12 +1,20 @@
-name: "Scenario D: Chain break (order_id optional)"
-description: "Checkout v2 makes order_id optional; email requires it"
+name: "Scenario D: Chain break (order_id guarantee weakened)"
+description: >
+  Checkout v2 stops guaranteeing order_id on the confirmation call to
+  email (the field becomes optional in its client send). Email's accept
+  schema marks order_id optional too — every per-edge check passes,
+  which is exactly why pairwise tools are blind here. Email's
+  x-requires "order-identity" demands the identity arrive present, so
+  only the chain check fires. MSS excludes checkout.
 baseline:
-  checkout: v1
   frontend: v1
+  checkout: v1
+  email: v1
 upgrades:
   checkout: v2
 expect:
   gus: FAIL
-  breaks:
-    - edge: frontend->checkout
-      rule: RES.4
+  mss: []
+  chains:
+    - key: order-identity
+      rule: chain-weakened

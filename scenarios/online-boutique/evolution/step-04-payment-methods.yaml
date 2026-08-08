@@ -1,0 +1,28 @@
+name: "Evolution 04: Payment methods launch"
+description: >
+  Payment v2 accepts card OR wallet payments via oneOf — old callers
+  match the card variant, so the union widening is safe and no request
+  conjunct fires. But the response now widens status with
+  requires_action (old checkout has no case for it) and transaction_id
+  may be null while a wallet charge settles. Checkout isn't upgrading,
+  so payment is pinned out on both response rules.
+baseline:
+  cart: v1
+  checkout: v4
+  currency: v1
+  email: v2
+  frontend: v4
+  payment: v1
+  productcatalog: v1
+  recommendation: v2
+  shipping: v4
+upgrades:
+  payment: v2
+expect:
+  gus: FAIL
+  mss: []
+  breaks:
+    - edge: checkout->payment
+      rule: enum-response-widening
+    - edge: checkout->payment
+      rule: nullable-response-widening

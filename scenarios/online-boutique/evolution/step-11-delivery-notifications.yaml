@@ -1,0 +1,27 @@
+name: "Evolution 11: Delivery notifications expose an old erosion"
+description: >
+  Email v4 starts requiring the shipment reference on confirmations
+  (x-requires shipment-tracking). The guarantee it depends on was
+  quietly weakened four steps ago — checkout v6 made shipment_ref
+  optional while nobody required it, so nothing failed at the time.
+  This upgrade turns that dormant erosion into a violation: the chain
+  breaks, and the only in-batch fix is excluding email. `gus evolve`
+  traces the erosion to its origin instead.
+baseline:
+  cart: v1
+  checkout: v8
+  currency: v4
+  email: v3
+  frontend: v6
+  payment: v2
+  productcatalog: v1
+  recommendation: v2
+  shipping: v4
+upgrades:
+  email: v4
+expect:
+  gus: FAIL
+  mss: []
+  chains:
+    - key: shipment-tracking
+      rule: "chain-weakened"

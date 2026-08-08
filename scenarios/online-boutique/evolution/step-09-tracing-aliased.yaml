@@ -1,0 +1,26 @@
+name: "Evolution 09: Session tracing, aliased"
+description: >
+  Checkout v8 adds x-alias: client_session_id to its trace_id field —
+  the rename bridge. The chain walk now resolves the identity through
+  the intermediate hop and verifies it end-to-end: present, non-null,
+  type-stable. Everything ships in one stage.
+baseline:
+  cart: v1
+  checkout: v7
+  currency: v4
+  email: v2
+  frontend: v5
+  payment: v2
+  productcatalog: v1
+  recommendation: v2
+  shipping: v4
+upgrades:
+  checkout: v8
+  email: v3
+  frontend: v6
+expect:
+  gus: PASS
+  mss: [checkout, email, frontend]
+  chains:
+    - key: session-trace
+      rule: ""

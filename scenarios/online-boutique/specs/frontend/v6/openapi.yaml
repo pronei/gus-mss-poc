@@ -1,7 +1,10 @@
 openapi: "3.0.0"
 info:
   title: Frontend Service
-  version: "2.0"
+  version: "6.0"
+  description: >
+    Session tracing: every order now carries client_session_id, the
+    origin of the session-trace identity.
 paths:
   # Outbound call to checkout (the browser-facing inbound is out of mesh scope).
   /placeorder:
@@ -12,8 +15,11 @@ paths:
           application/json:
             schema:
               type: object
-              required: [email, address, items, credit_card]
+              required: [email, address, items, credit_card, client_session_id]
               properties:
+                client_session_id:
+                  type: string
+                  x-provides: "session-trace"
                 email:
                   type: string
                   format: email
@@ -50,7 +56,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [address, items]
+              required: [address, items, priority, account_tier]
               properties:
                 address:
                   $ref: '#/components/schemas/Address'
@@ -58,6 +64,8 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/CartItem'
+                account_tier:
+                  type: string
                 priority:
                   type: string
                   # v2: narrows its own sends to the intersection of every
@@ -74,6 +82,38 @@ paths:
                 properties:
                   cost_usd:
                     $ref: '#/components/schemas/Money'
+  /convert:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to_code]
+              properties:
+                from:
+                  type: object
+                  required: [currency_code, amount]
+                  properties:
+                    currency_code:
+                      type: string
+                    amount:
+                      type: number
+                to_code:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [currency_code, amount]
+                properties:
+                  currency_code:
+                    type: string
+                  amount:
+                    type: number
 components:
   schemas:
     OrderResult:

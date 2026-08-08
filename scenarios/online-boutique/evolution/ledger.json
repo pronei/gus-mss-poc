@@ -1,0 +1,115 @@
+{
+  "identities": {
+    "order-identity": {
+      "key": "order-identity",
+      "events": [
+        {
+          "step": "Evolution 01: Wishlist MVP",
+          "kind": "born",
+          "detail": "checkout provides it as string on field \"order_id\" (required=true, nullable=false)"
+        },
+        {
+          "step": "Evolution 01: Wishlist MVP",
+          "kind": "demanded",
+          "detail": "now required by [email]"
+        }
+      ],
+      "current": {
+        "provider": "checkout",
+        "field": "order_id",
+        "type": "string",
+        "required": true,
+        "nullable": false,
+        "paths": [
+          "checkout\u003eemail"
+        ]
+      },
+      "requirers": [
+        "email"
+      ]
+    },
+    "session-trace": {
+      "key": "session-trace",
+      "events": [
+        {
+          "step": "Evolution 08: Session tracing, first cut",
+          "kind": "demanded",
+          "detail": "now required by [email] — the proposal was REJECTED because the guarantee no longer holds"
+        },
+        {
+          "step": "Evolution 08: Session tracing, first cut",
+          "kind": "violated",
+          "detail": "chain check fails (chain-field-missing)"
+        },
+        {
+          "step": "Evolution 09: Session tracing, aliased",
+          "kind": "born",
+          "detail": "frontend provides it as string on field \"client_session_id\" (required=true, nullable=false)"
+        },
+        {
+          "step": "Evolution 09: Session tracing, aliased",
+          "kind": "demanded",
+          "detail": "now required by [email]"
+        }
+      ],
+      "current": {
+        "provider": "frontend",
+        "field": "client_session_id",
+        "type": "string",
+        "required": true,
+        "nullable": false,
+        "paths": [
+          "frontend\u003echeckout\u003eemail"
+        ]
+      },
+      "requirers": [
+        "email"
+      ]
+    },
+    "shipment-tracking": {
+      "key": "shipment-tracking",
+      "events": [
+        {
+          "step": "Evolution 03: Account-based quotes (staged rollout)",
+          "kind": "born",
+          "detail": "checkout provides it as string on field \"shipment_ref\" (required=true, nullable=false)"
+        },
+        {
+          "step": "Evolution 07: Money v2 contract (callers first)",
+          "kind": "eroded",
+          "detail": "field \"shipment_ref\" went required→optional at checkout — the identity is no longer guaranteed present"
+        },
+        {
+          "step": "Evolution 11: Delivery notifications expose an old erosion",
+          "kind": "demanded",
+          "detail": "now required by [email] — the proposal was REJECTED because the guarantee no longer holds"
+        },
+        {
+          "step": "Evolution 11: Delivery notifications expose an old erosion",
+          "kind": "violated",
+          "detail": "chain check fails (chain-weakened) — guarantee last weakened at step \"Evolution 07: Money v2 contract (callers first)\" (field \"shipment_ref\" went required→optional at checkout — the identity is no longer guaranteed present)"
+        }
+      ],
+      "current": {
+        "provider": "checkout",
+        "field": "shipment_ref",
+        "type": "string",
+        "required": false,
+        "nullable": false
+      }
+    }
+  },
+  "steps": [
+    "Evolution 01: Wishlist MVP",
+    "Evolution 02: Cart response guarantee regression",
+    "Evolution 03: Account-based quotes (staged rollout)",
+    "Evolution 04: Payment methods launch",
+    "Evolution 05: Payment methods, checkout first",
+    "Evolution 06: Money v2 expand + a map regression",
+    "Evolution 07: Money v2 contract (callers first)",
+    "Evolution 08: Session tracing, first cut",
+    "Evolution 09: Session tracing, aliased",
+    "Evolution 10: Promo codes and the final-state trap",
+    "Evolution 11: Delivery notifications expose an old erosion"
+  ]
+}

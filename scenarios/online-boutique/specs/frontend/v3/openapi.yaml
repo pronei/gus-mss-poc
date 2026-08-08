@@ -1,7 +1,10 @@
 openapi: "3.0.0"
 info:
   title: Frontend Service
-  version: "2.0"
+  version: "3.0"
+  description: >
+    Co-developed with checkout v3: sends the new idempotency_key and
+    expects order_id as integer in the OrderResult.
 paths:
   # Outbound call to checkout (the browser-facing inbound is out of mesh scope).
   /placeorder:
@@ -12,8 +15,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [email, address, items, credit_card]
+              required: [email, address, items, credit_card, idempotency_key]
               properties:
+                idempotency_key:
+                  type: string
                 email:
                   type: string
                   format: email
@@ -81,7 +86,7 @@ components:
       required: [order_id, shipping_tracking_id, shipping_cost, items]
       properties:
         order_id:
-          type: string
+          type: integer
         shipping_tracking_id:
           type: string
         shipping_cost:

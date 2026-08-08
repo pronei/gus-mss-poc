@@ -1,0 +1,30 @@
+name: "Evolution 08: Session tracing, first cut"
+description: >
+  Frontend v6 originates client_session_id (x-provides
+  session-trace); email v3 demands it arrive (x-requires); checkout v7
+  forwards it — renamed to trace_id, with no alias. Every per-edge
+  conjunct passes (checkout tolerates the field, email tolerates its
+  absence), which is precisely why pairwise tools see nothing. The chain
+  walk cannot find the identity in what checkout sends onward:
+  chain-field-missing, and since no single revert repairs the chain, the
+  whole feature trio ships together or not at all.
+baseline:
+  cart: v1
+  checkout: v6
+  currency: v4
+  email: v2
+  frontend: v5
+  payment: v2
+  productcatalog: v1
+  recommendation: v2
+  shipping: v4
+upgrades:
+  checkout: v7
+  email: v3
+  frontend: v6
+expect:
+  gus: FAIL
+  mss: [checkout]
+  chains:
+    - key: session-trace
+      rule: "chain-field-missing"

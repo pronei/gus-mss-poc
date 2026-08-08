@@ -1,7 +1,11 @@
 openapi: "3.0.0"
 info:
   title: Frontend Service
-  version: "2.0"
+  version: "7.0"
+  description: >
+    Promo codes: always sends discount_code as a free string — fine
+    against every deployed shipping, incompatible with shipping v5's
+    enum in the final state (TGT).
 paths:
   # Outbound call to checkout (the browser-facing inbound is out of mesh scope).
   /placeorder:
@@ -12,8 +16,11 @@ paths:
           application/json:
             schema:
               type: object
-              required: [email, address, items, credit_card]
+              required: [email, address, items, credit_card, client_session_id]
               properties:
+                client_session_id:
+                  type: string
+                  x-provides: "session-trace"
                 email:
                   type: string
                   format: email
@@ -50,7 +57,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [address, items]
+              required: [address, items, priority, account_tier, discount_code]
               properties:
                 address:
                   $ref: '#/components/schemas/Address'
@@ -58,12 +65,13 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/CartItem'
+                account_tier:
+                  type: string
                 priority:
                   type: string
-                  # v2: narrows its own sends to the intersection of every
-                  # shipping version's accept set — safe against shipping
-                  # v1 ({standard,express}) and v2 ({standard,same-day}).
                   enum: [standard]
+                discount_code:
+                  type: string
       responses:
         "200":
           content:
@@ -74,6 +82,38 @@ paths:
                 properties:
                   cost_usd:
                     $ref: '#/components/schemas/Money'
+  /convert:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to_code]
+              properties:
+                from:
+                  type: object
+                  required: [currency_code, amount]
+                  properties:
+                    currency_code:
+                      type: string
+                    amount:
+                      type: number
+                to_code:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [currency_code, amount]
+                properties:
+                  currency_code:
+                    type: string
+                  amount:
+                    type: number
 components:
   schemas:
     OrderResult:

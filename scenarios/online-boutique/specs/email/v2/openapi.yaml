@@ -13,7 +13,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [order_id, email, order]
+              # order_id is schema-optional: every per-edge check tolerates
+              # its absence. The x-requires annotation is what demands the
+              # identity arrive present and non-null end-to-end.
+              required: [email, order]
               properties:
                 order_id:
                   type: string

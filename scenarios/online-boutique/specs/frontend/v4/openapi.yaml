@@ -1,7 +1,10 @@
 openapi: "3.0.0"
 info:
   title: Frontend Service
-  version: "2.0"
+  version: "4.0"
+  description: >
+    Accounts push: quote sends guarantee priority and the new
+    account_tier; formalizes the /convert outbound contract.
 paths:
   # Outbound call to checkout (the browser-facing inbound is out of mesh scope).
   /placeorder:
@@ -50,7 +53,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [address, items]
+              required: [address, items, priority, account_tier]
               properties:
                 address:
                   $ref: '#/components/schemas/Address'
@@ -58,6 +61,8 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/CartItem'
+                account_tier:
+                  type: string
                 priority:
                   type: string
                   # v2: narrows its own sends to the intersection of every
@@ -74,6 +79,29 @@ paths:
                 properties:
                   cost_usd:
                     $ref: '#/components/schemas/Money'
+  /convert:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to_code]
+              properties:
+                from:
+                  $ref: '#/components/schemas/Money'
+                to_code:
+                  type: string
+                memo:
+                  type: string
+                  nullable: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Money'
 components:
   schemas:
     OrderResult:

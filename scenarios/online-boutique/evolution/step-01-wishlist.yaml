@@ -1,0 +1,21 @@
+name: "Evolution 01: Wishlist MVP"
+description: >
+  Recommendation v2 adds optional wishlist_hits and a per-category
+  scores map to each Product. Purely additive on the response — every
+  consumer tolerates the extra optional fields. The kind of change that
+  should sail through, and does.
+baseline:
+  cart: v1
+  checkout: v1
+  currency: v1
+  email: v2
+  frontend: v2
+  payment: v1
+  productcatalog: v1
+  recommendation: v1
+  shipping: v3
+upgrades:
+  recommendation: v2
+expect:
+  gus: PASS
+  mss: [recommendation]

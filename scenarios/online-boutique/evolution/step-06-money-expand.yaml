@@ -1,0 +1,29 @@
+name: "Evolution 06: Money v2 expand + a map regression"
+description: >
+  Two teams ship together. Currency v3 is a textbook expand: requests
+  accept both Money forms, responses return both, and nanos widens to
+  int64 — flagged as a WARN (range risk for old int32 consumers), not a
+  break, so currency ships. Recommendation v3 changes the scores map
+  values from integers to strings — a map value type change that strict
+  consumers reject; it gets pinned out by its non-upgrading callers.
+baseline:
+  cart: v1
+  checkout: v5
+  currency: v1
+  email: v2
+  frontend: v4
+  payment: v2
+  productcatalog: v1
+  recommendation: v2
+  shipping: v4
+upgrades:
+  currency: v3
+  recommendation: v3
+expect:
+  gus: FAIL
+  mss: [currency]
+  breaks:
+    - edge: frontend->recommendation
+      rule: prim-mismatch
+    - edge: checkout->currency
+      rule: format-change

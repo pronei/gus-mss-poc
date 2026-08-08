@@ -1,0 +1,41 @@
+name: "Evolution 07: Money v2 contract (callers first)"
+description: >
+  The contract phase: currency v4 drops units/nanos, requires amount,
+  closes the request Money against unknown fields, and stops accepting
+  null memos. Four different request/response rules fire against the
+  OLD caller contracts (REQ.1, REQ.4, RES.1, nullable-request-narrowing)
+  — every one of them pointing the same direction: checkout v6 and
+  frontend v5 must finish migrating before currency starts. Checkout v6
+  also quietly stops guaranteeing shipment_ref on confirmations; nobody
+  requires it yet, so nothing fails — the ledger remembers.
+baseline:
+  cart: v1
+  checkout: v5
+  currency: v3
+  email: v2
+  frontend: v4
+  payment: v2
+  productcatalog: v1
+  recommendation: v2
+  shipping: v4
+upgrades:
+  checkout: v6
+  currency: v4
+  frontend: v5
+expect:
+  gus: FAIL
+  mss: [checkout, currency, frontend]
+  order:
+    - [checkout, frontend]
+    - [currency]
+  breaks:
+    - edge: checkout->currency
+      rule: REQ.4
+    - edge: checkout->currency
+      rule: REQ.1
+    - edge: checkout->currency
+      rule: RES.1
+    - edge: checkout->currency
+      rule: nullable-request-narrowing
+    - edge: frontend->currency
+      rule: REQ.4

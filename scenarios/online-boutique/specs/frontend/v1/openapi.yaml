@@ -3,8 +3,10 @@ info:
   title: Frontend Service
   version: "1.0"
 paths:
+  # Outbound call to checkout (the browser-facing inbound is out of mesh scope).
   /placeorder:
     post:
+      x-role: client
       requestBody:
         content:
           application/json:

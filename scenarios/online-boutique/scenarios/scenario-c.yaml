@@ -1,5 +1,11 @@
 name: "Scenario C: Priority enum cascade"
-description: "Shipping v2 changes priority enum; frontend v2 widens it; checkout stays v1 sending [standard, express] which v2 shipping no longer accepts"
+description: >
+  Shipping v2 replaces express with same-day in the priority enum it
+  accepts. Frontend v2 (co-developed) narrows its sends to [standard],
+  which every shipping version accepts. Checkout stays at v1 and still
+  sends express, so shipping cannot upgrade — but frontend can: the
+  conjunct-aware clauses keep frontend in the MSS once shipping is
+  excluded (the old bidirectional encoding wrongly dragged it out).
 baseline:
   frontend: v1
   checkout: v1
@@ -9,7 +15,9 @@ upgrades:
   frontend: v2
 expect:
   gus: FAIL
-  mss: []
+  mss: [frontend]
   breaks:
     - edge: checkout->shipping-quote
+      rule: enum-request-narrowing
+    - edge: frontend->shipping-quote
       rule: enum-request-narrowing

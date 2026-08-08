@@ -1,11 +1,17 @@
 name: "Scenario I: Full-mesh upgrade storm"
 description: >
-  Six services upgrade at once; recommendation stays at v1 and becomes
-  the lynchpin. productcatalog v2 widens the categories response enum,
-  and bidirectional compat clauses cascade the exclusion through
-  frontend, checkout, and currency — four services removed from the MSS.
-  Shipping v3 and email v2 survive (optional-only response additions,
-  no violation-linked edges with the excluded cluster).
+  Six services upgrade at once under the lenient (Jackson-style)
+  coercion profile. Recommendation stays at v1 and pins productcatalog
+  with a unit clause. Frontend v3 and checkout v3 break their shared
+  edge in BOTH rolling directions (C1: old frontend lacks
+  idempotency_key; C4: old checkout returns a string order_id the new
+  frontend expects as integer) — a rollout deadlock no ordering can fix,
+  so the solver excludes the pair. Currency v2's Money restructure is
+  pinned by its non-upgrading fallback callers. The checkout->email
+  order-identity chain flips from string to integer (chain type
+  mismatch; identities are strictly typed even under lenient coercion).
+  Shipping v3 and email v2 survive: MSS = {shipping, email}.
+coercion: lenient
 baseline:
   frontend: v1
   checkout: v1
@@ -15,7 +21,7 @@ baseline:
   email: v1
   recommendation: v1
 upgrades:
-  frontend: v2
+  frontend: v3
   checkout: v3
   shipping: v3
   productcatalog: v2
@@ -35,3 +41,6 @@ expect:
       rule: RES.1
     - edge: frontend->currency
       rule: REQ.1
+  chains:
+    - key: order-identity
+      rule: chain-type-mismatch

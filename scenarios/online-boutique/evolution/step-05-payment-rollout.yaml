@@ -1,0 +1,29 @@
+name: "Evolution 05: Payment methods, checkout first"
+description: >
+  Checkout v5 learns to handle requires_action and a null
+  transaction_id. Now the payment v2 launch works — as a sequence:
+  checkout must fully roll before payment starts, because old checkout
+  instances still crash on the widened response. One definite clause,
+  one precedence, two stages.
+baseline:
+  cart: v1
+  checkout: v4
+  currency: v1
+  email: v2
+  frontend: v4
+  payment: v1
+  productcatalog: v1
+  recommendation: v2
+  shipping: v4
+upgrades:
+  checkout: v5
+  payment: v2
+expect:
+  gus: FAIL
+  mss: [checkout, payment]
+  order:
+    - [checkout]
+    - [payment]
+  breaks:
+    - edge: checkout->payment
+      rule: enum-response-widening

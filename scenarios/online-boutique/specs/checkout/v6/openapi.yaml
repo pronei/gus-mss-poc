@@ -1,12 +1,15 @@
 openapi: "3.0.0"
 info:
-  title: Frontend Service
-  version: "2.0"
+  title: Checkout Service
+  version: "6.0"
+  description: >
+    Money v2 migration (amount-based /convert, callers first). Also
+    quietly stops guaranteeing shipment_ref on confirmations — digital
+    orders have no shipment. Nobody requires it today, so nothing
+    fails; the provenance ledger records the erosion.
 paths:
-  # Outbound call to checkout (the browser-facing inbound is out of mesh scope).
   /placeorder:
     post:
-      x-role: client
       requestBody:
         content:
           application/json:
@@ -31,16 +34,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrderResult'
-  /products:
-    get:
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
   # --- outbound calls this service makes ---
   /shipping/quote:
     post:
@@ -50,7 +43,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [address, items]
+              required: [address, items, priority, account_tier]
               properties:
                 address:
                   $ref: '#/components/schemas/Address'
@@ -60,10 +53,9 @@ paths:
                     $ref: '#/components/schemas/CartItem'
                 priority:
                   type: string
-                  # v2: narrows its own sends to the intersection of every
-                  # shipping version's accept set — safe against shipping
-                  # v1 ({standard,express}) and v2 ({standard,same-day}).
-                  enum: [standard]
+                  enum: [standard, express]
+                account_tier:
+                  type: string
       responses:
         "200":
           content:
@@ -74,6 +66,96 @@ paths:
                 properties:
                   cost_usd:
                     $ref: '#/components/schemas/Money'
+  /send-order-confirmation:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, email, order]
+              properties:
+                order_id:
+                  type: string
+                  x-provides: "order-identity"
+                shipment_ref:
+                  type: string
+                  x-provides: "shipment-tracking"
+                email:
+                  type: string
+                  format: email
+                order:
+                  $ref: '#/components/schemas/OrderResult'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+  /charge:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, credit_card]
+              properties:
+                amount:
+                  $ref: '#/components/schemas/Money'
+                credit_card:
+                  $ref: '#/components/schemas/CreditCard'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [transaction_id, status]
+                properties:
+                  transaction_id:
+                    type: string
+                    nullable: true
+                  status:
+                    type: string
+                    enum: [approved, declined, requires_action]
+  /convert:
+    post:
+      x-role: client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to_code]
+              properties:
+                from:
+                  type: object
+                  required: [currency_code, amount]
+                  properties:
+                    currency_code:
+                      type: string
+                    amount:
+                      type: number
+                to_code:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [currency_code, amount]
+                properties:
+                  currency_code:
+                    type: string
+                  amount:
+                    type: number
 components:
   schemas:
     OrderResult:
@@ -90,28 +172,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CartItem'
-    Product:
-      type: object
-      required: [id, name, description, categories]
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        categories:
-          type: string
-          enum:
-            - clothing
-            - accessories
-            - footwear
-            - decor
-            - kitchen
-            - vintage
-            - garden
-            - electronics
-            - music
     Address:
       type: object
       required: [street_address, city, country, zip_code]

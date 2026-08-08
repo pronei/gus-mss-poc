@@ -1,0 +1,35 @@
+name: "Evolution 03: Account-based quotes (staged rollout)"
+description: >
+  Shipping v4 requires account_tier (REQ.1) and makes the previously
+  optional priority mandatory (REQ.2). Frontend v4 and checkout v4
+  upgrade their sends to match. Old caller instances would break against
+  new shipping, so the batch cannot roll simultaneously — but the solver
+  proves the callers-first order works: stage 1 rolls both callers,
+  stage 2 rolls shipping. Post-hoc verification replays the stages.
+baseline:
+  cart: v1
+  checkout: v1
+  currency: v1
+  email: v2
+  frontend: v2
+  payment: v1
+  productcatalog: v1
+  recommendation: v2
+  shipping: v3
+upgrades:
+  checkout: v4
+  frontend: v4
+  shipping: v4
+expect:
+  gus: FAIL
+  mss: [checkout, frontend, shipping]
+  order:
+    - [checkout, frontend]
+    - [shipping]
+  breaks:
+    - edge: frontend->shipping-quote
+      rule: REQ.2
+    - edge: frontend->shipping-quote
+      rule: REQ.1
+    - edge: checkout->shipping-quote
+      rule: REQ.2

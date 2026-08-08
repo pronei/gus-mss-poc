@@ -1,7 +1,11 @@
 openapi: "3.0.0"
 info:
   title: Email Service
-  version: "1.0"
+  version: "4.0"
+  description: >
+    Delivery notifications: emails now need the shipment reference
+    (x-requires shipment-tracking). The guarantee quietly eroded back
+    in checkout v6 — this upgrade is what exposes it.
 paths:
   /send-order-confirmation:
     post:
@@ -18,6 +22,12 @@ paths:
                 order_id:
                   type: string
                   x-requires: "order-identity"
+                trace_id:
+                  type: string
+                  x-requires: "session-trace"
+                shipment_ref:
+                  type: string
+                  x-requires: "shipment-tracking"
                 email:
                   type: string
                   format: email
@@ -32,6 +42,8 @@ paths:
                 required: [status]
                 properties:
                   status:
+                    type: string
+                  delivery_estimate:
                     type: string
 components:
   schemas:

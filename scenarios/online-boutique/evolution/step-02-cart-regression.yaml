@@ -1,0 +1,27 @@
+name: "Evolution 02: Cart response guarantee regression"
+description: >
+  Cart v2 lands two changes in one sprint: a new required 'source'
+  field on /cart/add WITH a declared default (safe — REQ.1's escape
+  hatch) and Cart.items dropping from required to optional (RES.4 —
+  frontend and checkout both assume items is always present). The safe
+  change rides along; the regression pins cart out entirely.
+baseline:
+  cart: v1
+  checkout: v1
+  currency: v1
+  email: v2
+  frontend: v2
+  payment: v1
+  productcatalog: v1
+  recommendation: v2
+  shipping: v3
+upgrades:
+  cart: v2
+expect:
+  gus: FAIL
+  mss: []
+  breaks:
+    - edge: frontend->cart
+      rule: RES.4
+    - edge: checkout->cart
+      rule: RES.4

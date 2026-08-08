@@ -1,0 +1,49 @@
+openapi: "3.0.0"
+info:
+  title: Recommendation Service
+  version: "3.0"
+  description: >
+    Wishlist MVP: adds optional wishlist_hits and per-category scores map. Purely additive.
+paths:
+  /recommendations:
+    get:
+      summary: Get product recommendations
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+components:
+  schemas:
+    Product:
+      type: object
+      required: [id, name, description, categories]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        wishlist_hits:
+          type: integer
+        scores:
+          type: object
+          # v3: score values become formatted strings — a map value type change.
+          additionalProperties:
+            type: string
+        categories:
+          type: string
+          enum:
+            - clothing
+            - accessories
+            - footwear
+            - decor
+            - kitchen
+            - vintage
+            - garden
+            - electronics
+            - music

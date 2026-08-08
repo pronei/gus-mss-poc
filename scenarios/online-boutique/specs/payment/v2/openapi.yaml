@@ -1,7 +1,9 @@
 openapi: "3.0.0"
 info:
   title: Payment Service
-  version: "1.0"
+  version: "2.0"
+  description: >
+    Payment methods launch: accepts card OR wallet (oneOf), widens status with requires_action, and transaction_id may be null while a wallet charge is pending.
 paths:
   /charge:
     post:
@@ -11,7 +13,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChargeRequest'
+              oneOf:
+                - $ref: '#/components/schemas/ChargeRequest'
+                - $ref: '#/components/schemas/WalletPayment'
       responses:
         "200":
           content:
@@ -28,15 +32,24 @@ components:
           $ref: '#/components/schemas/Money'
         credit_card:
           $ref: '#/components/schemas/CreditCard'
+    WalletPayment:
+      type: object
+      required: [amount, wallet_token]
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+        wallet_token:
+          type: string
     ChargeResult:
       type: object
       required: [transaction_id, status]
       properties:
         transaction_id:
           type: string
+          nullable: true
         status:
           type: string
-          enum: [approved, declined]
+          enum: [approved, declined, requires_action]
     Money:
       type: object
       required: [currency_code, units, nanos]
