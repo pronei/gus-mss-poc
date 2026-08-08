@@ -1,13 +1,22 @@
 # GUS Scenario Visualizer
 
-A standalone static frontend that renders a GUS scenario — services as
-nodes, edges annotated with violated rules, tooltips that explain each
-break in plain English, and a sidebar summarising the Maximal Safe Subset.
+A standalone static frontend that renders a GUS scenario: an SVG mesh
+(services as nodes, edges coloured by verdict, chain routes overlaid), a
+deployment plan (safe set, staged rollout order, exclusion reasons), and a
+findings panel where every violation follows one legible template —
+
+    severity · human rule name · rule id · conjunct chip
+    which mixed-version window breaks (old frontend calls new checkout)
+    a plain-English explanation
+    field · was <type> → becomes <type>
+
+No CDN scripts, no webfonts, no build step — the file is fully
+self-contained and works offline.
 
 The frontend is intentionally decoupled from the Go tool:
 
 ```
-graph.yaml         ┐                                   ┌─ viz/viz.html (p5.js, static)
+graph.yaml         ┐                                   ┌─ viz/viz.html (vanilla JS + SVG)
 scenario.yaml      ├─► pkg/viz.Build(...) ─► JSON ─────┤
 OpenAPI specs/     ┘   (Go library — used by gus viz)  └─ viz/scenario-*.html (embedded)
 ```

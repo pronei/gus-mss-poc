@@ -1,1261 +1,503 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GUS Scenario Visualizer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Lora:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --anthropic-dark: #141413;
-      --anthropic-light: #faf9f5;
-      --anthropic-mid-gray: #b0aea5;
-      --anthropic-light-gray: #e8e6dc;
-      --anthropic-orange: #d97757;
-      --anthropic-blue: #6a9bcc;
-      --anthropic-green: #788c5d;
-      --anthropic-red: #c45a4a;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GUS — Upgrade Safety</title>
+<style>
+  :root {
+    --bg: #0c1c30; --bg2: #10253d; --panel: #152e4a; --panel2: #1b3a5c;
+    --line: #24425f; --ink: #eee7d7; --muted: #8fa5bd; --faint: #5b7390;
+    --accent: #e8833a; --ok: #4cc38a; --bad: #e5534b; --warn: #d9a03f;
+    --up: #58a6ff; --chip: #0d2033;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--ink); font: 14px/1.5 var(--sans);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  header {
+    flex: none;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    padding: 14px 22px 10px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--bg2), var(--bg));
+  }
+  .brand { font: 700 15px var(--mono); color: var(--accent); letter-spacing: .12em; }
+  h1 { font-size: 17px; font-weight: 650; }
+  .verdict { font: 700 12px var(--mono); padding: 3px 12px; border-radius: 999px; letter-spacing: .08em; }
+  .verdict.ok  { background: rgba(76,195,138,.14); color: var(--ok);  border: 1px solid rgba(76,195,138,.5); }
+  .verdict.bad { background: rgba(229,83,75,.12);  color: var(--bad); border: 1px solid rgba(229,83,75,.5); }
+  .htag { font: 11px var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+  .desc { flex-basis: 100%; color: var(--muted); font-size: 13px; max-width: 110ch; }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, var(--anthropic-light) 0%, #f5f3ee 100%);
-      min-height: 100vh;
-      color: var(--anthropic-dark);
-    }
+  main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(430px, 46%) 1fr; gap: 0; }
+  @media (max-width: 1020px) {
+    body { overflow: auto; }
+    main { display: block; }
+    #mesh-pane, #detail-pane { overflow: visible; height: auto; }
+  }
 
-    .container {
-      display: flex;
-      min-height: 100vh;
-      padding: 20px;
-      gap: 20px;
-    }
+  #mesh-pane { border-right: 1px solid var(--line); padding: 10px 8px 18px; position: relative; overflow-y: auto; }
+  #mesh-hint { position: absolute; left: 20px; bottom: 12px; font: 11px var(--mono); color: var(--faint); }
+  svg { width: 100%; height: auto; display: block; }
+  .svc-box { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
+  .svc-box.up { stroke: var(--up); }
+  .svc-box.excluded { stroke: var(--bad); stroke-dasharray: 5 3; }
+  .svc-box.sel { stroke: var(--accent); stroke-width: 2; }
+  .svc-name { font: 600 12.5px var(--sans); fill: var(--ink); }
+  .svc-ver  { font: 10.5px var(--mono); fill: var(--muted); }
+  .svc-ver .to-ok { fill: var(--up); } .svc-ver .to-bad { fill: var(--bad); text-decoration: line-through; }
+  .svc-ver .excl-mark { fill: var(--bad); }
+  .edge-path { fill: none; stroke-width: 1.4; cursor: pointer; }
+  .edge-path.idle  { stroke: #274766; opacity: .55; }
+  .edge-path.ok    { stroke: var(--ok); opacity: .85; }
+  .edge-path.warn  { stroke: var(--warn); stroke-width: 2; }
+  .edge-path.bad   { stroke: var(--bad); stroke-width: 2.4; }
+  .edge-path.dim   { opacity: .14; }
+  .edge-path.sel   { stroke-width: 3.4; filter: drop-shadow(0 0 4px rgba(232,131,58,.7)); }
+  .edge-hit { fill: none; stroke: transparent; stroke-width: 14; cursor: pointer; }
+  .chain-overlay { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-dasharray: 3 5; opacity: .9; pointer-events: none; }
 
-    /* Main stage: header + canvas */
-    .stage {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 0;
-    }
+  #detail-pane { padding: 16px 22px 40px; overflow-y: auto; min-height: 0; }
+  section { margin-bottom: 26px; }
+  h2 { font: 700 11px var(--mono); color: var(--accent); letter-spacing: .18em; text-transform: uppercase;
+       border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: 12px var(--mono); background: var(--chip); border: 1px solid var(--line); border-radius: 7px; padding: 4px 10px; }
+  .chip.safe { border-color: rgba(76,195,138,.55); color: var(--ok); }
+  .chip.gone { border-color: rgba(229,83,75,.5); color: var(--bad); }
+  .chip .v { color: var(--muted); }
 
-    .header {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 20px 28px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
-    }
+  .stages { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .stage { background: var(--chip); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+  .stage b { font: 700 11px var(--mono); color: var(--accent); margin-right: 8px; }
+  .stage span { font: 12.5px var(--mono); }
+  .stage-arrow { color: var(--faint); font-size: 15px; }
+  .order-note { color: var(--muted); font-size: 12px; margin-top: 6px; }
 
-    .header h1 {
-      font-family: 'Lora', serif;
-      font-size: 24px;
-      font-weight: 500;
-      color: var(--anthropic-dark);
-      margin-bottom: 6px;
-    }
+  .excl-row { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .excl-row:last-child { border-bottom: 0; }
+  .excl-svc { font: 600 13px var(--mono); color: var(--bad); white-space: nowrap; }
+  .excl-why { color: var(--muted); font-size: 12.5px; }
+  .badge { display: inline-block; font: 700 10px var(--mono); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+  .badge.deadlock { background: rgba(229,83,75,.15); color: var(--bad); border: 1px solid rgba(229,83,75,.45); }
 
-    .header .scenario-name {
-      color: var(--anthropic-orange);
-      font-weight: 500;
-    }
+  .edge-group { margin-bottom: 18px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .edge-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 14px; background: var(--panel); cursor: pointer; }
+  .edge-head .route { font: 600 13px var(--mono); }
+  .edge-head .ep { font: 11.5px var(--mono); color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .dot.bad { background: var(--bad); } .dot.warn { background: var(--warn); } .dot.ok { background: var(--ok); }
+  .tier-note { font: 11px var(--sans); color: var(--faint); font-style: italic; flex-basis: 100%; }
 
-    .header .decision {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin-left: 12px;
-      vertical-align: middle;
-    }
+  .vcard { padding: 12px 14px 13px; border-top: 1px solid var(--line); background: var(--bg2); }
+  .vcard-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+  .sev { font: 700 10px var(--mono); letter-spacing: .1em; padding: 2px 8px; border-radius: 4px; }
+  .sev.BREAK { background: rgba(229,83,75,.16); color: var(--bad); }
+  .sev.WARN  { background: rgba(217,160,63,.16); color: var(--warn); }
+  .sev.INFO  { background: rgba(88,166,255,.14); color: var(--up); }
+  .rulename { font-weight: 650; font-size: 13px; }
+  .ruleid { font: 11px var(--mono); color: var(--faint); }
+  .conj { font: 700 10.5px var(--mono); color: var(--up); border: 1px solid rgba(88,166,255,.4); border-radius: 4px; padding: 1px 6px; margin-left: auto; }
+  .window { font: 12.5px var(--mono); color: var(--muted); margin-bottom: 7px; }
+  .window .old-side { color: var(--warn); } .window .new-side { color: var(--up); } .window .arr { color: var(--faint); }
+  .explain { font-size: 13px; color: var(--ink); max-width: 92ch; margin-bottom: 9px; }
+  .vmeta { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 12px var(--mono); color: var(--muted); max-width: 100%; }
+  .vmeta > span { max-width: 100%; }
+  .vmeta .k { color: var(--faint); margin-right: 6px; }
+  .type-pill { background: var(--chip); border: 1px solid var(--line); border-radius: 5px; padding: 1px 7px; color: var(--ink); word-break: break-all; display: inline; }
+  .type-arr { color: var(--accent); margin: 0 4px; }
 
-    .decision.pass { background: #e5ecdb; color: var(--anthropic-green); }
-    .decision.fail { background: #f7d9d1; color: var(--anthropic-red); }
+  .chain-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; background: var(--bg2); }
+  .chain-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .chain-key { font: 700 12.5px var(--mono); color: var(--accent); }
+  .chain-path { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; font: 12.5px var(--mono); margin-bottom: 7px; }
+  .hop { background: var(--chip); border: 1px solid var(--line); border-radius: 6px; padding: 2px 9px; }
+  .hop.culprit { border-color: rgba(229,83,75,.55); color: var(--bad); }
+  .hop-arr { color: var(--faint); }
+  .chain-msg { font-size: 12.5px; color: var(--muted); max-width: 92ch; }
 
-    .canvas-wrap {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
-      padding: 16px;
-      position: relative;
-      min-height: 620px;
-      overflow: hidden;
-    }
-
-    #canvas-container { width: 100%; height: 100%; }
-    #canvas-container canvas { display: block; border-radius: 8px; }
-
-    /* Sidebar */
-    .sidebar {
-      width: 380px;
-      flex-shrink: 0;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
-      overflow-y: auto;
-      max-height: calc(100vh - 40px);
-    }
-
-    .sidebar h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--anthropic-dark);
-      margin-bottom: 10px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--anthropic-light-gray);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .section {
-      margin-bottom: 24px;
-    }
-
-    .description {
-      font-size: 12.5px;
-      line-height: 1.55;
-      color: #4a4842;
-      white-space: pre-wrap;
-    }
-
-    .mss-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-      font-size: 13px;
-    }
-    .mss-row .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      min-width: 60px;
-      text-align: center;
-    }
-    .mss-row .badge.safe { background: #e5ecdb; color: var(--anthropic-green); }
-    .mss-row .badge.removed { background: #f7d9d1; color: var(--anthropic-red); }
-    .mss-row .reason {
-      font-size: 11px;
-      color: var(--anthropic-mid-gray);
-    }
-
-    .edge-list { max-height: 380px; overflow-y: auto; }
-
-    /* GUS findings — only-caught-by-GUS callout (C3/C4 asymmetry, kind/prim mismatches) */
-    .section.gus-findings {
-      background: linear-gradient(135deg, rgba(217, 119, 87, 0.08) 0%, rgba(217, 119, 87, 0.02) 100%);
-      border: 1px solid rgba(217, 119, 87, 0.28);
-      border-left: 3px solid var(--anthropic-orange);
-      border-radius: 8px;
-      padding: 14px 14px 10px;
-      margin-bottom: 24px;
-    }
-    .section.gus-findings h3 {
-      color: var(--anthropic-orange);
-      border-bottom-color: rgba(217, 119, 87, 0.22);
-    }
-    .gus-findings-subtitle {
-      font-size: 11px;
-      color: #867470;
-      margin: -4px 0 10px;
-      font-style: italic;
-      line-height: 1.4;
-    }
-    .gus-finding-card {
-      background: rgba(255, 255, 255, 0.55);
-      border-radius: 6px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.15s ease;
-    }
-    .gus-finding-card:last-child { margin-bottom: 0; }
-    .gus-finding-card:hover {
-      border-color: var(--anthropic-orange);
-      background: #fdf6f2;
-    }
-    .gus-finding-card .finding-rule {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--anthropic-orange);
-      margin-bottom: 3px;
-    }
-    .gus-finding-card .finding-edge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: #4a4842;
-      margin-bottom: 6px;
-    }
-    .gus-finding-card .finding-narrative {
-      font-size: 11.5px;
-      color: #4a4842;
-      line-height: 1.45;
-    }
-
-    /* Rule-grouped violations (replaces per-edge broken-edge cards) */
-    .rule-group {
-      border: 1px solid var(--anthropic-light-gray);
-      border-radius: 8px;
-      margin-bottom: 10px;
-      overflow: hidden;
-    }
-    .rule-group .rule-header {
-      padding: 7px 12px;
-      background: rgba(196, 90, 74, 0.08);
-      border-bottom: 1px solid var(--anthropic-light-gray);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .rule-group .rule-name {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--anthropic-red);
-    }
-    .rule-group .rule-meta {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      color: var(--anthropic-mid-gray);
-      white-space: nowrap;
-    }
-    .rule-group .rule-edges { padding: 4px 8px 6px; }
-    .rule-group .rule-edge {
-      padding: 5px 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background 0.1s ease;
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .rule-group .rule-edge:hover { background: #fdf6f2; }
-    .rule-group .rule-edge .endpoints {
-      color: var(--anthropic-dark);
-      font-weight: 500;
-    }
-    .rule-group .rule-edge .rule-path {
-      color: var(--anthropic-mid-gray);
-      font-size: 10.5px;
-    }
-    .rule-group .rule-edge .conj-tag {
-      margin-left: auto;
-      font-size: 10px;
-      color: var(--anthropic-mid-gray);
-      padding: 1px 5px;
-      background: rgba(176, 174, 165, 0.15);
-      border-radius: 3px;
-    }
-
-    /* Tooltip (floating) */
-    .tooltip {
-      position: absolute;
-      z-index: 50;
-      background: rgba(20, 20, 19, 0.97);
-      color: var(--anthropic-light);
-      padding: 14px 18px;
-      border-radius: 8px;
-      width: 480px;
-      max-width: 480px;
-      max-height: 70vh;
-      overflow-y: auto;
-      font-size: 12px;
-      line-height: 1.5;
-      pointer-events: none;
-      display: none;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .tooltip.pinned {
-      pointer-events: auto;
-      border: 1px solid var(--anthropic-orange);
-    }
-
-    .tooltip .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 10px;
-      width: 22px;
-      height: 22px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--anthropic-mid-gray);
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      font-family: inherit;
-    }
-    .tooltip .close-btn:hover { color: var(--anthropic-light); background: rgba(255, 255, 255, 0.15); }
-    .tooltip.pinned .close-btn { display: flex; }
-    .tooltip.pinned h4 { padding-right: 32px; }
-
-    .pin-hint {
-      font-size: 10.5px;
-      color: var(--anthropic-mid-gray);
-      margin: 6px 0 10px;
-      font-style: italic;
-    }
-    .tooltip.pinned .pin-hint { display: none; }
-
-    .edge-group {
-      margin-top: 10px;
-      padding-top: 8px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .edge-group .edge-header {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: #ffb786;
-      margin-bottom: 6px;
-    }
-
-    .tooltip h4 {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--anthropic-orange);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .tooltip .violation {
-      margin-bottom: 10px;
-      padding: 8px 10px;
-      background: rgba(196, 90, 74, 0.15);
-      border-left: 3px solid var(--anthropic-red);
-      border-radius: 4px;
-    }
-
-    .tooltip .violation .rule {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      color: #ffb5a6;
-      margin-bottom: 4px;
-    }
-
-    .tooltip .violation .path {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      color: var(--anthropic-mid-gray);
-      margin-bottom: 4px;
-    }
-
-    .tooltip .violation .explanation {
-      color: #eeebe0;
-      font-size: 11.5px;
-      line-height: 1.55;
-    }
-
-    .tooltip .violation .types {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      margin-top: 4px;
-      color: #cfcdc3;
-    }
-
-    .tooltip pre {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 380px;
-      overflow-y: auto;
-      padding: 8px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 4px;
-    }
-
-    .diff-row { display: block; }
-    .diff-row.add { background: rgba(120, 140, 93, 0.25); }
-    .diff-row.del { background: rgba(196, 90, 74, 0.25); }
-    .diff-row.chg { background: rgba(217, 119, 87, 0.25); }
-
-    .legend {
-      display: flex;
-      gap: 16px;
-      font-size: 11px;
-      color: var(--anthropic-mid-gray);
-      margin-bottom: 8px;
-    }
-    .legend .item { display: flex; align-items: center; gap: 6px; }
-    .legend .swatch { width: 12px; height: 12px; border-radius: 50%; }
-
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 6px;
-    }
-
-    .load-panel {
-      padding: 40px;
-      text-align: center;
-    }
-    .load-panel h2 { margin-bottom: 12px; font-family: 'Lora', serif; }
-    .load-panel textarea {
-      width: 100%;
-      min-height: 160px;
-      padding: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      border: 1px solid var(--anthropic-light-gray);
-      border-radius: 6px;
-      resize: vertical;
-    }
-    .load-panel button {
-      margin-top: 10px;
-      padding: 10px 24px;
-      background: var(--anthropic-orange);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 500;
-      cursor: pointer;
-    }
-  </style>
+  .empty { color: var(--faint); font-size: 13px; font-style: italic; }
+  .allclear { border: 1px solid rgba(76,195,138,.4); border-radius: 10px; padding: 14px 16px; color: var(--ok); background: rgba(76,195,138,.06); font-size: 13.5px; }
+  #nodata { padding: 60px 24px; text-align: center; color: var(--muted); font: 14px var(--mono); }
+  #nodata code { color: var(--accent); }
+</style>
 </head>
 <body>
-  <div class="container" id="root">
-    <div class="stage">
-      <div class="header">
-        <h1>
-          GUS Scenario Visualizer
-          <span id="decision-badge" class="decision"></span>
-        </h1>
-        <div class="scenario-name" id="scenario-name">Loading…</div>
-      </div>
-      <div class="canvas-wrap">
-        <div id="canvas-container"></div>
-        <div class="tooltip" id="tooltip"></div>
-      </div>
-    </div>
-    <div class="sidebar">
-      <div class="section">
-        <h3>Description</h3>
-        <div class="description" id="description"></div>
-      </div>
-      <div class="section">
-        <h3>MSS — Maximal Safe Subset</h3>
-        <div id="mss-list"></div>
-      </div>
-      <div class="section gus-findings" id="gus-findings-section" style="display:none;">
-        <h3>What only GUS catches</h3>
-        <div class="gus-findings-subtitle">4-pairing checks (C3/C4) that Pact and Buf can't express.</div>
-        <div id="gus-findings-list"></div>
-      </div>
-      <div class="section">
-        <h3>Legend</h3>
-        <div class="legend">
-          <div class="item"><span class="swatch" style="background:#141413"></span>unchanged</div>
-          <div class="item"><span class="swatch" style="background:#788c5d"></span>safe upgrade</div>
-          <div class="item"><span class="swatch" style="background:#c45a4a"></span>excluded</div>
-        </div>
-        <div class="legend">
-          <div class="item"><span class="swatch" style="background:#c45a4a;width:16px;height:3px;border-radius:0"></span>broken edge</div>
-          <div class="item"><span class="swatch" style="background:#b0aea5;width:16px;height:3px;border-radius:0"></span>safe edge</div>
-        </div>
-      </div>
-      <div class="section">
-        <h3>Violations by rule</h3>
-        <div class="edge-list" id="edge-list"></div>
-      </div>
-    </div>
+<header id="hdr" hidden>
+  <span class="brand">GUS/MSS</span>
+  <h1 id="t-name"></h1>
+  <span id="t-verdict" class="verdict"></span>
+  <span id="t-coercion" class="htag" hidden></span>
+  <p class="desc" id="t-desc"></p>
+</header>
+
+<div id="nodata" hidden>
+  no artifact embedded — build one with<br><br>
+  <code>gus viz --graph graph.yaml --scenario scenario.yaml --html out.html</code>
+</div>
+
+<main id="main" hidden>
+  <div id="mesh-pane">
+    <svg id="mesh" viewBox="0 0 640 560" role="img" aria-label="service mesh"></svg>
+    <div id="mesh-hint">click an edge or service to filter · click background to clear</div>
   </div>
-
-  <!-- Data: replaced by `gus viz --html` or loaded at runtime -->
-  <script id="viz-data" type="application/json">{"scenario":{"name":"Scenario B: Product category enum widening","description":"ProductCatalog v2 adds new-arrivals to categories enum in response","baseline":{"frontend":"v1","productcatalog":"v1"},"upgrades":{"productcatalog":"v2"}},"services":[{"id":"cart","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false,"baseline_spec":{"components":{"schemas":{"Cart":{"properties":{"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"user_id":{"type":"string"}},"required":["user_id","items"],"type":"object"},"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"}}},"info":{"title":"Cart Service","version":"1.0"},"openapi":"3.0.0","paths":{"/cart":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Cart"}}}}},"summary":"Get cart for user"}},"/cart/add":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"item":{"$ref":"#/components/schemas/CartItem"},"user_id":{"type":"string"}},"required":["user_id","item"],"type":"object"}}},"required":true},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Cart"}}}}},"summary":"Add item to cart"}},"/cart/empty":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"user_id":{"type":"string"}},"required":["user_id"],"type":"object"}}},"required":true},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"status":{"type":"string"}},"type":"object"}}}}},"summary":"Empty the cart"}}}},"current_spec":{"components":{"schemas":{"Cart":{"properties":{"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"user_id":{"type":"string"}},"required":["user_id","items"],"type":"object"},"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"}}},"info":{"title":"Cart Service","version":"1.0"},"openapi":"3.0.0","paths":{"/cart":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Cart"}}}}},"summary":"Get cart for user"}},"/cart/add":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"item":{"$ref":"#/components/schemas/CartItem"},"user_id":{"type":"string"}},"required":["user_id","item"],"type":"object"}}},"required":true},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Cart"}}}}},"summary":"Add item to cart"}},"/cart/empty":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"user_id":{"type":"string"}},"required":["user_id"],"type":"object"}}},"required":true},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"status":{"type":"string"}},"type":"object"}}}}},"summary":"Empty the cart"}}}}},{"id":"checkout","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false,"baseline_spec":{"components":{"schemas":{"Address":{"properties":{"city":{"type":"string"},"country":{"type":"string"},"state":{"type":"string"},"street_address":{"type":"string"},"zip_code":{"type":"string"}},"required":["street_address","city","country","zip_code"],"type":"object"},"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"},"CreditCard":{"properties":{"cvv":{"type":"integer"},"expiration_month":{"type":"integer"},"expiration_year":{"type":"integer"},"number":{"type":"string"}},"required":["number","cvv","expiration_year","expiration_month"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"},"OrderResult":{"properties":{"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"order_id":{"type":"string","x-provides":"order-identity"},"shipping_cost":{"$ref":"#/components/schemas/Money"},"shipping_tracking_id":{"type":"string"}},"required":["order_id","shipping_tracking_id","shipping_cost","items"],"type":"object"}}},"info":{"title":"Checkout Service","version":"1.0"},"openapi":"3.0.0","paths":{"/placeorder":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"credit_card":{"$ref":"#/components/schemas/CreditCard"},"email":{"format":"email","type":"string"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"}},"required":["email","address","items","credit_card"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OrderResult"}}}}}}},"/send-order-confirmation":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"email":{"format":"email","type":"string"},"order":{"$ref":"#/components/schemas/OrderResult"},"order_id":{"type":"string"}},"required":["order_id","email","order"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"status":{"type":"string"}},"type":"object"}}}}},"x-role":"client"}},"/shipping/quote":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"priority":{"enum":["standard","express"],"type":"string"}},"required":["address","items"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"cost_usd":{"$ref":"#/components/schemas/Money"}},"required":["cost_usd"],"type":"object"}}}}},"x-role":"client"}}}},"current_spec":{"components":{"schemas":{"Address":{"properties":{"city":{"type":"string"},"country":{"type":"string"},"state":{"type":"string"},"street_address":{"type":"string"},"zip_code":{"type":"string"}},"required":["street_address","city","country","zip_code"],"type":"object"},"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"},"CreditCard":{"properties":{"cvv":{"type":"integer"},"expiration_month":{"type":"integer"},"expiration_year":{"type":"integer"},"number":{"type":"string"}},"required":["number","cvv","expiration_year","expiration_month"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"},"OrderResult":{"properties":{"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"order_id":{"type":"string","x-provides":"order-identity"},"shipping_cost":{"$ref":"#/components/schemas/Money"},"shipping_tracking_id":{"type":"string"}},"required":["order_id","shipping_tracking_id","shipping_cost","items"],"type":"object"}}},"info":{"title":"Checkout Service","version":"1.0"},"openapi":"3.0.0","paths":{"/placeorder":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"credit_card":{"$ref":"#/components/schemas/CreditCard"},"email":{"format":"email","type":"string"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"}},"required":["email","address","items","credit_card"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OrderResult"}}}}}}},"/send-order-confirmation":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"email":{"format":"email","type":"string"},"order":{"$ref":"#/components/schemas/OrderResult"},"order_id":{"type":"string"}},"required":["order_id","email","order"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"status":{"type":"string"}},"type":"object"}}}}},"x-role":"client"}},"/shipping/quote":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"priority":{"enum":["standard","express"],"type":"string"}},"required":["address","items"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"cost_usd":{"$ref":"#/components/schemas/Money"}},"required":["cost_usd"],"type":"object"}}}}},"x-role":"client"}}}}},{"id":"currency","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false,"baseline_spec":{"components":{"schemas":{"ConversionRequest":{"properties":{"from":{"$ref":"#/components/schemas/Money"},"to_code":{"type":"string"}},"required":["from","to_code"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"}}},"info":{"title":"Currency Service","version":"1.0"},"openapi":"3.0.0","paths":{"/convert":{"post":{"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ConversionRequest"}}},"required":true},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Money"}}}}},"summary":"Convert between currencies"}},"/currencies":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"items":{"type":"string"},"type":"array"}}}}},"summary":"List supported currency codes"}}}},"current_spec":{"components":{"schemas":{"ConversionRequest":{"properties":{"from":{"$ref":"#/components/schemas/Money"},"to_code":{"type":"string"}},"required":["from","to_code"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"}}},"info":{"title":"Currency Service","version":"1.0"},"openapi":"3.0.0","paths":{"/convert":{"post":{"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ConversionRequest"}}},"required":true},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Money"}}}}},"summary":"Convert between currencies"}},"/currencies":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"items":{"type":"string"},"type":"array"}}}}},"summary":"List supported currency codes"}}}}},{"id":"email","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false,"baseline_spec":{"components":{"schemas":{"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"},"OrderSummary":{"properties":{"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"order_id":{"type":"string"},"shipping_cost":{"$ref":"#/components/schemas/Money"},"shipping_tracking_id":{"type":"string"}},"type":"object"}}},"info":{"title":"Email Service","version":"1.0"},"openapi":"3.0.0","paths":{"/send-order-confirmation":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"email":{"format":"email","type":"string"},"order":{"$ref":"#/components/schemas/OrderSummary"},"order_id":{"type":"string","x-requires":"order-identity"}},"required":["order_id","email","order"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"status":{"type":"string"}},"required":["status"],"type":"object"}}}}}}}}},"current_spec":{"components":{"schemas":{"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"},"OrderSummary":{"properties":{"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"order_id":{"type":"string"},"shipping_cost":{"$ref":"#/components/schemas/Money"},"shipping_tracking_id":{"type":"string"}},"type":"object"}}},"info":{"title":"Email Service","version":"1.0"},"openapi":"3.0.0","paths":{"/send-order-confirmation":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"email":{"format":"email","type":"string"},"order":{"$ref":"#/components/schemas/OrderSummary"},"order_id":{"type":"string","x-requires":"order-identity"}},"required":["order_id","email","order"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"status":{"type":"string"}},"required":["status"],"type":"object"}}}}}}}}}},{"id":"frontend","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false,"baseline_spec":{"components":{"schemas":{"Address":{"properties":{"city":{"type":"string"},"country":{"type":"string"},"state":{"type":"string"},"street_address":{"type":"string"},"zip_code":{"type":"string"}},"required":["street_address","city","country","zip_code"],"type":"object"},"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"},"CreditCard":{"properties":{"cvv":{"type":"integer"},"expiration_month":{"type":"integer"},"expiration_year":{"type":"integer"},"number":{"type":"string"}},"required":["number","cvv","expiration_year","expiration_month"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"},"OrderResult":{"properties":{"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"order_id":{"type":"string"},"shipping_cost":{"$ref":"#/components/schemas/Money"},"shipping_tracking_id":{"type":"string"}},"required":["order_id","shipping_tracking_id","shipping_cost","items"],"type":"object"},"Product":{"properties":{"categories":{"enum":["clothing","accessories","footwear","decor","kitchen","vintage","garden","electronics","music"],"type":"string"},"description":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"}},"required":["id","name","description","categories"],"type":"object"}}},"info":{"title":"Frontend Service","version":"1.0"},"openapi":"3.0.0","paths":{"/placeorder":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"credit_card":{"$ref":"#/components/schemas/CreditCard"},"email":{"format":"email","type":"string"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"}},"required":["email","address","items","credit_card"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OrderResult"}}}}}}},"/products":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/Product"},"type":"array"}}}}}}},"/shipping/quote":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"priority":{"enum":["standard","express"],"type":"string"}},"required":["address","items"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"cost_usd":{"$ref":"#/components/schemas/Money"}},"required":["cost_usd"],"type":"object"}}}}},"x-role":"client"}}}},"current_spec":{"components":{"schemas":{"Address":{"properties":{"city":{"type":"string"},"country":{"type":"string"},"state":{"type":"string"},"street_address":{"type":"string"},"zip_code":{"type":"string"}},"required":["street_address","city","country","zip_code"],"type":"object"},"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"},"CreditCard":{"properties":{"cvv":{"type":"integer"},"expiration_month":{"type":"integer"},"expiration_year":{"type":"integer"},"number":{"type":"string"}},"required":["number","cvv","expiration_year","expiration_month"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"},"OrderResult":{"properties":{"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"order_id":{"type":"string"},"shipping_cost":{"$ref":"#/components/schemas/Money"},"shipping_tracking_id":{"type":"string"}},"required":["order_id","shipping_tracking_id","shipping_cost","items"],"type":"object"},"Product":{"properties":{"categories":{"enum":["clothing","accessories","footwear","decor","kitchen","vintage","garden","electronics","music"],"type":"string"},"description":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"}},"required":["id","name","description","categories"],"type":"object"}}},"info":{"title":"Frontend Service","version":"1.0"},"openapi":"3.0.0","paths":{"/placeorder":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"credit_card":{"$ref":"#/components/schemas/CreditCard"},"email":{"format":"email","type":"string"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"}},"required":["email","address","items","credit_card"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OrderResult"}}}}}}},"/products":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/Product"},"type":"array"}}}}}}},"/shipping/quote":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"priority":{"enum":["standard","express"],"type":"string"}},"required":["address","items"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"cost_usd":{"$ref":"#/components/schemas/Money"}},"required":["cost_usd"],"type":"object"}}}}},"x-role":"client"}}}}},{"id":"payment","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false,"baseline_spec":{"components":{"schemas":{"ChargeRequest":{"properties":{"amount":{"$ref":"#/components/schemas/Money"},"credit_card":{"$ref":"#/components/schemas/CreditCard"}},"required":["amount","credit_card"],"type":"object"},"ChargeResult":{"properties":{"transaction_id":{"type":"string"}},"required":["transaction_id"],"type":"object"},"CreditCard":{"properties":{"cvv":{"type":"integer"},"expiration_month":{"type":"integer"},"expiration_year":{"type":"integer"},"number":{"type":"string"}},"required":["number","cvv","expiration_year","expiration_month"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"}}},"info":{"title":"Payment Service","version":"1.0"},"openapi":"3.0.0","paths":{"/charge":{"post":{"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChargeRequest"}}},"required":true},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChargeResult"}}}}},"summary":"Process credit card charge"}}}},"current_spec":{"components":{"schemas":{"ChargeRequest":{"properties":{"amount":{"$ref":"#/components/schemas/Money"},"credit_card":{"$ref":"#/components/schemas/CreditCard"}},"required":["amount","credit_card"],"type":"object"},"ChargeResult":{"properties":{"transaction_id":{"type":"string"}},"required":["transaction_id"],"type":"object"},"CreditCard":{"properties":{"cvv":{"type":"integer"},"expiration_month":{"type":"integer"},"expiration_year":{"type":"integer"},"number":{"type":"string"}},"required":["number","cvv","expiration_year","expiration_month"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"}}},"info":{"title":"Payment Service","version":"1.0"},"openapi":"3.0.0","paths":{"/charge":{"post":{"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChargeRequest"}}},"required":true},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChargeResult"}}}}},"summary":"Process credit card charge"}}}}},{"id":"productcatalog","baseline_version":"v1","current_version":"v2","is_upgrading":true,"is_excluded":true,"status_reason":"breaks edge frontend-\u003eproductcatalog","baseline_spec":{"components":{"schemas":{"Product":{"properties":{"categories":{"enum":["clothing","accessories","footwear","decor","kitchen","vintage","garden","electronics","music"],"type":"string"},"description":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"}},"required":["id","name","description","categories"],"type":"object"}}},"info":{"title":"ProductCatalog Service","version":"1.0"},"openapi":"3.0.0","paths":{"/products":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/Product"},"type":"array"}}}}}}},"/products/{id}":{"get":{"parameters":[{"in":"path","name":"id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Product"}}}}}}}}},"current_spec":{"components":{"schemas":{"Product":{"properties":{"categories":{"enum":["clothing","accessories","footwear","decor","kitchen","vintage","garden","electronics","music","new-arrivals"],"type":"string"},"description":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"}},"required":["id","name","description","categories"],"type":"object"}}},"info":{"title":"ProductCatalog Service","version":"2.0"},"openapi":"3.0.0","paths":{"/products":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/Product"},"type":"array"}}}}}}},"/products/{id}":{"get":{"parameters":[{"in":"path","name":"id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Product"}}}}}}}}}},{"id":"recommendation","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false,"baseline_spec":{"components":{"schemas":{"Product":{"properties":{"categories":{"enum":["clothing","accessories","footwear","decor","kitchen","vintage","garden","electronics","music"],"type":"string"},"description":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"}},"required":["id","name","description","categories"],"type":"object"}}},"info":{"title":"Recommendation Service","version":"1.0"},"openapi":"3.0.0","paths":{"/recommendations":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/Product"},"type":"array"}}}}},"summary":"Get product recommendations"}}}},"current_spec":{"components":{"schemas":{"Product":{"properties":{"categories":{"enum":["clothing","accessories","footwear","decor","kitchen","vintage","garden","electronics","music"],"type":"string"},"description":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"}},"required":["id","name","description","categories"],"type":"object"}}},"info":{"title":"Recommendation Service","version":"1.0"},"openapi":"3.0.0","paths":{"/recommendations":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/Product"},"type":"array"}}}}},"summary":"Get product recommendations"}}}}},{"id":"shipping","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false,"baseline_spec":{"components":{"schemas":{"Address":{"properties":{"city":{"type":"string"},"country":{"type":"string"},"state":{"type":"string"},"street_address":{"type":"string"},"zip_code":{"type":"string"}},"required":["street_address","city","country","zip_code"],"type":"object"},"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"}}},"info":{"title":"Shipping Service","version":"1.0"},"openapi":"3.0.0","paths":{"/shipping/quote":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"priority":{"enum":["standard","express"],"type":"string"}},"required":["address","items"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"cost_usd":{"$ref":"#/components/schemas/Money"}},"required":["cost_usd"],"type":"object"}}}}}}},"/shipping/ship":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"}},"required":["address","items"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"tracking_id":{"type":"string"}},"required":["tracking_id"],"type":"object"}}}}}}}}},"current_spec":{"components":{"schemas":{"Address":{"properties":{"city":{"type":"string"},"country":{"type":"string"},"state":{"type":"string"},"street_address":{"type":"string"},"zip_code":{"type":"string"}},"required":["street_address","city","country","zip_code"],"type":"object"},"CartItem":{"properties":{"product_id":{"type":"string"},"quantity":{"format":"int32","type":"integer"}},"required":["product_id","quantity"],"type":"object"},"Money":{"properties":{"currency_code":{"type":"string"},"nanos":{"format":"int32","type":"integer"},"units":{"format":"int64","type":"integer"}},"required":["currency_code","units","nanos"],"type":"object"}}},"info":{"title":"Shipping Service","version":"1.0"},"openapi":"3.0.0","paths":{"/shipping/quote":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"},"priority":{"enum":["standard","express"],"type":"string"}},"required":["address","items"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"cost_usd":{"$ref":"#/components/schemas/Money"}},"required":["cost_usd"],"type":"object"}}}}}}},"/shipping/ship":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"address":{"$ref":"#/components/schemas/Address"},"items":{"items":{"$ref":"#/components/schemas/CartItem"},"type":"array"}},"required":["address","items"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"properties":{"tracking_id":{"type":"string"}},"required":["tracking_id"],"type":"object"}}}}}}}}}}],"edges":[{"name":"frontend-\u003echeckout","from":"frontend","to":"checkout","method":"POST","path":"/placeorder","affected_by_upgrade":false,"ok":true},{"name":"frontend-\u003eshipping-quote","from":"frontend","to":"shipping","method":"POST","path":"/shipping/quote","affected_by_upgrade":false,"ok":true},{"name":"frontend-\u003eproductcatalog","from":"frontend","to":"productcatalog","method":"GET","path":"/products","affected_by_upgrade":true,"ok":false,"violations":[{"conjunct":"3","rule":"enum-response-widening","path":"$[*].categories","severity":"BREAK","message":"response enum widened: new values [new-arrivals] not understood by consumers","old_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music}","new_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music,new-arrivals}","explanation":"New productcatalog widens the response enum for categories on GET /products with values old frontend callers don't recognize. Old callers may parse an unknown variant and crash or behave incorrectly."}]},{"name":"frontend-\u003ecurrency","from":"frontend","to":"currency","method":"POST","path":"/convert","affected_by_upgrade":false,"ok":true},{"name":"frontend-\u003ecart","from":"frontend","to":"cart","method":"GET","path":"/cart","affected_by_upgrade":false,"ok":true},{"name":"frontend-\u003erecommendation","from":"frontend","to":"recommendation","method":"GET","path":"/recommendations","affected_by_upgrade":false,"ok":true},{"name":"checkout-\u003eshipping-quote","from":"checkout","to":"shipping","method":"POST","path":"/shipping/quote","affected_by_upgrade":false,"ok":true},{"name":"checkout-\u003eshipping-ship","from":"checkout","to":"shipping","method":"POST","path":"/shipping/ship","affected_by_upgrade":false,"ok":true},{"name":"checkout-\u003eemail","from":"checkout","to":"email","method":"POST","path":"/send-order-confirmation","affected_by_upgrade":false,"ok":true},{"name":"checkout-\u003eproductcatalog","from":"checkout","to":"productcatalog","method":"GET","path":"/products/{id}","affected_by_upgrade":true,"ok":false,"violations":[{"conjunct":"3","rule":"enum-response-widening","path":"$.categories","severity":"BREAK","message":"response enum widened: new values [new-arrivals] not understood by consumers","old_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music}","new_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music,new-arrivals}","explanation":"New productcatalog widens the response enum for categories on GET /products/{id} with values old checkout callers don't recognize. Old callers may parse an unknown variant and crash or behave incorrectly."}]},{"name":"checkout-\u003ecurrency","from":"checkout","to":"currency","method":"POST","path":"/convert","affected_by_upgrade":false,"ok":true},{"name":"checkout-\u003ecart","from":"checkout","to":"cart","method":"GET","path":"/cart","affected_by_upgrade":false,"ok":true},{"name":"checkout-\u003epayment","from":"checkout","to":"payment","method":"POST","path":"/charge","affected_by_upgrade":false,"ok":true},{"name":"recommendation-\u003eproductcatalog","from":"recommendation","to":"productcatalog","method":"GET","path":"/products","affected_by_upgrade":true,"ok":false,"violations":[{"conjunct":"3","rule":"enum-response-widening","path":"$[*].categories","severity":"BREAK","message":"response enum widened: new values [new-arrivals] not understood by consumers","old_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music}","new_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music,new-arrivals}","explanation":"New productcatalog widens the response enum for categories on GET /products with values old recommendation callers don't recognize. Old callers may parse an unknown variant and crash or behave incorrectly."}]}],"mss":{"computed":true,"safe":null,"removed":[{"service":"productcatalog","from_ver":"v1","to_ver":"v2","reason":"breaks edge frontend-\u003eproductcatalog"}]}}</script>
-
-  <script>
-    // -------- Data loading --------
-    let DATA = null;
-    function tryLoadEmbeddedOrFetch() {
-      const el = document.getElementById('viz-data');
-      const raw = el && el.textContent ? el.textContent.trim() : '';
-      if (raw && !raw.startsWith('/*')) {
-        try { DATA = JSON.parse(raw); return Promise.resolve(DATA); }
-        catch (e) { console.warn('Embedded JSON parse failed, falling back to fetch', e); }
-      }
-      const params = new URLSearchParams(window.location.search);
-      const src = params.get('data') || './data.json';
-      return fetch(src).then(r => {
-        if (!r.ok) throw new Error('fetch failed: ' + r.status);
-        return r.json();
-      }).then(d => { DATA = d; return d; });
-    }
-
-    // -------- Layout: hierarchical (tiers by topological depth) --------
-    // Places nodes in horizontal rows where row = longest path from a root.
-    // Within each row, sorts by barycenter of predecessors to minimize crossings.
-    function hierarchicalLayout(serviceIds, edges, width, height) {
-      const preds = {}, succs = {};
-      for (const id of serviceIds) { preds[id] = []; succs[id] = []; }
-      for (const e of edges) {
-        if (e.from in preds) succs[e.from].push(e.to);
-        if (e.to in preds) preds[e.to].push(e.from);
-      }
-
-      // Longest path from any root (node with no predecessors) = tier.
-      const tier = {};
-      function computeTier(id, stack) {
-        if (id in tier) return tier[id];
-        if (stack.has(id)) return 0; // cycle guard
-        stack.add(id);
-        if (preds[id].length === 0) { tier[id] = 0; stack.delete(id); return 0; }
-        let t = 0;
-        for (const p of preds[id]) t = Math.max(t, computeTier(p, stack) + 1);
-        tier[id] = t;
-        stack.delete(id);
-        return t;
-      }
-      for (const id of serviceIds) computeTier(id, new Set());
-
-      const tiers = {};
-      for (const id of serviceIds) {
-        (tiers[tier[id]] = tiers[tier[id]] || []).push(id);
-      }
-      const maxTier = Math.max(0, ...Object.keys(tiers).map(Number));
-
-      // Initial positions: alphabetical within tier, evenly spaced.
-      const pos = {};
-      const marginTop = 100, marginBottom = 80;
-      const marginX = 80;
-      const tierY = (t) => {
-        if (maxTier === 0) return height / 2;
-        return marginTop + (height - marginTop - marginBottom) * (t / maxTier);
-      };
-      const assignXs = (row, t) => {
-        const y = tierY(t);
-        const span = width - 2 * marginX;
-        const n = row.length;
-        for (let i = 0; i < n; i++) {
-          const x = n === 1 ? width / 2 : marginX + span * (i / (n - 1));
-          pos[row[i]] = { x, y };
-        }
-      };
-      for (let t = 0; t <= maxTier; t++) {
-        if (!tiers[t]) continue;
-        tiers[t].sort();
-        assignXs(tiers[t], t);
-      }
-
-      // Barycenter passes (down then up) to reduce crossings.
-      for (let iter = 0; iter < 8; iter++) {
-        const down = iter % 2 === 0;
-        for (let t = 1; t <= maxTier; t++) {
-          if (!tiers[t]) continue;
-          const row = tiers[t];
-          row.sort((a, b) => {
-            const neighborsA = down ? preds[a] : succs[a];
-            const neighborsB = down ? preds[b] : succs[b];
-            const mean = (ns) => ns.length === 0 ? width / 2 : ns.reduce((s, p) => s + (pos[p]?.x ?? width/2), 0) / ns.length;
-            return mean(neighborsA) - mean(neighborsB);
-          });
-          assignXs(row, t);
-        }
-      }
-
-      const nodes = {};
-      for (const id of serviceIds) nodes[id] = { id, ...pos[id] };
-      return { nodes, width, height, tiers, maxTier };
-    }
-
-    // -------- p5 sketch --------
-    let layout = null;
-    let hoverNode = null;
-    let hoverEdge = null;
-    let pinnedTarget = null; // 'node:id' | 'edge:name' | null
-
-    function setup() {
-      const container = document.getElementById('canvas-container');
-      const w = container.clientWidth, h = container.clientHeight;
-      const c = createCanvas(w, h);
-      c.parent('canvas-container');
-      if (DATA) buildLayout(w, h);
-    }
-
-    function buildLayout(w, h) {
-      const ids = DATA.services.map(s => s.id);
-      layout = hierarchicalLayout(ids, DATA.edges, w, h);
-    }
-
-    function windowResized() {
-      const container = document.getElementById('canvas-container');
-      resizeCanvas(container.clientWidth, container.clientHeight);
-      if (DATA) buildLayout(container.clientWidth, container.clientHeight);
-    }
-
-    function draw() {
-      if (!DATA || !layout) {
-        background(250, 249, 245);
-        return;
-      }
-      background(250, 249, 245);
-
-      // Grid backdrop
-      stroke(232, 230, 220);
-      strokeWeight(1);
-      for (let x = 0; x < width; x += 40) line(x, 0, x, height);
-      for (let y = 0; y < height; y += 40) line(0, y, width, y);
-
-      // Edges
-      drawEdges();
-      // Nodes
-      drawNodes();
-
-      // Hover detection
-      detectHover();
-    }
-
-    // Per-edge offset to avoid perfect overlap when multiple edges share endpoints.
-    function edgeOffset(e, idx) {
-      return (idx % 2 === 0 ? 1 : -1) * Math.min(18, 4 + idx * 2);
-    }
-
-    // Geometry for a single edge: returns {a,b,ux,uy,startX,startY,endX,endY,midX,midY,angle}.
-    // nodeR is the node radius at which lines should terminate.
-    function edgeGeom(from, to, nodeR = 28) {
-      const dx = to.x - from.x, dy = to.y - from.y;
-      const d = Math.hypot(dx, dy) || 1;
-      const ux = dx / d, uy = dy / d;
-      return {
-        a: from, b: to,
-        ux, uy, d,
-        startX: from.x + ux * nodeR,
-        startY: from.y + uy * nodeR,
-        endX:   to.x   - ux * nodeR,
-        endY:   to.y   - uy * nodeR,
-        midX:   (from.x + to.x) / 2,
-        midY:   (from.y + to.y) / 2,
-      };
-    }
-
-    function edgeStyle(e, isHighlighted) {
-      if (!e.ok) {
-        return { stroke: [196, 90, 74], weight: isHighlighted ? 3.4 : 2.6, alpha: 255 };
-      }
-      if (e.affected_by_upgrade) {
-        return { stroke: [120, 140, 93], weight: isHighlighted ? 2.6 : 2.0, alpha: 230 };
-      }
-      return { stroke: [176, 174, 165], weight: isHighlighted ? 2.0 : 1.4, alpha: 180 };
-    }
-
-    function drawEdges() {
-      for (const e of DATA.edges) {
-        const a = layout.nodes[e.from], b = layout.nodes[e.to];
-        if (!a || !b) continue;
-
-        const g = edgeGeom(a, b);
-        const isHovered = (hoverEdge && hoverEdge.name === e.name) ||
-                          (pinnedTarget === 'edge:' + e.name);
-        const s = edgeStyle(e, isHovered);
-
-        stroke(s.stroke[0], s.stroke[1], s.stroke[2], s.alpha);
-        strokeWeight(s.weight);
-        line(g.startX, g.startY, g.endX, g.endY);
-
-        // Arrowhead — matching the edge color, solid.
-        drawArrowhead(g, s.stroke);
-      }
-
-      // Draw pill labels on broken edges on top of edges.
-      for (const e of DATA.edges) {
-        if (e.ok || !e.violations?.length) continue;
-        const a = layout.nodes[e.from], b = layout.nodes[e.to];
-        if (!a || !b) continue;
-        const g = edgeGeom(a, b);
-        drawRulePill(e, g);
-      }
-    }
-
-    function drawArrowhead(g, color) {
-      const tipX = g.endX, tipY = g.endY;
-      const SIZE = 13;    // length of arrowhead along the line
-      const HALF = 7;     // half-width of base
-      const bx = tipX - g.ux * SIZE;
-      const by = tipY - g.uy * SIZE;
-      // Perpendicular
-      const px = -g.uy, py = g.ux;
-      noStroke();
-      fill(color[0], color[1], color[2]);
-      triangle(tipX, tipY, bx + px * HALF, by + py * HALF, bx - px * HALF, by - py * HALF);
-    }
-
-    function drawRulePill(e, g) {
-      const rule = e.violations[0].rule;
-      textFont('JetBrains Mono');
-      textSize(10.5);
-      textStyle(BOLD);
-      textAlign(CENTER, CENTER);
-      const tw = textWidth(rule);
-      const padX = 8, h = 18;
-      const w = tw + padX * 2;
-      const x = g.midX, y = g.midY;
-      // White pill with red outline for readability
-      strokeWeight(1.4);
-      stroke(196, 90, 74);
-      fill(250, 249, 245);
-      rect(x - w / 2, y - h / 2, w, h, 9);
-      noStroke();
-      fill(196, 90, 74);
-      text(rule, x, y - 0.5);
-      textStyle(NORMAL);
-    }
-
-    function drawNodes() {
-      for (const s of DATA.services) {
-        const n = layout.nodes[s.id];
-        if (!n) continue;
-
-        // Halo ring for upgrade status
-        let ringColor = null;
-        if (s.is_upgrading && s.is_excluded) ringColor = [196, 90, 74];
-        else if (s.is_upgrading) ringColor = [120, 140, 93];
-        // else no ring for unchanged services
-
-        if (ringColor) {
-          noFill();
-          stroke(ringColor[0], ringColor[1], ringColor[2], 220);
-          strokeWeight(3.5);
-          circle(n.x, n.y, 58);
-        }
-
-        // Inner black circle
-        noStroke();
-        fill(20, 20, 19);
-        circle(n.x, n.y, 50);
-
-        // Version text inside
-        fill(250, 249, 245);
-        textFont('JetBrains Mono');
-        textSize(13);
-        textStyle(BOLD);
-        textAlign(CENTER, CENTER);
-        const versionLabel = s.is_upgrading ? `${s.baseline_version}→${s.current_version}` : s.current_version;
-        textSize(s.is_upgrading ? 10 : 13);
-        text(versionLabel, n.x, n.y);
-
-        // Service name below
-        textStyle(NORMAL);
-        textFont('Poppins');
-        fill(20, 20, 19);
-        textSize(12);
-        text(s.id, n.x, n.y + 38);
-      }
-    }
-
-    function distToSegment(px, py, x1, y1, x2, y2) {
-      const dx = x2 - x1, dy = y2 - y1;
-      const len2 = dx*dx + dy*dy;
-      if (len2 === 0) return Math.hypot(px - x1, py - y1);
-      const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / len2));
-      const projx = x1 + t * dx, projy = y1 + t * dy;
-      return Math.hypot(px - projx, py - projy);
-    }
-
-    // Return what's under the cursor (node or edge or null).
-    function hitTest(mx, my) {
-      // Node first — accept either the circle (halo radius 29) OR the service
-      // label below it (centered at n.y+38, ~80px wide, ~14px tall).
-      for (const s of DATA.services) {
-        const n = layout.nodes[s.id];
-        if (!n) continue;
-        if (Math.hypot(mx - n.x, my - n.y) < 32) {
-          return { kind: 'node', svc: s };
-        }
-        // Label zone under the node.
-        if (Math.abs(mx - n.x) < 48 && my > n.y + 28 && my < n.y + 48) {
-          return { kind: 'node', svc: s };
-        }
-      }
-      // Edge pill zone — check midpoint pill first (easy target).
-      for (const e of DATA.edges) {
-        if (e.ok || !e.violations?.length) continue;
-        const a = layout.nodes[e.from], b = layout.nodes[e.to];
-        if (!a || !b) continue;
-        const midx = (a.x + b.x) / 2, midy = (a.y + b.y) / 2;
-        if (Math.abs(mx - midx) < 40 && Math.abs(my - midy) < 12) {
-          return { kind: 'edge', edge: e };
-        }
-      }
-      // Edge line proximity (broken edges only).
-      for (const e of DATA.edges) {
-        if (e.ok || !e.violations?.length) continue;
-        const a = layout.nodes[e.from], b = layout.nodes[e.to];
-        if (!a || !b) continue;
-        const g = edgeGeom(a, b);
-        if (distToSegment(mx, my, g.startX, g.startY, g.endX, g.endY) < 8) {
-          return { kind: 'edge', edge: e };
-        }
-      }
-      return null;
-    }
-
-    function detectHover() {
-      if (pinnedTarget) return;
-      const hit = hitTest(mouseX, mouseY);
-      hoverNode = hit && hit.kind === 'node' ? hit.svc : null;
-      hoverEdge = hit && hit.kind === 'edge' ? hit.edge : null;
-      updateTooltip();
-    }
-
-    // p5 mousePressed: pin/unpin on click.
-    function mousePressed() {
-      if (!DATA) return;
-      const hit = hitTest(mouseX, mouseY);
-      if (!hit) { pinnedTarget = null; hoverNode = null; hoverEdge = null; updateTooltip(); return; }
-      const newTarget = hit.kind === 'node' ? 'node:' + hit.svc.id : 'edge:' + hit.edge.name;
-      if (pinnedTarget === newTarget) {
-        pinnedTarget = null;
-        hoverNode = null; hoverEdge = null;
-      } else {
-        pinnedTarget = newTarget;
-        hoverNode = hit.kind === 'node' ? hit.svc : null;
-        hoverEdge = hit.kind === 'edge' ? hit.edge : null;
-      }
-      updateTooltip();
-    }
-
-    // -------- Tooltip rendering --------
-    function updateTooltip() {
-      const el = document.getElementById('tooltip');
-      const pinned = !!pinnedTarget;
-      el.classList.toggle('pinned', pinned);
-
-      if (hoverNode) {
-        el.style.display = 'block';
-        el.innerHTML = renderNodeTooltip(hoverNode, pinned) + renderCloseBtn();
-        wireCloseBtn(el);
-        positionTooltip(el, pinned);
-      } else if (hoverEdge) {
-        el.style.display = 'block';
-        el.innerHTML = renderEdgeTooltip(hoverEdge, pinned) + renderCloseBtn();
-        wireCloseBtn(el);
-        positionTooltip(el, pinned);
-      } else {
-        el.style.display = 'none';
-      }
-    }
-
-    function renderCloseBtn() {
-      return `<button class="close-btn" type="button" title="close (or click again)">×</button>`;
-    }
-    function wireCloseBtn(el) {
-      const btn = el.querySelector('.close-btn');
-      if (!btn) return;
-      btn.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        pinnedTarget = null;
-        hoverNode = null; hoverEdge = null;
-        updateTooltip();
-      });
-    }
-
-    function positionTooltip(el, pinned) {
-      const wrapRect = document.querySelector('.canvas-wrap').getBoundingClientRect();
-      const canvasRect = document.getElementById('canvas-container').getBoundingClientRect();
-
-      if (pinned) {
-        // Anchor the pinned tooltip in the top-right of the canvas area.
-        el.style.left = (canvasRect.width - 480 - 24) + 'px';
-        el.style.top = '24px';
-        return;
-      }
-      // Follow mouse with a small offset; clamp to canvas bounds.
-      const tw = 480, th = Math.min(el.offsetHeight || 300, 500);
-      let x = mouseX + 18, y = mouseY + 18;
-      if (x + tw > canvasRect.width - 8) x = mouseX - tw - 18;
-      if (y + th > canvasRect.height - 8) y = Math.max(8, canvasRect.height - th - 8);
-      if (x < 8) x = 8;
-      el.style.left = x + 'px';
-      el.style.top = y + 'px';
-    }
-
-    // ---- Violation-focused node tooltip ----
-    // For a given service, list violations on edges where it's caller OR provider,
-    // plus a one-line schema-change summary when upgrading. No full-spec dump.
-    function renderNodeTooltip(svc, pinned) {
-      const title = `${svc.id}  —  ${svc.is_upgrading ? `${svc.baseline_version} → ${svc.current_version}` : svc.current_version}`;
-
-      let statusLine = '';
-      if (svc.is_upgrading) {
-        if (svc.is_excluded) {
-          statusLine = `<div style="color:#ffb5a6;margin-bottom:6px;">⊘ excluded from MSS — ${escapeHtml(svc.status_reason || '')}</div>`;
-        } else {
-          statusLine = `<div style="color:#b6c99e;margin-bottom:6px;">✓ safe in MSS</div>`;
-        }
-      } else {
-        statusLine = `<div style="color:#cfcdc3;margin-bottom:6px;">· unchanged in this scenario</div>`;
-      }
-
-      const involvedBroken = DATA.edges.filter(e => !e.ok && (e.from === svc.id || e.to === svc.id));
-      let body = '';
-      if (involvedBroken.length) {
-        body = `<div style="margin-top:8px;font-size:11px;color:#cfcdc3;">Violations on edges involving <b>${escapeHtml(svc.id)}</b>:</div>`;
-        for (const e of involvedBroken) {
-          body += renderEdgeGroup(e, svc.id);
-        }
-      } else if (svc.is_upgrading) {
-        // Safe upgrade — show a compact diff summary of changed keys only.
-        body = `<div style="margin-top:8px;font-size:11px;color:#cfcdc3;">No violations on this service's edges.</div>`;
-        const summary = compactDiffSummary(svc.baseline_spec || {}, svc.current_spec || {});
-        if (summary.length) {
-          body += `<pre>${summary.map(escapeHtml).join('\n')}</pre>`;
-        }
-      } else {
-        body = `<div style="margin-top:8px;font-size:11px;color:#cfcdc3;">This service is not part of the scenario upgrade.</div>`;
-      }
-
-      const hint = pinned ? '' : `<div class="pin-hint">click to pin · scroll inside when pinned</div>`;
-      return `<h4>${escapeHtml(title)}</h4>${statusLine}${hint}${body}`;
-    }
-
-    function renderEdgeGroup(e, focusSvc) {
-      let html = `<div class="edge-group"><div class="edge-header">${escapeHtml(e.from)} → ${escapeHtml(e.to)} · ${escapeHtml(e.method)} ${escapeHtml(e.path)}${focusSvc && e.from === focusSvc ? ' <i style="color:#cfcdc3">(outbound)</i>' : focusSvc && e.to === focusSvc ? ' <i style="color:#cfcdc3">(inbound)</i>' : ''}</div>`;
-      for (const v of e.violations) {
-        html += renderViolation(v);
-      }
-      html += `</div>`;
-      return html;
-    }
-
-    function renderViolation(v) {
-      return `<div class="violation">
-        <div class="rule">[C${escapeHtml(v.conjunct || '?')}] ${escapeHtml(v.rule)}</div>
-        <div class="path">${escapeHtml(v.path || '(root)')}</div>
-        <div class="explanation">${escapeHtml(v.explanation)}</div>
-        ${v.old_type || v.new_type ? `<div class="types">old: ${escapeHtml(v.old_type || '<absent>')} → new: ${escapeHtml(v.new_type || '<absent>')}</div>` : ''}
-      </div>`;
-    }
-
-    function renderEdgeTooltip(e, pinned) {
-      const head = `<h4>${escapeHtml(e.from)} → ${escapeHtml(e.to)}  ·  ${escapeHtml(e.method)} ${escapeHtml(e.path)}</h4>`;
-      const hint = pinned ? '' : `<div class="pin-hint">click to pin · scroll inside when pinned</div>`;
-      let body = '';
-      if (!e.violations?.length) {
-        body = `<div style="color:#b6c99e;">No violations on this edge.</div>`;
-      } else {
-        for (const v of e.violations) body += renderViolation(v);
-      }
-      return head + hint + body;
-    }
-
-    // Compact multi-line summary of structural changes between two OpenAPI docs.
-    // Walks paths + components.schemas and emits "+ added / - removed / ~ changed" lines.
-    function compactDiffSummary(oldSpec, newSpec) {
-      const out = [];
-      function walk(prefix, o, n) {
-        if (!isObj(o) && !isObj(n)) {
-          if (JSON.stringify(o) !== JSON.stringify(n)) {
-            out.push(`~ ${prefix}: ${short(o)} → ${short(n)}`);
-          }
-          return;
-        }
-        const oKeys = new Set(Object.keys(o || {}));
-        const nKeys = new Set(Object.keys(n || {}));
-        for (const k of oKeys) {
-          if (!nKeys.has(k)) { out.push(`- ${prefix}${prefix ? '.' : ''}${k}`); continue; }
-          walk(prefix ? `${prefix}.${k}` : k, o[k], n[k]);
-        }
-        for (const k of nKeys) {
-          if (!oKeys.has(k)) { out.push(`+ ${prefix}${prefix ? '.' : ''}${k}: ${short(n[k])}`); }
-        }
-      }
-      walk('', oldSpec, newSpec);
-      // Cap summary to keep the tooltip compact.
-      if (out.length > 20) {
-        const extra = out.length - 20;
-        return out.slice(0, 20).concat([`… and ${extra} more change(s)`]);
-      }
-      return out;
-    }
-
-    // -------- JSON diff (simple recursive) --------
-    function renderJsonDiff(oldVal, newVal) {
-      const lines = [];
-      diffValue('', oldVal, newVal, 0, lines);
-      return lines.join('\n');
-    }
-
-    function diffValue(key, o, n, depth, lines) {
-      const pad = '  '.repeat(depth);
-      const keyStr = key ? `<span style="color:#ffb786">${escapeHtml(key)}</span>: ` : '';
-      if (isObj(o) && isObj(n)) {
-        lines.push(`${pad}${keyStr}{`);
-        const allKeys = new Set([...Object.keys(o), ...Object.keys(n)]);
-        for (const k of allKeys) {
-          if (!(k in o)) {
-            lines.push(`<span class="diff-row add">${pad}  + ${escapeHtml(k)}: ${escapeHtml(short(n[k]))}</span>`);
-          } else if (!(k in n)) {
-            lines.push(`<span class="diff-row del">${pad}  - ${escapeHtml(k)}: ${escapeHtml(short(o[k]))}</span>`);
-          } else {
-            diffValue(k, o[k], n[k], depth + 1, lines);
-          }
-        }
-        lines.push(`${pad}}`);
-      } else if (Array.isArray(o) && Array.isArray(n)) {
-        if (JSON.stringify(o) === JSON.stringify(n)) {
-          lines.push(`${pad}${keyStr}${escapeHtml(short(o))}`);
-        } else {
-          lines.push(`<span class="diff-row chg">${pad}${keyStr}${escapeHtml(short(o))} → ${escapeHtml(short(n))}</span>`);
-        }
-      } else {
-        if (o === n) {
-          lines.push(`${pad}${keyStr}${escapeHtml(String(o))}`);
-        } else {
-          lines.push(`<span class="diff-row chg">${pad}${keyStr}${escapeHtml(String(o))} → ${escapeHtml(String(n))}</span>`);
-        }
-      }
-    }
-
-    function short(v) {
-      if (v === null || v === undefined) return String(v);
-      if (typeof v === 'string') return JSON.stringify(v);
-      if (Array.isArray(v)) return `[${v.length} items]`;
-      if (typeof v === 'object') {
-        const keys = Object.keys(v);
-        if (keys.length <= 3) return JSON.stringify(v);
-        return `{${keys.length} keys}`;
-      }
-      return String(v);
-    }
-
-    function highlightJson(v) {
-      return escapeHtml(JSON.stringify(v, null, 2));
-    }
-
-    function isObj(x) { return x !== null && typeof x === 'object' && !Array.isArray(x); }
-    function escapeHtml(s) {
-      if (s === null || s === undefined) return '';
-      return String(s).replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
-    }
-
-    // -------- Sidebar rendering --------
-    function renderSidebar() {
-      document.getElementById('scenario-name').textContent = DATA.scenario.name || '';
-      document.getElementById('description').textContent = DATA.scenario.description || '';
-
-      // Decision badge based on MSS + edges
-      const anyBroken = DATA.edges.some(e => !e.ok);
-      const badge = document.getElementById('decision-badge');
-      badge.textContent = anyBroken ? 'GUS: FAIL' : 'GUS: PASS';
-      badge.classList.add(anyBroken ? 'fail' : 'pass');
-
-      // MSS
-      const mss = document.getElementById('mss-list');
-      mss.innerHTML = '';
-      if (DATA.mss && DATA.mss.computed) {
-        for (const s of DATA.mss.safe || []) {
-          const row = document.createElement('div');
-          row.className = 'mss-row';
-          row.innerHTML = `<span class="badge safe">SAFE</span><span>${escapeHtml(s.service)}</span><span class="reason">${escapeHtml(s.from_ver)} → ${escapeHtml(s.to_ver)}</span>`;
-          mss.appendChild(row);
-        }
-        for (const r of DATA.mss.removed || []) {
-          const row = document.createElement('div');
-          row.className = 'mss-row';
-          row.innerHTML = `<span class="badge removed">REMOVED</span><span>${escapeHtml(r.service)}</span><span class="reason">${escapeHtml(r.reason)}</span>`;
-          mss.appendChild(row);
-        }
-        if ((DATA.mss.safe || []).length === 0 && (DATA.mss.removed || []).length === 0) {
-          mss.innerHTML = `<div style="font-size:12px;color:#b0aea5">No upgrades proposed.</div>`;
-        }
-      }
-
-      // GUS findings (only when we detect whitelisted 4-pairing-unique breaks).
-      renderGusFindings();
-
-      // Rule-grouped violations (replaces per-edge card list).
-      renderViolationsByRule();
-    }
-
-    // Rules where GUS's 4-pairing directionality (C3/C4) catches breaks that
-    // provider-only tests (Pact) or payload compat checkers (Buf) miss.
-    const GUS_UNIQUE_RULES = new Set(['prim-mismatch', 'enum-request-narrowing', 'kind-mismatch']);
-
-    function renderGusFindings() {
-      const section = document.getElementById('gus-findings-section');
-      const list = document.getElementById('gus-findings-list');
-      list.innerHTML = '';
-
-      // Dedupe by edge+rule+path; aggregate conjuncts so the same logical
-      // finding reported across C3/C4 collapses into one card.
-      const grouped = new Map();
-      for (const e of DATA.edges) {
-        if (!e.violations) continue;
-        for (const v of e.violations) {
-          if (!GUS_UNIQUE_RULES.has(v.rule)) continue;
-          const key = `${e.name}|${v.rule}|${v.path || ''}`;
-          let g = grouped.get(key);
-          if (!g) {
-            g = { edge: e, rule: v.rule, path: v.path, v, conjuncts: new Set() };
-            grouped.set(key, g);
-          }
-          if (v.conjunct) g.conjuncts.add(String(v.conjunct));
-        }
-      }
-      const findings = Array.from(grouped.values());
-      if (findings.length === 0) { section.style.display = 'none'; return; }
-      section.style.display = 'block';
-
-      for (const { edge, rule, path, v, conjuncts } of findings) {
-        const cTag = conjuncts.size > 0
-          ? '[' + Array.from(conjuncts).sort().map(c => 'C' + c).join('+') + ']'
-          : '';
-        const card = document.createElement('div');
-        card.className = 'gus-finding-card';
-        card.innerHTML = `
-          <div class="finding-rule">${escapeHtml(cTag)} ${escapeHtml(rule)}</div>
-          <div class="finding-edge">${escapeHtml(edge.from)} → ${escapeHtml(edge.to)} · ${escapeHtml(path || '(root)')}</div>
-          <div class="finding-narrative">${escapeHtml(gusUniqueNarrative(v))}</div>`;
-        card.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          const target = 'edge:' + edge.name;
-          pinnedTarget = pinnedTarget === target ? null : target;
-          hoverEdge = pinnedTarget ? edge : null;
-          hoverNode = null;
-          updateTooltip();
-        });
-        list.appendChild(card);
-      }
-    }
-
-    function gusUniqueNarrative(v) {
-      const old_ = v.old_type || '?';
-      const new_ = v.new_type || '?';
-      switch (v.rule) {
-        case 'prim-mismatch':
-          return `Primitive shift ${old_} → ${new_}. One 4-pairing direction passes via the JSON lattice, the other fails — an asymmetry simpler tools can't express.`;
-        case 'enum-request-narrowing':
-          return `Request enum narrowed — old callers may still send values the new provider rejects. Only caught when both directions of the 4-pairing are checked.`;
-        case 'kind-mismatch':
-          return `Type kind changed (${old_} → ${new_}). No 4-pairing direction can bridge this; every conjunct touching the field fails.`;
-        default:
-          return v.explanation || '';
-      }
-    }
-
-    function renderViolationsByRule() {
-      const list = document.getElementById('edge-list');
-      list.innerHTML = '';
-
-      const broken = DATA.edges.filter(e => !e.ok);
-      if (broken.length === 0) {
-        list.innerHTML = `<div style="font-size:12px;color:#b0aea5">No broken edges.</div>`;
-        return;
-      }
-
-      // Group: rule -> Map(edgeName+path -> {edge, path, conjuncts})
-      const byRule = new Map();
-      for (const e of broken) {
-        for (const v of e.violations) {
-          if (!byRule.has(v.rule)) byRule.set(v.rule, new Map());
-          const edges = byRule.get(v.rule);
-          const key = e.name + '|' + (v.path || '');
-          if (!edges.has(key)) edges.set(key, { edge: e, path: v.path || '', conjuncts: new Set() });
-          edges.get(key).conjuncts.add(v.conjunct || '?');
-        }
-      }
-
-      // Sort: rules with more distinct edges first; ties alphabetical.
-      const groups = [...byRule.entries()]
-        .map(([rule, edgeMap]) => ({ rule, items: [...edgeMap.values()] }))
-        .sort((a, b) => b.items.length - a.items.length || a.rule.localeCompare(b.rule));
-
-      for (const group of groups) {
-        const allConj = new Set();
-        group.items.forEach(it => it.conjuncts.forEach(c => allConj.add(c)));
-        const conjList = [...allConj].sort().map(c => 'C' + c).join(',');
-
-        const rows = group.items.map(it => {
-          const tag = [...it.conjuncts].sort().map(c => 'C' + c).join(',');
-          return `<div class="rule-edge" data-edge="${escapeHtml(it.edge.name)}">
-            <span class="endpoints">${escapeHtml(it.edge.from)} → ${escapeHtml(it.edge.to)}</span>
-            <span class="rule-path">${escapeHtml(it.path || '(root)')}</span>
-            <span class="conj-tag">${tag}</span>
-          </div>`;
-        }).join('');
-
-        const card = document.createElement('div');
-        card.className = 'rule-group';
-        card.innerHTML = `
-          <div class="rule-header">
-            <span class="rule-name">${escapeHtml(group.rule)}</span>
-            <span class="rule-meta">${group.items.length} edge${group.items.length > 1 ? 's' : ''} · ${conjList}</span>
-          </div>
-          <div class="rule-edges">${rows}</div>`;
-        card.querySelectorAll('.rule-edge').forEach(el => {
-          el.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            const edge = DATA.edges.find(e => e.name === el.dataset.edge);
-            if (!edge) return;
-            const target = 'edge:' + edge.name;
-            pinnedTarget = pinnedTarget === target ? null : target;
-            hoverEdge = pinnedTarget ? edge : null;
-            hoverNode = null;
-            updateTooltip();
-          });
-        });
-        list.appendChild(card);
-      }
-    }
-
-    // -------- Boot --------
-    tryLoadEmbeddedOrFetch().then(() => {
-      renderSidebar();
-      // p5.js boots automatically via setup/draw
-    }).catch(err => {
-      document.getElementById('root').innerHTML = `
-        <div class="load-panel">
-          <h2>GUS Scenario Visualizer</h2>
-          <p style="color:#b0aea5;margin-bottom:16px;font-size:13px;">
-            No data loaded. Paste JSON from <code>gus viz --graph ... --scenario ...</code> below,
-            or serve this file next to <code>data.json</code>, or use <code>--data=URL</code>.
-          </p>
-          <textarea id="json-paste" placeholder='{"scenario":{...},"services":[...],"edges":[...],"mss":{...}}'></textarea>
-          <br><button id="load-btn">Load</button>
-        </div>`;
-      document.getElementById('load-btn').addEventListener('click', () => {
-        try {
-          DATA = JSON.parse(document.getElementById('json-paste').value);
-          location.reload();
-          // Store so reload keeps it
-          sessionStorage.setItem('viz-data', JSON.stringify(DATA));
-        } catch (e) { alert('Invalid JSON: ' + e.message); }
-      });
-      // Try sessionStorage recovery
-      const stored = sessionStorage.getItem('viz-data');
-      if (stored) {
-        try { DATA = JSON.parse(stored); location.href = location.pathname; } catch {}
-      }
+  <div id="detail-pane">
+    <section id="sec-plan">
+      <h2>Deployment plan</h2>
+      <div id="plan"></div>
+    </section>
+    <section id="sec-findings">
+      <h2>Findings</h2>
+      <div id="findings"></div>
+    </section>
+    <section id="sec-chains" hidden>
+      <h2>Data-flow chains</h2>
+      <div id="chains"></div>
+    </section>
+  </div>
+</main>
+
+<script type="application/json" id="viz-data">{"scenario":{"name":"Scenario B: Product category enum widening","description":"ProductCatalog v2 adds new-arrivals to categories enum in response","baseline":{"frontend":"v1","productcatalog":"v1"},"upgrades":{"productcatalog":"v2"}},"services":[{"id":"cart","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false},{"id":"checkout","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false},{"id":"currency","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false},{"id":"email","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false},{"id":"frontend","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false},{"id":"payment","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false},{"id":"productcatalog","baseline_version":"v1","current_version":"v2","is_upgrading":true,"is_excluded":true,"status_reason":"breaks edge frontend-\u003eproductcatalog [C3]: old frontend instances persist"},{"id":"recommendation","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false},{"id":"shipping","baseline_version":"v1","current_version":"v1","is_upgrading":false,"is_excluded":false}],"edges":[{"name":"frontend-\u003echeckout","from":"frontend","to":"checkout","method":"POST","path":"/placeorder","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"frontend-\u003eshipping-quote","from":"frontend","to":"shipping","method":"POST","path":"/shipping/quote","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"frontend-\u003eproductcatalog","from":"frontend","to":"productcatalog","method":"GET","path":"/products","affected_by_upgrade":true,"ok":false,"failed_conjuncts":["C3"],"caller_spec_used":false,"violations":[{"conjunct":"3","rule":"enum-response-widening","path":"$[*].categories","severity":"BREAK","message":"producer may return enum values [new-arrivals] that consumer does not understand","old_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music}","new_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music,new-arrivals}","explanation":"During new productcatalog instances responding to old frontend instances, the response enum for categories on GET /products carries values the consuming side does not recognize — strict clients crash on the unknown variant."}]},{"name":"frontend-\u003ecurrency","from":"frontend","to":"currency","method":"POST","path":"/convert","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"frontend-\u003ecart","from":"frontend","to":"cart","method":"GET","path":"/cart","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"frontend-\u003erecommendation","from":"frontend","to":"recommendation","method":"GET","path":"/recommendations","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"checkout-\u003eshipping-quote","from":"checkout","to":"shipping","method":"POST","path":"/shipping/quote","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"checkout-\u003eshipping-ship","from":"checkout","to":"shipping","method":"POST","path":"/shipping/ship","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"checkout-\u003eemail","from":"checkout","to":"email","method":"POST","path":"/send-order-confirmation","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"checkout-\u003eproductcatalog","from":"checkout","to":"productcatalog","method":"GET","path":"/products/{id}","affected_by_upgrade":true,"ok":false,"failed_conjuncts":["C3"],"caller_spec_used":false,"violations":[{"conjunct":"3","rule":"enum-response-widening","path":"$.categories","severity":"BREAK","message":"producer may return enum values [new-arrivals] that consumer does not understand","old_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music}","new_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music,new-arrivals}","explanation":"During new productcatalog instances responding to old checkout instances, the response enum for categories on GET /products/{id} carries values the consuming side does not recognize — strict clients crash on the unknown variant."}]},{"name":"checkout-\u003ecurrency","from":"checkout","to":"currency","method":"POST","path":"/convert","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"checkout-\u003ecart","from":"checkout","to":"cart","method":"GET","path":"/cart","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"checkout-\u003epayment","from":"checkout","to":"payment","method":"POST","path":"/charge","affected_by_upgrade":false,"ok":true,"caller_spec_used":false},{"name":"recommendation-\u003eproductcatalog","from":"recommendation","to":"productcatalog","method":"GET","path":"/products","affected_by_upgrade":true,"ok":false,"failed_conjuncts":["C3"],"caller_spec_used":false,"violations":[{"conjunct":"3","rule":"enum-response-widening","path":"$[*].categories","severity":"BREAK","message":"producer may return enum values [new-arrivals] that consumer does not understand","old_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music}","new_type":"enum{clothing,accessories,footwear,decor,kitchen,vintage,garden,electronics,music,new-arrivals}","explanation":"During new productcatalog instances responding to old recommendation instances, the response enum for categories on GET /products carries values the consuming side does not recognize — strict clients crash on the unknown variant."}]}],"chains":[{"key":"order-identity","from":"checkout","to":"email","path":["checkout","email"],"ok":true,"message":"chain intact"}],"mss":{"computed":true,"safe":null,"removed":[{"service":"productcatalog","from_ver":"v1","to_ver":"v2","reason":"breaks edge frontend-\u003eproductcatalog [C3]: old frontend instances persist"}]}}</script>
+<script>
+"use strict";
+
+/* ---------- rule metadata: legible names ---------- */
+const RULES = {
+  "REQ.1":  "required field missing",
+  "REQ.2":  "optional became load-bearing",
+  "REQ.4":  "unknown field rejected",
+  "RES.1":  "expected field gone",
+  "RES.4":  "guarantee weakened",
+  "RES.5":  "unexpected field",
+  "enum-request-narrowing":  "accepted values narrowed",
+  "enum-response-widening":  "returned values widened",
+  "enum-prim-mismatch":      "enum outgrew its type",
+  "prim-mismatch":     "primitive type change",
+  "kind-mismatch":     "type shape change",
+  "presence-mismatch": "schema appeared/vanished",
+  "nullable-request-narrowing": "null no longer accepted",
+  "nullable-response-widening": "null now possible",
+  "union-request-narrowing": "variant no longer accepted",
+  "union-response-widening": "variant not understood",
+  "map-key-mismatch":  "map key type change",
+  "format-change":     "range risk",
+  "literal-mismatch":  "constant changed",
+  "literal-not-in-enum": "constant rejected",
+  "literal-widening":  "constant became variable",
+  "literal-narrowing": "only one value accepted",
+  "literal-prim-mismatch": "constant wrong type",
+  "ref-name-mismatch": "recursive type renamed",
+  "chain-weakened":      "identity no longer guaranteed",
+  "chain-nullable":      "identity may be null",
+  "chain-type-mismatch": "identity changed type",
+  "chain-field-missing": "identity lost at a hop",
+  "chain-no-path":       "no route for identity",
+};
+const ruleName = r => RULES[r] || r;
+
+/* Which mixed-version window a conjunct describes. */
+function windowParts(conj, from, to) {
+  switch (conj) {
+    case "1":   return ["old " + from, "calls", "new " + to, "request leg"];
+    case "2":   return ["new " + from, "calls", "old " + to, "request leg"];
+    case "3":   return ["new " + to, "answers", "old " + from, "response leg"];
+    case "4":   return ["old " + to, "answers", "new " + from, "response leg"];
+    case "TGT": return ["new " + from, "with", "new " + to, "steady state after the roll"];
+    default:    return [from, "→", to, ""];
+  }
+}
+const isOldSide = s => s.startsWith("old ");
+
+/* ---------- boot ---------- */
+let DATA = null;
+try { DATA = JSON.parse(document.getElementById("viz-data").textContent); } catch (e) { DATA = null; }
+let selected = null; // {kind:"edge"|"svc", id}
+if (!DATA || !DATA.scenario) {
+  document.getElementById("nodata").hidden = false;
+} else {
+  document.getElementById("hdr").hidden = false;
+  document.getElementById("main").hidden = false;
+  render(DATA);
+}
+
+function render(d) {
+  document.getElementById("t-name").textContent = d.scenario.name || "scenario";
+  document.getElementById("t-desc").textContent = (d.scenario.description || "").trim();
+  const ok = d.edges.every(e => e.ok) && (d.chains || []).every(c => c.ok);
+  const v = document.getElementById("t-verdict");
+  v.textContent = ok ? "SAFE TO ROLL" : "HAZARDS FOUND";
+  v.className = "verdict " + (ok ? "ok" : "bad");
+  if (d.scenario.coercion === "lenient") {
+    const t = document.getElementById("t-coercion");
+    t.hidden = false; t.textContent = "lenient coercion profile";
+  }
+  drawMesh(d);
+  drawPlan(d);
+  drawFindings(d);
+  drawChains(d);
+}
+
+/* ---------- mesh ---------- */
+function drawMesh(d) {
+  const svg = document.getElementById("mesh");
+  svg.innerHTML = "";
+  const W = 640, H = 560, cx = W / 2, cy = H / 2 + 6, R = Math.min(W, H) / 2 - 78;
+  const svcs = d.services.map(s => s.id).sort();
+  const pos = {};
+  svcs.forEach((id, i) => {
+    const a = -Math.PI / 2 + (i * 2 * Math.PI) / svcs.length;
+    pos[id] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) };
+  });
+  const svcById = Object.fromEntries(d.services.map(s => [s.id, s]));
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (n, attrs, parent) => {
+    const e = document.createElementNS(NS, n);
+    for (const k of Object.keys(attrs)) e.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(e); return e;
+  };
+
+  const defs = el("defs", {});
+  [["arr-idle", "#274766"], ["arr-ok", "#4cc38a"], ["arr-warn", "#d9a03f"], ["arr-bad", "#e5534b"]].forEach(pair => {
+    const m = el("marker", { id: pair[0], viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6.5, markerHeight: 6.5, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: pair[1] }, m);
+  });
+
+  const edgeState = e => !e.affected_by_upgrade ? "idle"
+    : !e.ok ? "bad"
+    : (e.violations || []).some(v => v.severity === "WARN") ? "warn" : "ok";
+
+  const chainHops = new Set();
+  (d.chains || []).forEach(c => {
+    for (let i = 0; i + 1 < (c.path || []).length; i++) chainHops.add(c.path[i] + "->" + c.path[i + 1]);
+  });
+
+  const gEdges = el("g", {});
+  d.edges.forEach(e => {
+    const p1 = pos[e.from], p2 = pos[e.to];
+    if (!p1 || !p2) return;
+    const dx = p2.x - p1.x, dy = p2.y - p1.y, len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len, uy = dy / len;
+    const a = { x: p1.x + ux * 54, y: p1.y + uy * 24 };
+    const b = { x: p2.x - ux * 54, y: p2.y - uy * 24 };
+    const mid = { x: (a.x + b.x) / 2 + (cx - (a.x + b.x) / 2) * 0.22, y: (a.y + b.y) / 2 + (cy - (a.y + b.y) / 2) * 0.22 };
+    const dPath = "M " + a.x + "," + a.y + " Q " + mid.x + "," + mid.y + " " + b.x + "," + b.y;
+    const st = edgeState(e);
+    if (chainHops.has(e.from + "->" + e.to))
+      el("path", { d: dPath, class: "chain-overlay", transform: "translate(0,-5)" }, gEdges);
+    const path = el("path", { d: dPath, class: "edge-path " + st, "marker-end": "url(#arr-" + st + ")", "data-edge": e.name }, gEdges);
+    el("title", {}, path).textContent = e.name + " · " + (e.method || "") + " " + (e.path || "");
+    const hit = el("path", { d: dPath, class: "edge-hit" }, gEdges);
+    hit.addEventListener("click", ev => { ev.stopPropagation(); select({ kind: "edge", id: e.name }); });
+  });
+
+  const gNodes = el("g", {});
+  svcs.forEach(id => {
+    const s = svcById[id], p = pos[id];
+    const g = el("g", { "data-svc": id, cursor: "pointer" }, gNodes);
+    const w = Math.max(100, id.length * 8 + 28), h = 44;
+    const cls = ["svc-box", s.is_upgrading ? "up" : "", s.is_excluded ? "excluded" : ""].join(" ").trim();
+    el("rect", { x: p.x - w / 2, y: p.y - h / 2, width: w, height: h, rx: 9, class: cls }, g);
+    el("text", { x: p.x, y: p.y - 3, "text-anchor": "middle", class: "svc-name" }, g).textContent = id;
+    const ver = el("text", { x: p.x, y: p.y + 14, "text-anchor": "middle", class: "svc-ver" }, g);
+    if (s.is_upgrading) {
+      el("tspan", {}, ver).textContent = s.baseline_version + " → ";
+      el("tspan", { class: s.is_excluded ? "to-bad" : "to-ok" }, ver).textContent = s.current_version;
+      if (s.is_excluded) el("tspan", { class: "excl-mark" }, ver).textContent = " ✕";
+    } else ver.textContent = s.baseline_version;
+    g.addEventListener("click", ev => { ev.stopPropagation(); select({ kind: "svc", id: id }); });
+  });
+
+  svg.addEventListener("click", () => select(null));
+}
+
+function select(sel) {
+  selected = sel;
+  document.querySelectorAll(".edge-path").forEach(p => {
+    const name = p.getAttribute("data-edge");
+    p.classList.remove("sel", "dim");
+    if (!selected) return;
+    const e = DATA.edges.find(x => x.name === name);
+    const match = selected.kind === "edge" ? name === selected.id
+      : (e && (e.from === selected.id || e.to === selected.id));
+    p.classList.add(match ? "sel" : "dim");
+  });
+  document.querySelectorAll("[data-svc] .svc-box").forEach(r => r.classList.remove("sel"));
+  if (selected && selected.kind === "svc") {
+    const g = document.querySelector('[data-svc="' + CSS.escape(selected.id) + '"] .svc-box');
+    if (g) g.classList.add("sel");
+  }
+  drawFindings(DATA);
+}
+
+/* ---------- deployment plan ---------- */
+function drawPlan(d) {
+  const root = document.getElementById("plan");
+  root.innerHTML = "";
+  const mss = d.mss || {};
+  const chips = document.createElement("div");
+  chips.className = "chips";
+  (mss.safe || []).forEach(u => chips.appendChild(chip(esc(u.service) + ' <span class="v">' + esc(u.from_ver) + "→" + esc(u.to_ver) + "</span>", "safe")));
+  (mss.removed || []).forEach(u => chips.appendChild(chip(esc(u.service) + ' <span class="v">stays ' + esc(u.from_ver) + "</span>", "gone")));
+  if (!chips.children.length) chips.appendChild(chip("no upgrades proposed", ""));
+  root.appendChild(chips);
+
+  if ((mss.order || []).length > 1) {
+    const st = document.createElement("div");
+    st.className = "stages";
+    mss.order.forEach((stage, i) => {
+      if (i) { const a = document.createElement("span"); a.className = "stage-arrow"; a.textContent = "→"; st.appendChild(a); }
+      const s = document.createElement("div"); s.className = "stage";
+      s.innerHTML = "<b>" + (i + 1) + "</b><span>" + esc(stage.join(", ")) + "</span>";
+      st.appendChild(s);
     });
+    root.appendChild(st);
+    const note = document.createElement("div");
+    note.className = "order-note";
+    note.textContent = "each stage must fully roll out before the next starts";
+    root.appendChild(note);
+  }
 
-    // Note: unpinning is handled inside mousePressed (empty canvas click), the
-    // × close button, and clicking a target a second time. A document-level
-    // click handler was removed because it raced with p5's mousePressed and
-    // sometimes cleared the pin before the UI updated.
-  </script>
+  if ((mss.removed || []).length) {
+    const list = document.createElement("div");
+    list.style.marginTop = "14px";
+    mss.removed.forEach(u => {
+      const row = document.createElement("div");
+      row.className = "excl-row";
+      const why = prettifyReason(u.reason || "");
+      row.innerHTML = '<span class="excl-svc">' + esc(u.service) +
+        (why.deadlock ? '<span class="badge deadlock">⟳ deadlock</span>' : "") + "</span>" +
+        '<span class="excl-why">' + esc(why.text) + "</span>";
+      list.appendChild(row);
+    });
+    root.appendChild(list);
+  }
+}
+
+function prettifyReason(r) {
+  if (/deadlock/i.test(r)) return { deadlock: true, text: "its rollout-order constraints with a co-shipped upgrade form a cycle — no rolling order works; ship separately or switch over atomically" };
+  const text = r
+    .replace(/^breaks edge /, "would break ")
+    .replace(/^breaks data-flow chain /, "would break data-flow chain ")
+    .replace(/\[C1\]/, "(old-caller request window)").replace(/\[C2\]/, "(new-caller request window)")
+    .replace(/\[C3\]/, "(response to old caller)").replace(/\[C4\]/, "(response to new caller)")
+    .replace(/\[TGT\]/, "(final state)");
+  return { deadlock: false, text: text };
+}
+
+function chip(html, cls) {
+  const c = document.createElement("span");
+  c.className = ("chip " + cls).trim(); c.innerHTML = html; return c;
+}
+
+/* ---------- findings ---------- */
+function drawFindings(d) {
+  const root = document.getElementById("findings");
+  root.innerHTML = "";
+  let edges = d.edges.filter(e => (e.violations || []).length);
+  if (selected) {
+    edges = edges.filter(e => selected.kind === "edge" ? e.name === selected.id
+      : (e.from === selected.id || e.to === selected.id));
+  }
+  const brokenChains = (d.chains || []).filter(c => !c.ok);
+  if (!edges.length && !brokenChains.length && !selected) {
+    root.innerHTML = '<div class="allclear">Every cross-version pairing and data-flow chain holds. Nothing blocks this batch.</div>';
+    return;
+  }
+  if (!edges.length) {
+    root.innerHTML = '<div class="empty">no edge findings' + (selected ? " for this selection" : "") +
+      (brokenChains.length ? " — see data-flow chains below" : "") + "</div>";
+    return;
+  }
+  edges.forEach(e => root.appendChild(edgeGroup(e)));
+}
+
+function edgeGroup(e) {
+  const g = document.createElement("div");
+  g.className = "edge-group";
+  const worst = !e.ok ? "bad" : "warn";
+  const head = document.createElement("div");
+  head.className = "edge-head";
+  head.innerHTML = '<span class="dot ' + worst + '"></span>' +
+    '<span class="route">' + esc(e.from) + " → " + esc(e.to) + "</span>" +
+    '<span class="ep">' + esc(e.method || "") + " " + esc(e.path || "") + "</span>" +
+    (e.caller_spec_used ? "" : '<span class="tier-note">caller contract not declared — assumed pinned to the provider’s previous contract (Tier-3)</span>');
+  head.addEventListener("click", () => select({ kind: "edge", id: e.name }));
+  g.appendChild(head);
+  (e.violations || []).forEach(v => g.appendChild(vcard(e, v)));
+  return g;
+}
+
+function vcard(e, v) {
+  const c = document.createElement("div");
+  c.className = "vcard";
+  const parts = windowParts(v.conjunct, e.from, e.to);
+  const l = parts[0], verb = parts[1], r = parts[2], leg = parts[3];
+  const sideCls = s => isOldSide(s) ? "old-side" : "new-side";
+  const field = fieldLabel(v.path);
+  c.innerHTML =
+    '<div class="vcard-top">' +
+      '<span class="sev ' + esc(v.severity) + '">' + esc(v.severity) + "</span>" +
+      '<span class="rulename">' + esc(ruleName(v.rule)) + "</span>" +
+      '<span class="ruleid">' + esc(v.rule) + "</span>" +
+      (v.conjunct ? '<span class="conj" title="which cross-version pairing this hits">' +
+        (v.conjunct === "TGT" ? "TGT" : "C" + esc(v.conjunct)) + "</span>" : "") +
+    "</div>" +
+    '<div class="window"><span class="' + sideCls(l) + '">' + esc(l) + '</span> <span class="arr">' + esc(verb) + '</span> <span class="' + sideCls(r) + '">' + esc(r) + "</span>" +
+      (leg ? ' <span class="arr">· ' + esc(leg) + "</span>" : "") + "</div>" +
+    '<div class="explain">' + esc(v.explanation || v.message) + "</div>" +
+    '<div class="vmeta">' +
+      (field ? '<span><span class="k">field</span>' + esc(field) + "</span>" : "") +
+      (v.old_type || v.new_type
+        ? '<span><span class="k">was</span><span class="type-pill">' + esc(v.old_type || "—") +
+          '</span><span class="type-arr">→</span><span class="k">becomes</span><span class="type-pill">' + esc(v.new_type || "—") + "</span></span>"
+        : "") +
+    "</div>";
+  return c;
+}
+
+function fieldLabel(p) {
+  if (!p) return "";
+  const s = p.replace(/^\$\.?/, "").replace(/\[\*\]/g, "[]");
+  return s === "" ? "(whole body)" : s;
+}
+
+/* ---------- chains ---------- */
+function drawChains(d) {
+  const chains = d.chains || [];
+  if (!chains.length) return;
+  document.getElementById("sec-chains").hidden = false;
+  const root = document.getElementById("chains");
+  root.innerHTML = "";
+  chains.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "chain-card";
+    const culprits = new Set(c.culprits || []);
+    const hops = (c.path || []).map(h =>
+      '<span class="hop ' + (culprits.has(h) ? "culprit" : "") + '">' + esc(h) + "</span>"
+    ).join('<span class="hop-arr">▸</span>');
+    card.innerHTML =
+      '<div class="chain-top">' +
+        '<span class="dot ' + (c.ok ? "ok" : "bad") + '"></span>' +
+        '<span class="chain-key">' + esc(c.key) + "</span>" +
+        (c.ok ? '<span class="ruleid">intact</span>'
+              : '<span class="rulename">' + esc(ruleName(c.rule)) + '</span><span class="ruleid">' + esc(c.rule) + "</span>") +
+      "</div>" +
+      '<div class="chain-path">' + hops + "</div>" +
+      '<div class="chain-msg">' + esc(c.message || "") + "</div>";
+    root.appendChild(card);
+  });
+}
+
+/* ---------- utils ---------- */
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, ch =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+}
+</script>
 </body>
 </html>
