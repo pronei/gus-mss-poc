@@ -295,3 +295,11 @@ Proof of concept. Known limits, deliberately explicit:
 ## License
 
 Apache 2.0 — see `LICENSE`.
+
+## Project report
+
+This component is documented in the UCSC master's project report
+*Safe Evolution and Interventional Fault Attribution in Microservice
+Meshes* (Pranay Mundra, 2026) — Part I, as the reference implementation:
+the worked examples, evaluation timings, and appendices A–C draw on the
+scenario suite and proofs in this repository.
