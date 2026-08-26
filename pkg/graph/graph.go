@@ -41,11 +41,16 @@ type ScenarioDef struct {
 
 // ExpectBlock holds expected outcomes for test assertions.
 type ExpectBlock struct {
-	GUS    string          // "PASS" or "FAIL"
-	MSS    []string        // expected MSS services — matched EXACTLY (nil = unchecked; [] = must be empty)
-	Order  [][]string      // expected rollout stages for the safe set (exact match when present)
-	Breaks []ExpectedBreak // expected compatibility breaks
-	Chains []ExpectedChain // expected chain results
+	GUS   string     // "PASS" or "FAIL"
+	MSS   []string   // expected MSS services — matched EXACTLY (nil = unchecked; [] = must be empty)
+	Order [][]string // expected rollout stages for the safe set (exact match when present)
+	// Breaks are matched by presence unless BreaksExact is set, in which case
+	// the DISTINCT (edge, rule) pairs of every reported finding (any
+	// severity) must equal this list exactly — the mode that makes false
+	// positives measurable.
+	BreaksExact bool
+	Breaks      []ExpectedBreak
+	Chains      []ExpectedChain // expected chain results
 }
 
 // ExpectedBreak describes a single expected rule violation on an edge.

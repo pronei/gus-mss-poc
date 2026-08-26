@@ -38,11 +38,12 @@ type scenarioYAML struct {
 }
 
 type expectYAML struct {
-	GUS    string      `yaml:"gus"`
-	MSS    []string    `yaml:"mss"`
-	Order  [][]string  `yaml:"order"`
-	Breaks []breakYAML `yaml:"breaks"`
-	Chains []chainYAML `yaml:"chains"`
+	GUS         string      `yaml:"gus"`
+	MSS         []string    `yaml:"mss"`
+	Order       [][]string  `yaml:"order"`
+	BreaksExact bool        `yaml:"breaks_exact"`
+	Breaks      []breakYAML `yaml:"breaks"`
+	Chains      []chainYAML `yaml:"chains"`
 }
 
 type breakYAML struct {
@@ -128,9 +129,10 @@ func LoadScenario(path string) (*ScenarioDef, error) {
 
 	if raw.Expect != nil {
 		eb := &ExpectBlock{
-			GUS:   strings.ToUpper(raw.Expect.GUS),
-			MSS:   raw.Expect.MSS,
-			Order: raw.Expect.Order,
+			GUS:         strings.ToUpper(raw.Expect.GUS),
+			MSS:         raw.Expect.MSS,
+			Order:       raw.Expect.Order,
+			BreaksExact: raw.Expect.BreaksExact,
 		}
 		for _, b := range raw.Expect.Breaks {
 			eb.Breaks = append(eb.Breaks, ExpectedBreak{

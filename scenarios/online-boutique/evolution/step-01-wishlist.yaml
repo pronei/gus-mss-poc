@@ -19,3 +19,4 @@ upgrades:
 expect:
   gus: PASS
   mss: [recommendation]
+  breaks_exact: true

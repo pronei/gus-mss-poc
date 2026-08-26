@@ -319,6 +319,14 @@ func executeGUS(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef, upgra
 	cfg := scenarioConfig(sc)
 	result := &report.GUSResult{Scenario: sc.Name, OK: true}
 
+	// Precondition gate: the adequacy argument (and the skip of untouched
+	// edges below) is sound only if the baseline state is internally
+	// consistent. An inconsistent baseline makes every verdict unreliable,
+	// so it is an evaluation error, never a silent pass.
+	if err := checkBaselineConsistency(loader, g, sc, cfg); err != nil {
+		return nil, err
+	}
+
 	for _, edgeDef := range g.Def.Edges {
 		if edgeDef.Channel == "kafka" {
 			return nil, fmt.Errorf("edge %s: kafka edges are not supported (no topic→schema resolution exists; refusing to skip a safety check silently)", edgeDef.Name)
@@ -425,6 +433,35 @@ func executeGUS(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef, upgra
 	}
 
 	return result, nil
+}
+
+// checkBaselineConsistency verifies Consistent(θ) — Send ≤ Accept and
+// Return ≤ Expect on every edge at the baseline state. Only BREAK-severity
+// findings fail the gate (warnings do not invalidate the precondition).
+func checkBaselineConsistency(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef, cfg compat.Config) error {
+	var broken []string
+	for _, edgeDef := range g.Def.Edges {
+		if edgeDef.Channel == "kafka" {
+			continue // rejected later by the main sweep
+		}
+		callerVer := versionOf(sc.Baseline, edgeDef.From)
+		provVer := versionOf(sc.Baseline, edgeDef.To)
+		es, err := loadEdgeSchemas(loader, g, edgeDef, callerVer, provVer, callerVer, provVer)
+		if err != nil {
+			return fmt.Errorf("baseline consistency check, edge %s: %w", edgeDef.Name, err)
+		}
+		er := edge.Consistent(toEdge(edgeDef), es.old, cfg)
+		for _, v := range er.Violations {
+			if v.Severity == types.SevBREAK {
+				broken = append(broken, fmt.Sprintf("%s %s (%s)", edgeDef.Name, v.Path, v.Rule))
+			}
+		}
+	}
+	if len(broken) > 0 {
+		return fmt.Errorf("baseline state is not internally consistent — Consistent(θ) fails on: %s; verdicts over an inconsistent baseline are unreliable (inspect with `gus consistent`)",
+			strings.Join(broken, "; "))
+	}
+	return nil
 }
 
 func chainID(cr chain.ChainResult) string {
@@ -763,21 +800,31 @@ func validateExpectations(loader *specLoader, sc *graph.ScenarioDef, gusResult *
 		}
 	}
 
+	// Actual findings as distinct (edge, rule) pairs, any severity.
+	actualPairs := map[string]bool{}
+	for _, er := range gusResult.Edges {
+		for _, v := range er.Violations {
+			actualPairs[er.Edge.Name+" | "+v.Rule] = true
+		}
+	}
+	expectedPairs := map[string]bool{}
 	for _, eb := range sc.Expect.Breaks {
-		found := false
-		for _, er := range gusResult.Edges {
-			if er.Edge.Name != eb.Edge {
-				continue
-			}
-			for _, v := range er.Violations {
-				if v.Rule == eb.Rule {
-					found = true
-					break
-				}
+		key := eb.Edge + " | " + eb.Rule
+		expectedPairs[key] = true
+		if !actualPairs[key] {
+			msgs = append(msgs, fmt.Sprintf("expected break on edge %s with rule %s, not found", eb.Edge, eb.Rule))
+		}
+	}
+	if sc.Expect.BreaksExact {
+		var extra []string
+		for pair := range actualPairs {
+			if !expectedPairs[pair] {
+				extra = append(extra, pair)
 			}
 		}
-		if !found {
-			msgs = append(msgs, fmt.Sprintf("expected break on edge %s with rule %s, not found", eb.Edge, eb.Rule))
+		sort.Strings(extra)
+		for _, pair := range extra {
+			msgs = append(msgs, fmt.Sprintf("unexpected finding (breaks_exact): %s", pair))
 		}
 	}
 

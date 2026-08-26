@@ -7,3 +7,4 @@ upgrades:
   frontend: v2
 expect:
   gus: PASS
+  breaks_exact: true

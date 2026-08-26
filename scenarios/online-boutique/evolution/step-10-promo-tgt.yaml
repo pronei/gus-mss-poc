@@ -23,6 +23,7 @@ upgrades:
 expect:
   gus: FAIL
   mss: []
+  breaks_exact: true
   breaks:
     - edge: frontend->shipping-quote
       rule: enum-request-narrowing

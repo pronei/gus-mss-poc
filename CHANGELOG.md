@@ -5,6 +5,19 @@ All notable changes to this repository are tracked here. Format follows
 anchored to the GUS/MSS paper submission rather than semver — until the
 formalism stabilises, API changes are expected.
 
+## 0.3.1 — eval-enabling assertions (2026-08-25)
+
+### Added
+- `expect.breaks_exact`: when set, the distinct (edge, rule) pairs of every
+  reported finding (any severity) must equal the expected list exactly —
+  false positives become measurable. Adopted on scenarios B/D/H and
+  evolution steps 01/10 (D now asserts ZERO edge findings: only the chain
+  detects it).
+- Baseline consistency gate: `check`/`mss`/`validate` (and each staged
+  post-hoc replay) now verify Consistent(θ) first; an inconsistent
+  baseline is an evaluation error (exit 2), never a silent pass — the
+  skip of untouched edges is sound only under this precondition.
+
 ## 0.3.0 — evolution suite, provenance ledger, visualizer rebuild, paper (2026-07-06)
 
 ### Added
