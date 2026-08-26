@@ -16,6 +16,7 @@ upgrades:
 expect:
   gus: FAIL
   mss: [frontend]
+  breaks_exact: true
   breaks:
     - edge: checkout->shipping-quote
       rule: enum-request-narrowing

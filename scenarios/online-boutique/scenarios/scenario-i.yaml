@@ -30,17 +30,26 @@ upgrades:
 expect:
   gus: FAIL
   mss: [shipping, email]
+  breaks_exact: true
   breaks:
-    - edge: recommendation->productcatalog
+    - edge: checkout->currency
+      rule: REQ.1
+    - edge: checkout->currency
+      rule: RES.1
+    - edge: checkout->productcatalog
       rule: enum-response-widening
     - edge: frontend->checkout
       rule: REQ.1
     - edge: frontend->checkout
       rule: prim-mismatch
-    - edge: checkout->currency
-      rule: RES.1
     - edge: frontend->currency
       rule: REQ.1
+    - edge: frontend->currency
+      rule: RES.1
+    - edge: frontend->productcatalog
+      rule: enum-response-widening
+    - edge: recommendation->productcatalog
+      rule: enum-response-widening
   chains:
     - key: order-identity
-      rule: chain-type-mismatch
+      rule: "chain-type-mismatch"

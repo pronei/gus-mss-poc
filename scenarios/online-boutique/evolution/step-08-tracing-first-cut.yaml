@@ -25,6 +25,7 @@ upgrades:
 expect:
   gus: FAIL
   mss: [checkout]
+  breaks_exact: true
   chains:
     - key: session-trace
       rule: "chain-field-missing"

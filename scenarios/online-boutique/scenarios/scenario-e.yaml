@@ -14,8 +14,13 @@ upgrades:
   currency: v2
 expect:
   gus: FAIL
+  breaks_exact: true
   breaks:
     - edge: checkout->currency
+      rule: REQ.1
+    - edge: checkout->currency
+      rule: RES.1
+    - edge: frontend->currency
       rule: REQ.1
     - edge: frontend->currency
       rule: RES.1

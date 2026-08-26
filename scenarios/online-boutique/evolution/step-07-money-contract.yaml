@@ -28,14 +28,21 @@ expect:
   order:
     - [checkout, frontend]
     - [currency]
+  breaks_exact: true
   breaks:
     - edge: checkout->currency
-      rule: REQ.4
-    - edge: checkout->currency
       rule: REQ.1
+    - edge: checkout->currency
+      rule: REQ.4
     - edge: checkout->currency
       rule: RES.1
     - edge: checkout->currency
       rule: nullable-request-narrowing
     - edge: frontend->currency
+      rule: REQ.1
+    - edge: frontend->currency
       rule: REQ.4
+    - edge: frontend->currency
+      rule: RES.1
+    - edge: frontend->currency
+      rule: nullable-request-narrowing

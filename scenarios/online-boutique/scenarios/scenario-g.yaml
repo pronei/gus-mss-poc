@@ -21,8 +21,19 @@ upgrades:
 expect:
   gus: FAIL
   mss: [email]
+  breaks_exact: true
   breaks:
     - edge: checkout->currency
       rule: REQ.1
+    - edge: checkout->currency
+      rule: RES.1
+    - edge: checkout->productcatalog
+      rule: enum-response-widening
+    - edge: frontend->currency
+      rule: REQ.1
+    - edge: frontend->currency
+      rule: RES.1
     - edge: frontend->productcatalog
+      rule: enum-response-widening
+    - edge: recommendation->productcatalog
       rule: enum-response-widening

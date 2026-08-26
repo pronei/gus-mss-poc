@@ -21,6 +21,7 @@ upgrades:
 expect:
   gus: PASS
   mss: [checkout, email, frontend]
+  breaks_exact: true
   chains:
     - key: session-trace
       rule: ""

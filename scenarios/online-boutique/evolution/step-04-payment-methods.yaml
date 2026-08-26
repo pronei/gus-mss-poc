@@ -21,6 +21,7 @@ upgrades:
 expect:
   gus: FAIL
   mss: []
+  breaks_exact: true
   breaks:
     - edge: checkout->payment
       rule: enum-response-widening

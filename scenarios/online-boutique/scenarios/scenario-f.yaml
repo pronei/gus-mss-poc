@@ -13,6 +13,11 @@ upgrades:
   productcatalog: v3
 expect:
   gus: FAIL
+  breaks_exact: true
   breaks:
+    - edge: checkout->productcatalog
+      rule: kind-mismatch
     - edge: frontend->productcatalog
+      rule: kind-mismatch
+    - edge: recommendation->productcatalog
       rule: kind-mismatch

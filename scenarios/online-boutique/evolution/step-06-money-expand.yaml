@@ -22,8 +22,11 @@ upgrades:
 expect:
   gus: FAIL
   mss: [currency]
+  breaks_exact: true
   breaks:
-    - edge: frontend->recommendation
-      rule: prim-mismatch
     - edge: checkout->currency
       rule: format-change
+    - edge: frontend->currency
+      rule: format-change
+    - edge: frontend->recommendation
+      rule: prim-mismatch

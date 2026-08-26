@@ -24,6 +24,9 @@ expect:
   order:
     - [checkout]
     - [payment]
+  breaks_exact: true
   breaks:
     - edge: checkout->payment
       rule: enum-response-widening
+    - edge: checkout->payment
+      rule: nullable-response-widening

@@ -20,8 +20,9 @@ upgrades:
 expect:
   gus: FAIL
   mss: []
+  breaks_exact: true
   breaks:
-    - edge: frontend->cart
-      rule: RES.4
     - edge: checkout->cart
+      rule: RES.4
+    - edge: frontend->cart
       rule: RES.4

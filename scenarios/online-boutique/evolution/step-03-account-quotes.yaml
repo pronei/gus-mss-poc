@@ -26,10 +26,13 @@ expect:
   order:
     - [checkout, frontend]
     - [shipping]
+  breaks_exact: true
   breaks:
-    - edge: frontend->shipping-quote
+    - edge: checkout->shipping-quote
+      rule: REQ.1
+    - edge: checkout->shipping-quote
       rule: REQ.2
     - edge: frontend->shipping-quote
       rule: REQ.1
-    - edge: checkout->shipping-quote
+    - edge: frontend->shipping-quote
       rule: REQ.2
