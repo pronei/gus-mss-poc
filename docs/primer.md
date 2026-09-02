@@ -357,8 +357,8 @@ Hellerstein & Alvaro, *Keeping CALM* (CACM 2020).
 | The living counterexamples | `scenarios/online-boutique/evolution/` (see its README's coverage matrix) |
 
 The eleven-step evolution suite is the argument in executable form:
-step 03 (violations as *order*), step 10 (only the target state breaks —
-the conjunct pairwise tools never run), steps 07→11 (erosion, then
-exposure; ledger blames 07). The review that motivated half of these
+E03 (violations as *order*), E10 (only the target state breaks —
+the conjunct pairwise tools never run), E07→E11 (erosion, then
+exposure; the ledger blames E07). The review that motivated half of these
 design decisions is `docs/review-notes.md` — read it once; it is the
 list of mistakes this design has already made and paid for.

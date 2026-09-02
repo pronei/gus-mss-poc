@@ -5,6 +5,50 @@ All notable changes to this repository are tracked here. Format follows
 anchored to the GUS/MSS paper submission rather than semver — until the
 formalism stabilises, API changes are expected.
 
+## 0.3.2 — case IDs, report alignment, checker fixes (2026-09-02)
+
+### Added
+- Scenario `id:` field (`B`–`I`, `E01`–`E11`): printed in every header
+  (`=== GUS Check: [E03] ... ===`, `validate`/`evolve` lines, viz title)
+  and used as the ledger's step key; duplicate IDs in one directory are
+  rejected at load time.
+- Chain findings in the text report carry the revert-and-recheck
+  attribution (`attributed within the batch to: ...`); previously the
+  culprits reached only the solver and the viz.
+- `anyOf` loads as a Union with the same existential-matching semantics as
+  `oneOf`; mixing both in one schema is an error (`allOf` stays one).
+- Enum nodes carry their declared base type (`EnumBase`); a `required` name
+  without a matching property is modelled as a required field of any type
+  instead of being dropped.
+- Viz pages for E04, E05, E07; regression tests for every fix below
+  (`pkg/compat/sum_test.go`, `pkg/schema/loader_test.go`).
+
+### Fixed
+- String enums whose values spell like numbers or booleans
+  (`type: string, enum: ["10", "20"]`) no longer false-positive against a
+  `string` receiver: the declared type decides, spelling is only the
+  fallback for untyped enums. A base-type change under equal spellings
+  (`enum: [1, 2]` to `enum: ["1", "2"]`) is now caught (`prim-mismatch`).
+- Nested unions (a `oneOf` variant that is itself a `oneOf`, e.g. via
+  `$ref`) are flattened before matching; previously a false break.
+- Null admitted through a nullable variant of a union counts as admitted:
+  `Nullable(T)` into `Union(Nullable(T), U)` is clean, not
+  `nullable-request-narrowing`.
+- Warnings inside a matched union variant are reported instead of dropped.
+- Recursive `$ref` names are compared by component name rather than by the
+  service-qualified name the loader assigns, so a caller-declared recursive
+  type can match the provider's (previously an unconditional
+  `ref-name-mismatch` across any edge).
+
+### Removed
+- `Literal(v)` from the type language and the five `literal-*` rules:
+  OpenAPI 3.0 has no `const`, and a one-element `enum` is already `Enum`.
+
+### Changed
+- Scenario names drop the "Scenario X:" / "Evolution NN:" prefixes (the ID
+  carries them); `ledger.json` regenerated under the new step keys; README,
+  evolution README, workshop paper, and primer relabelled to match.
+
 ## 0.3.1 — eval-enabling assertions (2026-08-25)
 
 ### Added

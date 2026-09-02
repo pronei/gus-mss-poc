@@ -510,19 +510,24 @@ analogue of the counterfactual reasoning used by lineage-driven fault
 injection~\cite{alvaro2015lineage}, and we claim no more for it than
 that.
 
-For the sequence above the ledger output is (abridged):
+For the sequence above the ledger output is (the tool's own text, long
+lines wrapped, arrow and dash glyphs transliterated):
 
-{\small\begin{verbatim}
+{\footnotesize\begin{verbatim}
 identity "shipment-tracking" -- EXPOSED
- born     @03: checkout provides shipment_ref
-               (string, required)
- eroded   @07: required -> optional at checkout
- demanded @11: required by email -- REJECTED
- violated @11: chain-weakened
-   -- guarantee last weakened at step 07
+  born     @ E03: checkout provides it as string on
+                  field "shipment_ref" (required=true, ...)
+  eroded   @ E07: field "shipment_ref" went
+                  required->optional at checkout -- the
+                  identity is no longer guaranteed present
+  demanded @ E11: now required by [email] -- the
+                  proposal was REJECTED because the
+                  guarantee no longer holds
+  violated @ E11: chain check fails (chain-weakened)
+                  -- guarantee last weakened at step "E07"
 \end{verbatim}}
 
-\noindent Step 11's batch is correctly blocked; step 07 is correctly
+\noindent E11's batch is correctly blocked; E07 is correctly
 named. Neither statement is available to a checker that sees one
 rollout at a time.
 
@@ -551,29 +556,29 @@ per-boundary, per-rollout checker cannot produce.}
 \toprule
 Step & Outcome & Notes\\
 \midrule
-01 wishlist & ships & additive response fields\\
-02 cart & blocked & response guarantee regressed\\
-\textbf{03 accounts} & \textbf{ships in 2 stages} & callers first, then shipping\\
-04 payments & blocked & response enum widened; nullable id\\
-\textbf{05 payments} & \textbf{ships in 2 stages} & checkout before payment\\
-06 money, expand & partial & widening ships as a warning; a map value change is blocked\\
-\textbf{07 money, contract} & \textbf{ships in 2 stages} & four violation kinds, one order; quietly weakens a guarantee\\
-\textbf{08 tracing} & \textbf{partial} & rename without alias: only the chain fails\\
-09 tracing & ships & alias bridges the rename\\
-\textbf{10 promo} & \textbf{blocked} & every mixed pair passes; only the target pair conflicts\\
-\textbf{11 notifications} & \textbf{blocked} & step-07 weakening exposed; ledger names step 07\\
+E01 wishlist & ships & additive response fields\\
+E02 cart & blocked & response guarantee regressed\\
+\textbf{E03 accounts} & \textbf{ships in 2 stages} & callers first, then shipping\\
+E04 payments & blocked & response enum widened; nullable id\\
+\textbf{E05 payments} & \textbf{ships in 2 stages} & checkout before payment\\
+E06 money, expand & partial & widening ships as a warning; a map value change is blocked\\
+\textbf{E07 money, contract} & \textbf{ships in 2 stages} & four violation kinds, one order; quietly weakens a guarantee\\
+\textbf{E08 tracing} & \textbf{partial} & rename without alias: only the chain fails\\
+E09 tracing & ships & alias bridges the rename\\
+\textbf{E10 promo} & \textbf{blocked} & every mixed pair passes; only the target pair conflicts\\
+\textbf{E11 notifications} & \textbf{blocked} & E07's weakening exposed; ledger names E07\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\emph{Order (step 03).} Shipping begins requiring an
+\emph{Order (E03).} Shipping begins requiring an
 \texttt{account\_tier} field that both callers simultaneously upgrade
 to send. Every pairwise tool classifies the provider change as
 breaking. The checker instead emits a two-stage plan --- callers, then
 shipping --- and the replay certificate passes: the only bad pair (old
 caller, new provider) never exists under that order.
 
-\emph{Target state (step 10).} Shipping accepts an optional
+\emph{Target state (E10).} Shipping accepts an optional
 enum-valued promo code; frontend upgrades to always send a free-form
 string. Both mixed pairs pass: old frontends omit the optional field,
 and old shippings ignore the unknown field. Only the
@@ -582,10 +587,10 @@ backward/forward checking relates successive versions of \emph{one}
 schema; this failure lies between two parties' new schemas, a pair no
 per-schema check ever relates --- here it is the entire failure.
 
-\emph{History (steps 07 and 11).} As in \S\ref{sec:ledger}: the
-weakening ships silently at step 07 because nothing requires the
-identity; the requirement arrives at step 11 and is blocked; the
-ledger names step 07. Without the ledger, step 11's failure is
+\emph{History (E07 and E11).} As in \S\ref{sec:ledger}: the
+weakening ships silently at E07 because nothing requires the
+identity; the requirement arrives at E11 and is blocked; the
+ledger names E07. Without the ledger, E11's failure is
 attributed to email, which is the one service that did nothing wrong.
 
 %% ---------------------------------------------------------------

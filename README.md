@@ -124,9 +124,12 @@ All scenarios run against a 9-service port of Google's **Online
 Boutique** (`scenarios/online-boutique/`) with 14 RPC edges. Each ships
 a YAML definition with **exact** expected outcomes (`gus validate`
 checks MSS set equality — including emptiness — plus expected edge and
-chain violations, and post-hoc verifies every computed subset).
+chain violations, and post-hoc verifies every computed subset). Every
+case declares an `id:` (`B`–`I`, `E01`–`E11`) that the tool prints in
+its headers — `=== GUS Check: [E03] ... ===` — and that the ledger uses
+as its step key.
 
-### Scenario B — Response enum widening (silent data hazard)
+### Case B — Response enum widening (silent data hazard)
 ProductCatalog v2 adds `new-arrivals` to the `categories` response enum.
 Old consumers with closed switch statements crash on the unknown value.
 Caught on the response leg (`C3`): `Return(θ') ⊑ Expect(θ)` fails.
@@ -134,7 +137,7 @@ Caught on the response leg (`C3`): `Return(θ') ⊑ Expect(θ)` fails.
 Inspector classifies it "dangerous". The mesh-wide batch verdict is the
 GUS-specific part, not the rule itself.)
 
-### Scenario C — Enum migration with a straggler
+### Case C — Enum migration with a straggler
 Shipping v2 replaces `express` with `same-day`. Frontend v2
 (co-developed) narrows its sends to `[standard]`, compatible with every
 shipping version. Checkout stays at v1 and still sends `express`, so
@@ -143,7 +146,7 @@ shipping is pinned out by a unit clause — but the conjunct-aware clause
 **frontend stays in the MSS** (`mss: [frontend]`). A conjunct-blind
 "exclude both endpoints" encoding would wrongly drag frontend out.
 
-### Scenario D — Chain-only break (no edge fires)
+### Case D — Chain-only break (no edge fires)
 Checkout v2 stops guaranteeing `order_id` on the confirmation call
 (optional in its client send). Email's accept schema tolerates the
 absence — **every per-edge conjunct passes** — but email declares
@@ -152,13 +155,13 @@ absence — **every per-edge conjunct passes** — but email declares
 per-edge tools are structurally blind to, now actually computed by
 `pkg/chain` (wired into `check`, `mss`, `validate`, and the viz).
 
-### Scenario E — Hasty schema refactor (object restructure)
+### Case E — Hasty schema refactor (object restructure)
 Currency v2 "cleans up" `Money` from `{currency_code, units, nanos}` to
 `{currency_code, amount}`. Both calling edges break on the request leg
 (REQ.1: new required `amount`) and the response leg (RES.1: required
 fields vanish). MSS is empty.
 
-### Scenario F — Recursive types
+### Case F — Recursive types
 ProductCatalog v3 replaces the flat `categories` enum with a recursive
 `Category{name, children: [Category]}` tree — `kind-mismatch`, no
 pairing direction can bridge it. The loader inlines `$ref`s and emits
@@ -166,19 +169,19 @@ pairing direction can bridge it. The loader inlines `$ref`s and emits
 the checker compares the one-step unfolding and assumes same-named
 back-edges coinductively.
 
-### Scenario G — Composite upgrade, non-trivial MSS
+### Case G — Composite upgrade, non-trivial MSS
 Currency v2 and productcatalog v2 are each pinned by non-upgrading
 callers (unit clauses); email v2's optional response addition is safe.
 MSS = exactly `{email}`.
 
-### Scenario H — Positive control (safe upgrade)
+### Case H — Positive control (safe upgrade)
 Frontend v2 alone. Its client declarations (narrowed shipping sends,
 unchanged checkout expectations) pass every conjunct against the v1
 providers. With caller schemas actually consumed, this control is now
 meaningful — the earlier revision only passed because the caller-spec
 path was dead code.
 
-### Scenario I — Full-mesh upgrade storm
+### Case I — Full-mesh upgrade storm
 Six of nine services upgrade under the lenient coercion profile;
 recommendation stays at v1 and pins productcatalog. The showpieces:
 
@@ -201,8 +204,8 @@ Expected (and exactly validated): MSS = `{shipping, email}`.
 ```
 cmd/gus/              CLI: check, mss, consistent, validate, evolve, viz
 pkg/
-  types/              Type AST (Prim, Literal, Enum, Array, Object, Map,
-                        Union, Nullable, Ref, Any)
+  types/              Type AST (Prim, Enum, Array, Object, Map, Union,
+                        Nullable, Ref, Any)
   lattice/            JSON primitive order (strict + lenient profiles),
                         proto varint widenings
   compat/             Role-based subtyping rules (REQ/RES directions)
@@ -231,7 +234,7 @@ migration, session tracing, promo codes), each step's baseline being what
 the previous steps actually shipped. Together they cover every rule the
 checker knows — including the ones single scenarios can't show: staged
 rollout orders, target-state (TGT) deadlocks, x-alias rename bridging, and
-a guarantee that erodes silently in step 07 and only explodes in step 11.
+a guarantee that erodes silently in E07 and only explodes in E11.
 
 ```sh
 ./gus validate --graph scenarios/online-boutique/graph.yaml \
@@ -246,7 +249,7 @@ carrying paths — at every shipped state. Its purpose is the class of bug
 per-step checks structurally cannot see: a guarantee weakened while nothing
 requires it ships without a single failing check; when a requirer appears
 rollouts later, the per-step tool can only blame the requirer. The ledger
-answers with the true origin ("guarantee last weakened at step 07") and
+answers with the true origin (`guarantee last weakened at step "E07"`) and
 records all carrying paths per identity, since a diamond mesh can route an
 identity along any of several upgrade paths. See
 `scenarios/online-boutique/evolution/README.md` for the full storyline.
@@ -260,7 +263,7 @@ go build -o gus ./cmd/gus
 ./gus validate --graph scenarios/online-boutique/graph.yaml \
                --scenario-dir scenarios/online-boutique/scenarios
 
-# Interactive view of Scenario I
+# Interactive view of case I
 ./gus viz --graph scenarios/online-boutique/graph.yaml \
           --scenario scenarios/online-boutique/scenarios/scenario-i.yaml \
           --html viz/scenario-i.html --template viz/viz.html
