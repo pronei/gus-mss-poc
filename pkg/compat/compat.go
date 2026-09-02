@@ -20,6 +20,7 @@ package compat
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/faults-lab/gus/pkg/lattice"
 	"github.com/faults-lab/gus/pkg/types"
@@ -72,24 +73,17 @@ func (c *checker) check(left, right *types.Node, dir types.Direction, path strin
 		return nil
 	}
 
-	// Nullable unwrapping.
-	if left.Kind == types.KindNullable || right.Kind == types.KindNullable {
-		return c.checkNullable(left, right, dir, path)
+	// Nullable and Union are both sums. Either side is normalized to a set of
+	// plain variants plus a null flag, so that null admitted through a
+	// nullable variant and unions nested via $ref are both seen for what
+	// they are.
+	if isSum(left) || isSum(right) {
+		return c.checkSum(left, right, dir, path)
 	}
 
 	// Ref: coinductive — assume compatible if already being checked.
 	if left.Kind == types.KindRef && right.Kind == types.KindRef {
 		return c.checkRef(left, right, path)
-	}
-
-	// Literal can compare against Enum or Prim (not just itself).
-	if left.Kind == types.KindLiteral || right.Kind == types.KindLiteral {
-		return c.checkLiteral(left, right, dir, path)
-	}
-
-	// Union vs anything: width subtyping via existential matching.
-	if left.Kind == types.KindUnion || right.Kind == types.KindUnion {
-		return c.checkUnion(left, right, dir, path)
 	}
 
 	// Enum vs Prim: value-set semantics, direction-dependent (deck slide 2:
@@ -120,58 +114,71 @@ func (c *checker) check(left, right *types.Node, dir types.Direction, path strin
 		return c.checkMap(left, right, dir, path)
 	case types.KindObject:
 		return c.checkObject(left, right, dir, path)
-	case types.KindUnion:
-		return c.checkUnion(left, right, dir, path)
 	default:
 		return nil
 	}
 }
 
-// --- Nullable ---
+// --- Sums: Nullable and Union ---
 //
-// The rules are stated over roles, so they hold for every conjunct:
+// A type is read as a set: its plain variants (nested unions flattened) plus
+// whether null is admitted (a Nullable at any union level). The null rules
+// are stated over roles, so they hold for every conjunct:
 // REQ: sender-nullable requires receiver-nullable (receiver must admit null).
 // RES: producer-nullable requires consumer-nullable (consumer must expect null).
 
-func (c *checker) checkNullable(left, right *types.Node, dir types.Direction, path string) []types.Violation {
-	leftInner, leftNull := unwrapNullable(left)
-	rightInner, rightNull := unwrapNullable(right)
+func isSum(n *types.Node) bool {
+	return n.Kind == types.KindNullable || n.Kind == types.KindUnion
+}
 
-	if leftNull == rightNull {
-		return c.check(leftInner, rightInner, dir, path)
+// flatten returns the plain variants of n and whether n admits null.
+func flatten(n *types.Node) ([]*types.Node, bool) {
+	switch n.Kind {
+	case types.KindNullable:
+		vs, _ := flatten(n.Inner)
+		return vs, true
+	case types.KindUnion:
+		var vs []*types.Node
+		nullable := false
+		for _, v := range n.Variants {
+			vv, nn := flatten(v)
+			vs = append(vs, vv...)
+			nullable = nullable || nn
+		}
+		return vs, nullable
 	}
+	return []*types.Node{n}, false
+}
 
-	switch dir {
-	case types.DirREQ:
-		if leftNull && !rightNull {
+func (c *checker) checkSum(left, right *types.Node, dir types.Direction, path string) []types.Violation {
+	leftVars, leftNull := flatten(left)
+	rightVars, rightNull := flatten(right)
+
+	if leftNull != rightNull {
+		switch {
+		case dir == types.DirREQ && leftNull:
 			return []types.Violation{{
 				Path: path, Severity: types.SevBREAK, Rule: "nullable-request-narrowing",
 				Message: "sender may send null but receiver rejects null",
 				OldType: summary(left), NewType: summary(right),
 			}}
-		}
-		// Sender non-null, receiver nullable: receiver admits more — safe.
-		return c.check(leftInner, rightInner, dir, path)
-
-	case types.DirRES:
-		if !leftNull && rightNull {
+		case dir == types.DirRES && rightNull:
 			return []types.Violation{{
 				Path: path, Severity: types.SevBREAK, Rule: "nullable-response-widening",
 				Message: "producer may return null but consumer does not expect null",
 				OldType: summary(left), NewType: summary(right),
 			}}
 		}
-		// Consumer expects nullable, producer never returns null — safe.
-		return c.check(leftInner, rightInner, dir, path)
+		// Sender non-null into a null-admitting receiver, or a null-expecting
+		// consumer of a never-null producer: the extra admission is safe.
 	}
-	return nil
-}
 
-func unwrapNullable(n *types.Node) (*types.Node, bool) {
-	if n.Kind == types.KindNullable {
-		return n.Inner, true
+	// One plain variant on each side: compare directly so the precise rule
+	// (prim-mismatch, REQ.1, ...) is reported rather than a union rule.
+	if len(leftVars) == 1 && len(rightVars) == 1 {
+		return c.check(leftVars[0], rightVars[0], dir, path)
 	}
-	return n, false
+	return c.checkUnion(leftVars, rightVars, left, right, dir, path)
 }
 
 // --- Ref (coinductive) ---
@@ -183,12 +190,24 @@ func unwrapNullable(n *types.Node) (*types.Node, bool) {
 // back-edges is standard coinductive practice; a renamed component is
 // reported rather than unfolded because the checker has no component table.
 
+// localName strips the service qualifier the loader prepends ("svc.Name" ->
+// "Name"). The two sides of an edge come from different services' documents,
+// and the coinductive hypothesis is keyed by the component's name, not by
+// which document declared it; the one-step unfolding around the back-edge is
+// still compared structurally.
+func localName(qualified string) string {
+	if i := strings.Index(qualified, "."); i >= 0 {
+		return qualified[i+1:]
+	}
+	return qualified
+}
+
 func (c *checker) checkRef(left, right *types.Node, path string) []types.Violation {
 	pair := refPair{left.RefName, right.RefName}
 	if c.seen[pair] {
 		return nil // coinductive assumption: compatible
 	}
-	if left.RefName != right.RefName {
+	if localName(left.RefName) != localName(right.RefName) {
 		return []types.Violation{{
 			Path: path, Severity: types.SevBREAK, Rule: "ref-name-mismatch",
 			Message: fmt.Sprintf("recursive type name differs: %s vs %s", left.RefName, right.RefName),
@@ -199,12 +218,20 @@ func (c *checker) checkRef(left, right *types.Node, path string) []types.Violati
 	return nil
 }
 
-// --- Literal ---
+// --- Enum vs Prim ---
+//
+// Value-set semantics: Enum(S) over base type T satisfies Enum(S) ≤ T.
+// REQ with enum sender + prim receiver: safe iff every enum value's base type
+// fits the receiver primitive. REQ with prim sender + enum receiver: the
+// sender may emit values outside S — break.
+// RES with prim consumer + enum producer: safe iff enum values fit the
+// expected primitive. RES with enum consumer + prim producer: the producer
+// may return values outside S — break (consumer switch statements).
 
-// literalBase infers the JSON primitive a literal value belongs to.
-// The loader stores literal values as strings without a type tag, so this is
-// a best-effort classification for lattice checks.
-func literalBase(v string) string {
+// valueBase infers the JSON primitive an enum value string belongs to. It is
+// the fallback for schemas that declare an enum without a type; when a type
+// is declared the loader records it as EnumBase and that is authoritative.
+func valueBase(v string) string {
 	if v == "true" || v == "false" {
 		return "boolean"
 	}
@@ -228,126 +255,13 @@ func literalBase(v string) string {
 	return "string"
 }
 
-func (c *checker) checkLiteral(left, right *types.Node, dir types.Direction, path string) []types.Violation {
-	// Literal vs Literal: values must match.
-	if left.Kind == types.KindLiteral && right.Kind == types.KindLiteral {
-		if left.LiteralValue != right.LiteralValue {
-			return []types.Violation{{
-				Path: path, Severity: types.SevBREAK, Rule: "literal-mismatch",
-				Message: fmt.Sprintf("literal value %q does not match %q", left.LiteralValue, right.LiteralValue),
-				OldType: summary(left), NewType: summary(right),
-			}}
-		}
-		return nil
-	}
-
-	// Literal(v) on the left: the left side produces exactly v.
-	// REQ: sender sends v — receiver must admit v.
-	// RES: consumer expects exactly v — producer may return anything in its
-	// type, so anything broader than {v} breaks.
-	if left.Kind == types.KindLiteral {
-		switch right.Kind {
-		case types.KindEnum:
-			if dir == types.DirREQ {
-				if !contains(right.EnumValues, left.LiteralValue) {
-					return []types.Violation{{
-						Path: path, Severity: types.SevBREAK, Rule: "literal-not-in-enum",
-						Message: fmt.Sprintf("literal %q is not among accepted values %v", left.LiteralValue, right.EnumValues),
-						OldType: summary(left), NewType: summary(right),
-					}}
-				}
-				return nil
-			}
-			// RES: producer returns any of the enum; consumer expects one value.
-			if len(right.EnumValues) == 1 && right.EnumValues[0] == left.LiteralValue {
-				return nil
-			}
-			return []types.Violation{{
-				Path: path, Severity: types.SevBREAK, Rule: "literal-widening",
-				Message: fmt.Sprintf("consumer expects exactly %q but producer may return any of %v", left.LiteralValue, right.EnumValues),
-				OldType: summary(left), NewType: summary(right),
-			}}
-		case types.KindPrim:
-			if dir == types.DirREQ {
-				// Sender sends the literal; receiver accepts the primitive:
-				// safe iff the literal's base type fits the primitive.
-				if c.leq(literalBase(left.LiteralValue), right.Prim) {
-					return nil
-				}
-				return []types.Violation{{
-					Path: path, Severity: types.SevBREAK, Rule: "literal-prim-mismatch",
-					Message: fmt.Sprintf("literal %q (base %s) is not admitted by %s", left.LiteralValue, literalBase(left.LiteralValue), right.Prim),
-					OldType: summary(left), NewType: summary(right),
-				}}
-			}
-			// RES: consumer expects exactly the literal; producer may return
-			// any value of the primitive — break.
-			return []types.Violation{{
-				Path: path, Severity: types.SevBREAK, Rule: "literal-widening",
-				Message: fmt.Sprintf("consumer expects exactly %q but producer may return any %s", left.LiteralValue, right.Prim),
-				OldType: summary(left), NewType: summary(right),
-			}}
-		}
-	}
-
-	// Literal(v) on the right: the right side admits/returns exactly v.
-	if right.Kind == types.KindLiteral {
-		switch left.Kind {
-		case types.KindEnum:
-			if dir == types.DirRES {
-				// Producer returns exactly v; consumer expects one of the enum.
-				if contains(left.EnumValues, right.LiteralValue) {
-					return nil
-				}
-			}
-			// REQ: sender may send any enum value; receiver admits only v.
-			if dir == types.DirREQ && len(left.EnumValues) == 1 && left.EnumValues[0] == right.LiteralValue {
-				return nil
-			}
-			return []types.Violation{{
-				Path: path, Severity: types.SevBREAK, Rule: "literal-narrowing",
-				Message: fmt.Sprintf("only literal %q is admitted but the other side covers %v", right.LiteralValue, left.EnumValues),
-				OldType: summary(left), NewType: summary(right),
-			}}
-		case types.KindPrim:
-			if dir == types.DirRES {
-				// Producer returns exactly v; consumer expects the primitive:
-				// safe iff v fits the expected primitive.
-				if c.leq(literalBase(right.LiteralValue), left.Prim) {
-					return nil
-				}
-			}
-			// REQ: sender may send any value of the primitive; receiver
-			// admits only the literal — break.
-			return []types.Violation{{
-				Path: path, Severity: types.SevBREAK, Rule: "literal-narrowing",
-				Message: fmt.Sprintf("only literal %q is admitted but the other side covers all of %s", right.LiteralValue, left.Prim),
-				OldType: summary(left), NewType: summary(right),
-			}}
-		}
-	}
-
-	return []types.Violation{{
-		Path: path, Severity: types.SevBREAK, Rule: "kind-mismatch",
-		Message: fmt.Sprintf("type kind %s is not admitted where %s is declared", left.Kind, right.Kind),
-		OldType: summary(left), NewType: summary(right),
-	}}
-}
-
-// --- Enum vs Prim ---
-//
-// Value-set semantics: Enum(S) over base type T satisfies Enum(S) ≤ T.
-// REQ with enum sender + prim receiver: safe iff every enum value's base type
-// fits the receiver primitive. REQ with prim sender + enum receiver: the
-// sender may emit values outside S — break.
-// RES with prim consumer + enum producer: safe iff enum values fit the
-// expected primitive. RES with enum consumer + prim producer: the producer
-// may return values outside S — break (consumer switch statements).
-
 func (c *checker) checkEnumPrim(left, right *types.Node, dir types.Direction, path string) []types.Violation {
 	enumFits := func(e *types.Node, prim string) bool {
+		if e.EnumBase != "" {
+			return c.leq(e.EnumBase, prim)
+		}
 		for _, v := range e.EnumValues {
-			if !c.leq(literalBase(v), prim) {
+			if !c.leq(valueBase(v), prim) {
 				return false
 			}
 		}
@@ -439,6 +353,22 @@ func (c *checker) checkPrim(left, right *types.Node, dir types.Direction, path s
 // --- Enum ---
 
 func (c *checker) checkEnum(left, right *types.Node, dir types.Direction, path string) []types.Violation {
+	// Values are compared as spellings, so a change of declared base type
+	// (integer 1 to string "1") is caught here, direction-aware.
+	if left.EnumBase != "" && right.EnumBase != "" && left.EnumBase != right.EnumBase {
+		from, to := left.EnumBase, right.EnumBase
+		if dir == types.DirRES {
+			from, to = right.EnumBase, left.EnumBase
+		}
+		if !c.leq(from, to) {
+			return []types.Violation{{
+				Path: path, Severity: types.SevBREAK, Rule: "prim-mismatch",
+				Message: fmt.Sprintf("enum base type %s is not admitted where %s is declared", from, to),
+				OldType: summary(left), NewType: summary(right),
+			}}
+		}
+	}
+
 	leftSet := toSet(left.EnumValues)
 	rightSet := toSet(right.EnumValues)
 
@@ -609,15 +539,14 @@ func (c *checker) checkObjectRes(consumer, producer *types.Node, path string) []
 
 // --- Union (existential matching) ---
 //
-// A variant pair matches when the comparison yields no BREAK-severity
-// violations; WARN-only pairs still match (a warning must not escalate to a
-// break just because the type is wrapped in oneOf). A non-union compared
-// against a union is treated as a single-variant union (width subtyping).
+// Width subtyping over flattened variant sets: REQ requires every sender
+// variant to be admitted by some receiver variant, RES every producer
+// variant to be understood by some consumer variant. A candidate pair
+// matches when the comparison yields no BREAK-severity violation; a
+// WARN-only match still matches, and its warnings are reported, so that a
+// warning neither blocks nor vanishes because the type sits inside a union.
 
-func (c *checker) checkUnion(left, right *types.Node, dir types.Direction, path string) []types.Violation {
-	leftVars := variants(left)
-	rightVars := variants(right)
-
+func (c *checker) checkUnion(leftVars, rightVars []*types.Node, left, right *types.Node, dir types.Direction, path string) []types.Violation {
 	noBreaks := func(vs []types.Violation) bool {
 		for _, v := range vs {
 			if v.Severity == types.SevBREAK {
@@ -626,54 +555,58 @@ func (c *checker) checkUnion(left, right *types.Node, dir types.Direction, path 
 		}
 		return true
 	}
+	// matchOne looks for a candidate admitting the probed variant: a clean
+	// match wins outright; otherwise the first WARN-only match counts and
+	// carries its warnings.
+	matchOne := func(probe func(cand *types.Node) []types.Violation, cands []*types.Node) (bool, []types.Violation) {
+		var warnOnly []types.Violation
+		found := false
+		for _, cand := range cands {
+			cvs := probe(cand)
+			if len(cvs) == 0 {
+				return true, nil
+			}
+			if !found && noBreaks(cvs) {
+				found, warnOnly = true, cvs
+			}
+		}
+		return found, warnOnly
+	}
 
 	var vs []types.Violation
 	switch dir {
 	case types.DirREQ:
-		// Every value the sender may emit must be admitted: ∀L ∃R compat.
 		for i, lv := range leftVars {
-			found := false
-			for _, rv := range rightVars {
-				if noBreaks(c.check(lv, rv, types.DirREQ, path)) {
-					found = true
-					break
-				}
-			}
-			if !found {
+			ok, warns := matchOne(func(rv *types.Node) []types.Violation {
+				return c.check(lv, rv, types.DirREQ, path)
+			}, rightVars)
+			if !ok {
 				vs = append(vs, types.Violation{
 					Path: path, Severity: types.SevBREAK, Rule: "union-request-narrowing",
 					Message: fmt.Sprintf("sender union variant %d (%s) is not admitted by any receiver variant", i, summary(lv)),
 					OldType: summary(left), NewType: summary(right),
 				})
+				continue
 			}
+			vs = append(vs, warns...)
 		}
 	case types.DirRES:
-		// Every value the producer may return must be understood: ∀R ∃L compat.
 		for i, rv := range rightVars {
-			found := false
-			for _, lv := range leftVars {
-				if noBreaks(c.check(lv, rv, types.DirRES, path)) {
-					found = true
-					break
-				}
-			}
-			if !found {
+			ok, warns := matchOne(func(lv *types.Node) []types.Violation {
+				return c.check(lv, rv, types.DirRES, path)
+			}, leftVars)
+			if !ok {
 				vs = append(vs, types.Violation{
 					Path: path, Severity: types.SevBREAK, Rule: "union-response-widening",
 					Message: fmt.Sprintf("producer union variant %d (%s) is not understood by any consumer variant", i, summary(rv)),
 					OldType: summary(left), NewType: summary(right),
 				})
+				continue
 			}
+			vs = append(vs, warns...)
 		}
 	}
 	return vs
-}
-
-func variants(n *types.Node) []*types.Node {
-	if n.Kind == types.KindUnion {
-		return n.Variants
-	}
-	return []*types.Node{n}
 }
 
 // --- Helpers ---

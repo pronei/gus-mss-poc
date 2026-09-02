@@ -1,6 +1,6 @@
 // Package types defines the type AST for the GUS compatibility checker.
-// This covers the full type language from the GUS-MSS paper §3.3:
-// Prim | Literal(v) | Enum(S) | Array(T) | Map(K,V) | Object(F,o) | Union(S) | Nullable(T) | Ref(n) | Any
+// This covers the full type language of the report (Part I):
+// Prim | Enum(S) | Array(T) | Map(K,V) | Object(F,o) | Union(S) | Nullable(T) | Ref(n) | Any
 package types
 
 import (
@@ -13,7 +13,6 @@ type Kind int
 
 const (
 	KindPrim     Kind = iota // Primitive: string, integer, number, boolean
-	KindLiteral              // Literal(v): a single constant value
 	KindEnum                 // Enum(S): a set of allowed values
 	KindArray                // Array(T): homogeneous list
 	KindMap                  // Map(K,V): key-value collection
@@ -28,8 +27,6 @@ func (k Kind) String() string {
 	switch k {
 	case KindPrim:
 		return "prim"
-	case KindLiteral:
-		return "literal"
 	case KindEnum:
 		return "enum"
 	case KindArray:
@@ -59,11 +56,12 @@ type Node struct {
 	Prim   string // "string", "integer", "number", "boolean"
 	Format string // "int32", "int64", "float", "double", etc.
 
-	// KindLiteral
-	LiteralValue string
-
 	// KindEnum
 	EnumValues []string
+	// EnumBase is the declared base type of the values ("string", "integer",
+	// "number", "boolean"); empty when the schema declared no type, in
+	// which case the checker infers a base from each value's spelling.
+	EnumBase string
 
 	// KindArray
 	Items *Node
@@ -154,10 +152,6 @@ func Prim(name, format string) *Node {
 	return &Node{Kind: KindPrim, Prim: name, Format: format}
 }
 
-func Literal(value string) *Node {
-	return &Node{Kind: KindLiteral, LiteralValue: value}
-}
-
 func Enum(values []string) *Node {
 	return &Node{Kind: KindEnum, EnumValues: values}
 }
@@ -206,8 +200,6 @@ func (n *Node) Summary() string {
 			return fmt.Sprintf("%s(%s)", n.Prim, n.Format)
 		}
 		return n.Prim
-	case KindLiteral:
-		return fmt.Sprintf("literal(%q)", n.LiteralValue)
 	case KindEnum:
 		return fmt.Sprintf("enum{%s}", strings.Join(n.EnumValues, ","))
 	case KindArray:

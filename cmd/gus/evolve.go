@@ -57,24 +57,24 @@ func runEvolve(args []string) {
 
 	for _, sc := range steps {
 		if err := validateScenarioRefs(g, sc); err != nil {
-			fatalf("step %s: %v", sc.Name, err)
+			fatalf("step %s: %v", sc.Display(), err)
 		}
 		if shipped != nil {
 			for svc, ver := range sc.Baseline {
 				if shipped[svc] != "" && shipped[svc] != ver {
 					fmt.Fprintf(os.Stderr, "warn: step %q declares baseline %s@%s but the previous steps shipped %s — the ledger follows the declared baseline\n",
-						sc.Name, svc, ver, shipped[svc])
+						sc.Display(), svc, ver, shipped[svc])
 				}
 			}
 		}
 
 		gusResult, err := executeGUS(loader, g, sc, sc.Upgrades)
 		if err != nil {
-			fatalf("step %s: %v", sc.Name, err)
+			fatalf("step %s: %v", sc.Display(), err)
 		}
 		mssResult, _, err := computeMSSWithPostHoc(loader, g, sc, gusResult)
 		if err != nil {
-			fatalf("step %s: %v", sc.Name, err)
+			fatalf("step %s: %v", sc.Display(), err)
 		}
 		safeUpgrades := make(map[string]string, len(mssResult.Safe))
 		for _, u := range mssResult.Safe {
@@ -82,16 +82,16 @@ func runEvolve(args []string) {
 		}
 		shipped = materialize(overlay(sc.Baseline, safeUpgrades), g)
 
-		if ledger.Recorded(sc.Name) {
-			fmt.Fprintf(os.Stderr, "skip (already in ledger): %s\n", sc.Name)
+		if ledger.Recorded(sc.Key()) {
+			fmt.Fprintf(os.Stderr, "skip (already in ledger): %s\n", sc.Display())
 			continue
 		}
 
 		obs, err := observeStep(loader, g, sc, shipped, safeUpgrades, gusResult)
 		if err != nil {
-			fatalf("step %s: %v", sc.Name, err)
+			fatalf("step %s: %v", sc.Display(), err)
 		}
-		ledger.RecordStep(sc.Name, obs)
+		ledger.RecordStep(sc.Key(), obs)
 	}
 
 	if err := ledger.Save(*ledgerPath); err != nil {

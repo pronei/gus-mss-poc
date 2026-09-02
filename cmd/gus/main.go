@@ -134,7 +134,7 @@ func runMSS(args []string) {
 		fatalf("%v", err)
 	}
 	rpt := &report.MSSReport{
-		Scenario:   sc.Name,
+		Scenario:   sc.Display(),
 		GUS:        gusResult,
 		MSS:        mssResult,
 		PostHocOK:  postHocOK,
@@ -246,22 +246,22 @@ func runValidate(args []string) {
 	passed, failed := 0, 0
 	for _, sc := range scenarios {
 		if err := validateScenarioRefs(g, sc); err != nil {
-			fmt.Printf("  FAIL  %s\n    %v\n", sc.Name, err)
+			fmt.Printf("  FAIL  %s\n    %v\n", sc.Display(), err)
 			failed++
 			continue
 		}
 		gusResult, err := executeGUS(loader, g, sc, sc.Upgrades)
 		if err != nil {
-			fmt.Printf("  FAIL  %s\n    %v\n", sc.Name, err)
+			fmt.Printf("  FAIL  %s\n    %v\n", sc.Display(), err)
 			failed++
 			continue
 		}
 		ok, msgs := validateExpectations(loader, sc, gusResult, g)
 		if ok {
-			fmt.Printf("  PASS  %s\n", sc.Name)
+			fmt.Printf("  PASS  %s\n", sc.Display())
 			passed++
 		} else {
-			fmt.Printf("  FAIL  %s\n", sc.Name)
+			fmt.Printf("  FAIL  %s\n", sc.Display())
 			for _, m := range msgs {
 				fmt.Printf("    %s\n", m)
 			}
@@ -317,7 +317,7 @@ func versionOf(versions map[string]string, svc string) string {
 // never a silent pass.
 func executeGUS(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef, upgrades map[string]string) (*report.GUSResult, error) {
 	cfg := scenarioConfig(sc)
-	result := &report.GUSResult{Scenario: sc.Name, OK: true}
+	result := &report.GUSResult{Scenario: sc.Display(), OK: true}
 
 	// Precondition gate: the adequacy argument (and the skip of untouched
 	// edges below) is sound only if the baseline state is internally
@@ -1042,7 +1042,7 @@ func mustLoadInputs(graphPath, scenarioPath string) (*graph.Graph, *graph.Scenar
 		fatalf("loading scenario: %v", err)
 	}
 	if err := validateScenarioRefs(g, sc); err != nil {
-		fatalf("scenario %s: %v", sc.Name, err)
+		fatalf("scenario %s: %v", sc.Display(), err)
 	}
 	return g, sc
 }

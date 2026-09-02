@@ -44,6 +44,7 @@ type Chain struct {
 }
 
 type Scenario struct {
+	ID          string            `json:"id,omitempty"`
 	Name        string            `json:"name"`
 	Description string            `json:"description,omitempty"`
 	Baseline    map[string]string `json:"baseline"`
@@ -114,7 +115,8 @@ type RemovedResult struct {
 func Build(g *graph.Graph, sc *graph.ScenarioDef, gusResult *report.GUSResult, mssResult *solver.MSSResult) Artifact {
 	art := Artifact{
 		Scenario: Scenario{
-			Name:        sc.Name,
+			ID:          sc.ID,
+			Name:        sc.Display(),
 			Description: sc.Description,
 			Baseline:    copyMap(sc.Baseline),
 			Upgrades:    copyMap(sc.Upgrades),
@@ -300,10 +302,6 @@ func ExplainViolation(ed graph.EdgeDef, conj string, v types.Violation) string {
 		return fmt.Sprintf("During %s, the primitive type of %s is incompatible under the configured lattice (%s vs %s). Cross-version pairings can fail asymmetrically: check which conjuncts fired.", window, field, v.OldType, v.NewType)
 	case "kind-mismatch":
 		return fmt.Sprintf("Type kind for %s changed fundamentally (%s vs %s) — no pairing direction can bridge the change.", field, v.OldType, v.NewType)
-	case "literal-mismatch":
-		return fmt.Sprintf("Literal value for %s differs across versions (%s vs %s).", field, v.OldType, v.NewType)
-	case "literal-not-in-enum":
-		return fmt.Sprintf("During %s, the literal sent for %s is not among the accepted enum values on %s.", window, field, ep)
 	case "map-key-mismatch":
 		return fmt.Sprintf("Map key type for %s changed — GUS treats map keys as invariant.", field)
 	case "union-request-narrowing":

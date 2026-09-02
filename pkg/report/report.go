@@ -54,6 +54,9 @@ func (r *GUSResult) Text() string {
 		sb.WriteString(fmt.Sprintf("  %s -> %s via %s\n",
 			cr.Provider.Service, cr.Requirer.Service, strings.Join(cr.ChainPath, " -> ")))
 		sb.WriteString(fmt.Sprintf("  %s\n", cr.Message))
+		if len(cr.Culprits) > 0 {
+			sb.WriteString(fmt.Sprintf("  attributed within the batch to: %s\n", strings.Join(cr.Culprits, ", ")))
+		}
 	}
 
 	return sb.String()

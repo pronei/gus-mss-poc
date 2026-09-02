@@ -172,26 +172,6 @@ func TestUnionWidth(t *testing.T) {
 	}
 }
 
-// Literals must respect base types and direction.
-func TestLiteralRules(t *testing.T) {
-	// REQ: literal "abc" into an integer receiver must break.
-	if vs := Check(types.Literal("abc"), types.Prim("integer", ""), types.DirREQ, cfg()); len(vs) == 0 {
-		t.Error(`REQ literal "abc" → integer should break`)
-	}
-	// REQ: literal "abc" into a string receiver is fine.
-	if vs := Check(types.Literal("abc"), types.Prim("string", ""), types.DirREQ, cfg()); len(vs) != 0 {
-		t.Errorf(`REQ literal "abc" → string should hold, got %v`, vs)
-	}
-	// RES: consumer expects exactly "v1", producer returns arbitrary strings — break.
-	if vs := Check(types.Literal("v1"), types.Prim("string", ""), types.DirRES, cfg()); len(vs) == 0 {
-		t.Error(`RES literal-expectation vs string producer should break`)
-	}
-	// RES: consumer expects string, producer returns exactly "v1" — safe.
-	if vs := Check(types.Prim("string", ""), types.Literal("v1"), types.DirRES, cfg()); len(vs) != 0 {
-		t.Errorf("RES string consumer vs literal producer should hold, got %v", vs)
-	}
-}
-
 func TestEnumSubset(t *testing.T) {
 	old := types.Enum([]string{"a", "b", "c"})
 	wider := types.Enum([]string{"a", "b", "c", "d"})
@@ -342,21 +322,6 @@ func TestUnion(t *testing.T) {
 	}
 	if vs := Check(old, wider, types.DirRES, cfg()); len(vs) == 0 {
 		t.Error("RES union widening should break (enum{c} has no match in old)")
-	}
-}
-
-func TestLiteralInEnum(t *testing.T) {
-	lit := types.Literal("active")
-	enum := types.Enum([]string{"active", "inactive", "pending"})
-	enumMissing := types.Enum([]string{"inactive", "pending"})
-
-	// REQ: literal("active") ⊑ enum{active,inactive,pending} = true
-	if vs := Check(lit, enum, types.DirREQ, cfg()); len(vs) != 0 {
-		t.Errorf("literal in enum should be compatible, got %v", vs)
-	}
-	// REQ: literal("active") ⊑ enum{inactive,pending} = false
-	if vs := Check(lit, enumMissing, types.DirREQ, cfg()); len(vs) == 0 {
-		t.Error("literal not in enum should break")
 	}
 }
 

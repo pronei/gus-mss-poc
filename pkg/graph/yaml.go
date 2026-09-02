@@ -29,6 +29,7 @@ type edgeYAML struct {
 }
 
 type scenarioYAML struct {
+	ID          string            `yaml:"id"`
 	Name        string            `yaml:"name"`
 	Description string            `yaml:"description"`
 	Baseline    map[string]string `yaml:"baseline"`
@@ -120,6 +121,7 @@ func LoadScenario(path string) (*ScenarioDef, error) {
 	}
 
 	sc := &ScenarioDef{
+		ID:          raw.ID,
 		Name:        raw.Name,
 		Description: raw.Description,
 		Baseline:    raw.Baseline,
@@ -157,6 +159,7 @@ func LoadScenarioDir(dir string) ([]*ScenarioDef, error) {
 	}
 
 	var scenarios []*ScenarioDef
+	seenID := map[string]string{} // case ID -> file that declared it
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -170,6 +173,12 @@ func LoadScenarioDir(dir string) ([]*ScenarioDef, error) {
 		sc, err := LoadScenario(filepath.Join(dir, name))
 		if err != nil {
 			return nil, err
+		}
+		if sc.ID != "" {
+			if prev, dup := seenID[sc.ID]; dup {
+				return nil, fmt.Errorf("graph: scenario id %q declared by both %s and %s", sc.ID, prev, name)
+			}
+			seenID[sc.ID] = name
 		}
 		scenarios = append(scenarios, sc)
 	}

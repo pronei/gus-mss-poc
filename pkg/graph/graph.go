@@ -31,12 +31,33 @@ type EdgeDef struct {
 
 // ScenarioDef describes a single upgrade scenario to evaluate.
 type ScenarioDef struct {
+	// ID is the short case label ("B", "E03") shown in every human-facing
+	// header and used as the provenance ledger's step key. Optional.
+	ID          string
 	Name        string
 	Description string
 	Baseline    map[string]string // service -> version (theta)
 	Upgrades    map[string]string // service -> version (U)
 	Coercion    string            // "" / "strict" (default) or "lenient" (opt-in scalar-to-string coercion)
 	Expect      *ExpectBlock      // optional expected results
+}
+
+// Display is the human-facing header: "[E03] Account-based quotes" when an
+// ID is declared, otherwise the bare name.
+func (s *ScenarioDef) Display() string {
+	if s.ID == "" {
+		return s.Name
+	}
+	return "[" + s.ID + "] " + s.Name
+}
+
+// Key is the stable identifier the provenance ledger records a step under:
+// the ID when declared, otherwise the name.
+func (s *ScenarioDef) Key() string {
+	if s.ID == "" {
+		return s.Name
+	}
+	return s.ID
 }
 
 // ExpectBlock holds expected outcomes for test assertions.

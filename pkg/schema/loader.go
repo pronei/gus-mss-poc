@@ -250,20 +250,23 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 		return ctx.resolveRef(s.Ref)
 	}
 
-	// allOf/anyOf are not modeled. Degrading them to Any would silently
-	// disable checking for the whole subtree (a false-PASS machine), so they
-	// are hard errors until composition is implemented.
+	// allOf is not modeled. Degrading it to Any would silently disable
+	// checking for the whole subtree (a false-PASS machine), so it is a hard
+	// error until merge-based composition is implemented.
 	if len(s.AllOf) > 0 {
 		return nil, fmt.Errorf("allOf is not supported by the GUS loader (schemas using it must be flattened)")
 	}
-	if len(s.AnyOf) > 0 {
-		return nil, fmt.Errorf("anyOf is not supported by the GUS loader (schemas using it must be flattened)")
+	if len(s.OneOf) > 0 && len(s.AnyOf) > 0 {
+		return nil, fmt.Errorf("mixing oneOf and anyOf in one schema is not supported")
 	}
 
-	// Handle oneOf -> Union.
-	if len(s.OneOf) > 0 {
-		variants := make([]*types.Node, 0, len(s.OneOf))
-		for _, v := range s.OneOf {
+	// oneOf and anyOf both map to Union: for compatibility checking what
+	// matters is that a value inhabits at least one variant, which is the
+	// existential-matching semantics checkUnion implements (oneOf's
+	// exactly-one constraint adds nothing to a subtype comparison).
+	if variantsSrc := append(append([]*schemaObj(nil), s.OneOf...), s.AnyOf...); len(variantsSrc) > 0 {
+		variants := make([]*types.Node, 0, len(variantsSrc))
+		for _, v := range variantsSrc {
 			vn, err := ctx.convertSchema(v)
 			if err != nil {
 				return nil, err
@@ -277,9 +280,14 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 		return node, nil
 	}
 
-	// Handle enum.
+	// Handle enum. The values are kept as strings; the declared type is the
+	// authority on their base (a string enum may spell out "10" or "true").
 	if len(s.Enum) > 0 {
 		node := types.Enum(s.Enum)
+		switch s.Type {
+		case "string", "integer", "number", "boolean":
+			node.EnumBase = s.Type
+		}
 		if s.Nullable {
 			node = types.Nullable(node)
 		}
@@ -370,6 +378,14 @@ func (ctx *resolveCtx) convertObject(s *schemaObj) (*types.Node, error) {
 		}
 
 		fields[name] = f
+	}
+
+	// A name listed in `required` without a matching property still has to be
+	// present (with any value) per JSON Schema; dropping it would hide a REQ.1.
+	for _, r := range s.Required {
+		if _, declared := fields[r]; !declared {
+			fields[r] = &types.Field{Schema: types.Any(), Required: true}
+		}
 	}
 
 	// Determine openness: default is open (true) per JSON Schema.
