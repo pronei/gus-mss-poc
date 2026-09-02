@@ -1,4 +1,5 @@
-name: "Scenario I: Full-mesh upgrade storm"
+id: I
+name: "Full-mesh upgrade storm"
 description: >
   Six services upgrade at once under the lenient (Jackson-style)
   coercion profile. Recommendation stays at v1 and pins productcatalog

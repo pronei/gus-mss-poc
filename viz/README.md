@@ -71,7 +71,8 @@ appears. Useful for sharing artifacts over chat.
 | File                        | Purpose                                        |
 |-----------------------------|------------------------------------------------|
 | `viz.html`                  | Template + frontend (p5.js, vanilla JS, CSS)   |
-| `scenario-*.html`           | Pre-embedded scenarios (examples from §7)      |
+| `scenario-*.html`           | Pre-embedded standard cases B–I                |
+| `evolution-*.html`          | Pre-embedded evolution cases (E03–E05, E07–E11)|
 | (JSON at runtime)           | `window.__VIZ_DATA__` or `?data=URL` or paste  |
 
 ## The JSON contract

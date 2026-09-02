@@ -1,4 +1,5 @@
-name: "Evolution 07: Money v2 contract (callers first)"
+id: E07
+name: "Money v2 contract (callers first)"
 description: >
   The contract phase: currency v4 drops units/nanos, requires amount,
   closes the request Money against unknown fields, and stops accepting

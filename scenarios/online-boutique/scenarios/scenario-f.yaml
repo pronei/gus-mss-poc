@@ -1,4 +1,5 @@
-name: "Scenario F: Recursive category tree"
+id: F
+name: "Recursive category tree"
 description: >
   ProductCatalog v3 replaces the flat categories string enum with a
   recursive Category{name, children: [Category]} object tree. This is a

@@ -1,4 +1,5 @@
-name: "Scenario G: Composite upgrade with non-trivial MSS"
+id: G
+name: "Composite upgrade with non-trivial MSS"
 description: >
   Three services upgrade simultaneously: currency v2 (Money restructure),
   productcatalog v2 (new-arrivals category), and email v2 (adds optional

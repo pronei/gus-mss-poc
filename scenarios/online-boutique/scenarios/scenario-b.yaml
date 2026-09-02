@@ -1,4 +1,5 @@
-name: "Scenario B: Product category enum widening"
+id: B
+name: "Product category enum widening"
 description: "ProductCatalog v2 adds new-arrivals to categories enum in response"
 baseline:
   productcatalog: v1

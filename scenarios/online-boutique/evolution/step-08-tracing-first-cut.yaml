@@ -1,4 +1,5 @@
-name: "Evolution 08: Session tracing, first cut"
+id: E08
+name: "Session tracing, first cut"
 description: >
   Frontend v6 originates client_session_id (x-provides
   session-trace); email v3 demands it arrive (x-requires); checkout v7

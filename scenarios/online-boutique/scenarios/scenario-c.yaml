@@ -1,4 +1,5 @@
-name: "Scenario C: Priority enum cascade"
+id: C
+name: "Priority enum cascade"
 description: >
   Shipping v2 replaces express with same-day in the priority enum it
   accepts. Frontend v2 (co-developed) narrows its sends to [standard],

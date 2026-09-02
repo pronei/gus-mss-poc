@@ -1,4 +1,5 @@
-name: "Scenario H: Safe upgrade (frontend only)"
+id: H
+name: "Safe upgrade (frontend only)"
 description: "Frontend v2 upgrades alone; shipping stays at v1 accepting [standard, express]; no breaks"
 baseline:
   frontend: v1

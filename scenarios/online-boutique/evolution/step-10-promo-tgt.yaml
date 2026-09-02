@@ -1,4 +1,5 @@
-name: "Evolution 10: Promo codes and the final-state trap"
+id: E10
+name: "Promo codes and the final-state trap"
 description: >
   Shipping v5 accepts an optional discount_code from a fixed enum;
   frontend v7 always sends one as a free string. Every mixed pairing

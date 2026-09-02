@@ -1,4 +1,5 @@
-name: "Scenario D: Chain break (order_id guarantee weakened)"
+id: D
+name: "Chain break (order_id guarantee weakened)"
 description: >
   Checkout v2 stops guaranteeing order_id on the confirmation call to
   email (the field becomes optional in its client send). Email's accept

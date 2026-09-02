@@ -1,4 +1,5 @@
-name: "Evolution 02: Cart response guarantee regression"
+id: E02
+name: "Cart response guarantee regression"
 description: >
   Cart v2 lands two changes in one sprint: a new required 'source'
   field on /cart/add WITH a declared default (safe — REQ.1's escape

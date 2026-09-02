@@ -1,4 +1,5 @@
-name: "Scenario E: Hasty Money restructure"
+id: E
+name: "Hasty Money restructure"
 description: >
   Currency v2 replaces Money{currency_code, units, nanos} with
   Money{currency_code, amount} — a rushed simplification. Both checkout

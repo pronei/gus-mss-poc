@@ -1,4 +1,5 @@
-name: "Evolution 06: Money v2 expand + a map regression"
+id: E06
+name: "Money v2 expand + a map regression"
 description: >
   Two teams ship together. Currency v3 is a textbook expand: requests
   accept both Money forms, responses return both, and nanos widens to

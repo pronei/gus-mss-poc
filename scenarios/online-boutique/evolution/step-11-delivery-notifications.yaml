@@ -1,4 +1,5 @@
-name: "Evolution 11: Delivery notifications expose an old erosion"
+id: E11
+name: "Delivery notifications expose an old erosion"
 description: >
   Email v4 starts requiring the shipment reference on confirmations
   (x-requires shipment-tracking). The guarantee it depends on was

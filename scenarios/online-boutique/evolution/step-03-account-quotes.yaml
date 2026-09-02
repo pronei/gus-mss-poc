@@ -1,4 +1,5 @@
-name: "Evolution 03: Account-based quotes (staged rollout)"
+id: E03
+name: "Account-based quotes (staged rollout)"
 description: >
   Shipping v4 requires account_tier (REQ.1) and makes the previously
   optional priority mandatory (REQ.2). Frontend v4 and checkout v4

@@ -1,4 +1,5 @@
-name: "Evolution 01: Wishlist MVP"
+id: E01
+name: "Wishlist MVP"
 description: >
   Recommendation v2 adds optional wishlist_hits and a per-category
   scores map to each Product. Purely additive on the response — every

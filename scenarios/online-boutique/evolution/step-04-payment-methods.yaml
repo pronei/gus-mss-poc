@@ -1,4 +1,5 @@
-name: "Evolution 04: Payment methods launch"
+id: E04
+name: "Payment methods launch"
 description: >
   Payment v2 accepts card OR wallet payments via oneOf — old callers
   match the card variant, so the union widening is safe and no request

@@ -1,4 +1,5 @@
-name: "Evolution 09: Session tracing, aliased"
+id: E09
+name: "Session tracing, aliased"
 description: >
   Checkout v8 adds x-alias: client_session_id to its trace_id field —
   the rename bridge. The chain walk now resolves the identity through
