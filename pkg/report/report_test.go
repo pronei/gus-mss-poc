@@ -90,3 +90,23 @@ func TestMSSReportEmptySafe(t *testing.T) {
 		t.Errorf("empty safe subset should be called out:\n%s", m.Text())
 	}
 }
+
+// A WARN-only edge does not fail the decision but its findings are printed.
+func TestGUSResultWarnOnlyEdge(t *testing.T) {
+	warnEdge := edge.EdgeResult{
+		Edge: edge.Edge{Name: "a->b", Channel: "http"}, OK: true, CallerSpecUsed: true,
+		Violations: []types.Violation{{
+			Path: "[C3]$.n", Severity: types.SevWARN, Rule: "format-change",
+			Message: "producer format int64 may exceed consumer format int32", OldType: "integer(int32)", NewType: "integer(int64)",
+		}},
+	}
+	txt := (&GUSResult{Scenario: "S", OK: true, Edges: []edge.EdgeResult{warnEdge}}).Text()
+	for _, want := range []string{"Decision: YES", "a->b", "WARN (no conjunct fails", "format-change"} {
+		if !strings.Contains(txt, want) {
+			t.Errorf("warn-only edge text missing %q:\n%s", want, txt)
+		}
+	}
+	if strings.Contains(txt, "BREAK") {
+		t.Errorf("warn-only edge must not be labelled BREAK:\n%s", txt)
+	}
+}

@@ -1,44 +1,126 @@
-# gus-mss-poc
+# GUS / MSS — upgrade safety for microservice meshes
 
-A static compatibility checker for batched microservice upgrades.
-Given a service mesh and a proposed set of version changes, GUS (Global
-Upgrade Safety) reports every statically visible wire hazard the batch
-would create across the mixed-version windows of a rolling deployment;
-when the batch is hazardous, MSS (Maximal Safe Subset) computes a safe
-sub-batch plus a rollout order for it.
+A static checker for **batched upgrades in a service mesh**. Give it the
+mesh, one OpenAPI document per service version, and a proposed batch of
+version changes. It reports every statically visible wire hazard the batch
+would create across the mixed-version windows of a rolling deployment
+(**GUS**, Global Upgrade Safety), and when the batch is hazardous it
+computes the largest sub-batch it can prove safe together with a
+stage-by-stage rollout order for it (**MSS**, Maximal Safe Subset), then
+replays that plan stage by stage as its own certificate.
 
-This repository is the reference implementation accompanying the
-GUS/MSS paper. It's a proof of concept — small, readable, and
-intentionally scoped to OpenAPI + JSON Schema — designed to validate the
-formalism on scenarios derived from Google's Online Boutique demo.
-
-> **What a PASS means.** GUS reads *declared contracts*. A FAIL is a
-> near-certain wire break; a PASS means "no statically visible hazard in
-> the specs" — it cannot vouch for behavior, data migrations, or specs
-> that have drifted from the code (empirically common; see
-> `docs/review-notes.md` §A1). GUS is a gate among gates, not a
+> **What a verdict means.** The checker reads *declared contracts*. A FAIL
+> is a near-certain wire break. A PASS means "no statically visible hazard
+> in the specs": it cannot vouch for behaviour, data migrations, or specs
+> that have drifted from the code. GUS is a gate among gates, not a
 > deployment safety oracle.
 
-## The idea in one paragraph
+This repository is the reference implementation for the GUS/MSS work and is
+Part I of the UCSC master's project report *Safe Evolution and
+Interventional Fault Attribution in Microservice Meshes* (Pranay Mundra,
+2026). It is a proof of concept: small, readable, and scoped to OpenAPI 3.0
+with JSON bodies, validated on a nine-service port of Google's Online
+Boutique.
 
-Per-boundary compatibility tools (Pact, Buf, oasdiff, schema registries)
-check one caller/provider pair at a time. A batched rolling deployment
-adds three things at once: **multiple services upgrade together**, **old
-and new instances coexist during the roll**, and **data flows through
-chains** of services. GUS models the whole batch as one predicate: every
-edge must type-check under both mixed version pairings (old caller/new
-provider and new caller/old provider, request and response legs — the
-C1–C4 conjuncts), under the target state (both new), and every declared
-data-flow chain must still hold end-to-end. When GUS fails, MSS turns
-each failed conjunct into a Horn clause plus a rollout-ordering
-constraint, propagates, excludes ordering deadlocks, and returns the
-surviving sub-batch with a stage-by-stage rollout order.
+---
 
-## What exists elsewhere (honest version)
+## 1. Problem statement
 
-The per-edge ingredients all exist in production tools; GUS's
-contribution is composing them mesh-wide over a *batch* with subset and
-ordering output. Concretely:
+A rolling deployment never replaces a service atomically. For a while, old
+and new instances of the same service answer traffic side by side, so every
+call edge in the mesh is exercised by **mixed version pairs**: an old caller
+against a new provider, a new caller against an old provider. A release
+train that ships several services at once multiplies those pairs, and the
+question an operator actually asks is not "is this schema change
+backward-compatible?" but three harder ones:
+
+1. **Can this batch roll at all, and in what order?** A change that breaks
+   the (old caller, new provider) pair is not a rejection; it is an ordering
+   constraint (callers first). A change that breaks both mixed pairs in
+   opposite directions is a deadlock: no rolling order exists.
+2. **Do the two new versions even agree with each other?** When a caller and
+   a provider change in the same batch, the (new, new) pair is a state no
+   per-schema diff ever examines, because both sides are "new".
+3. **Do end-to-end guarantees survive?** An identifier minted by one service
+   and required by another three hops away can be silently dropped,
+   renamed, or made optional at an intermediate hop while every individual
+   boundary stays compatible. Worse, a guarantee can erode in one rollout
+   and only break something several rollouts later, when a new consumer
+   starts relying on it.
+
+Per-boundary tools (Pact, Buf, oasdiff, schema registries) each answer one
+pair at a time and stop there. None of them answers the batch question,
+none relates two parties' new schemas to each other, and none follows a
+value across hops or across rollouts. Those are the gaps this checker is
+built for.
+
+**Who has this problem.** Teams that own many independently deployed
+services, roll them out gradually (rolling, canary, blue/green with
+overlap), describe their APIs with OpenAPI, and ship release trains or
+coordinated multi-service changes. If every deployment is an atomic
+switchover of the whole system, most of this is moot.
+
+## 2. Approach
+
+**Four schemas per edge.** Each service version fixes, per edge it
+participates in, what it *sends* and *expects back* as a caller and what it
+*accepts* and *returns* as a provider. Compatibility is a pair relation with
+a direction: a request is safe when everything the caller may send is
+admitted by the provider (`Send ≤ Accept`), a response when everything the
+provider may return is understood by the caller (`Return ≤ Expect`). The
+subtype order is structural: fields, required-ness, enums as value sets,
+nullability, unions by width, recursive types coinductively, primitives by a
+deliberately strict JSON lattice (`integer ≤ number` only; the lenient
+profile that also admits scalars into `string` is an explicit per-scenario
+opt-in, because Go, serde and pydantic v2 all reject those coercions).
+
+**Edge safety over live pairs.** For an edge `u → v` with baseline θ and
+proposal θ′, the two mixed pairs are checked on both legs, plus the target
+state:
+
+```
+C1   Send(θ_u)   ≤ Accept(θ'_v)   old caller  → new provider   (request)
+C2   Send(θ'_u)  ≤ Accept(θ_v)    new caller  → old provider   (request)
+C3   Return(θ'_v) ≤ Expect(θ_u)   new provider → old caller    (response)
+C4   Return(θ_v)  ≤ Expect(θ'_u)  old provider → new caller    (response)
+TGT  Send(θ') ≤ Accept(θ') ∧ Return(θ') ≤ Expect(θ')          (new, new)
+```
+
+The baseline pair (θ, θ) is a precondition, not a conjunct: `gus check`
+verifies it first and refuses to judge an inconsistent baseline. GUS is the
+conjunction over every edge touched by the batch plus every declared
+data-flow chain.
+
+**Chains.** Three annotations declare a value that must survive a path:
+`x-provides: <identity>` on the field that mints it, `x-requires:
+<identity>` on the field where it must arrive present, non-null and of the
+same type, and `x-alias: <previous-name>` at a hop that renames it.
+Passthrough hops need nothing. Every simple call path from source to sink
+is validated against what each hop *sends onward*, which is what makes a
+rename detectable at all.
+
+**From findings to a plan.** Each failing conjunct pins one side: a C1 or C3
+failure says the provider may only finish rolling after the caller's old
+contract is gone (roll `u` before `v`; with a non-upgrading caller, the
+provider is simply excluded). These are definite Horn clauses plus
+precedence edges; unit propagation gives the unique maximal safe subset of
+the definite fragment in linear time, a topological sort gives the stages,
+and mutually contradictory precedences (a C1 + C4 pair on one edge, or a
+target-state conflict) are excised as a deadlock group. Deadlock exclusion
+is deliberately conservative: once "not both" constraints appear, the
+maximum-cardinality problem is NP-hard. The solver then **re-runs GUS stage
+by stage on its own plan**, so the plan carries its certificate.
+
+**Across rollouts.** `gus evolve` replays an ordered sequence of rollouts
+and keeps a per-identity ledger: for every provided identity, the guarantee
+(provider, field, type, required, nullable, carrying paths) at each shipped
+state, with events `born`, `eroded`, `restored`, `demanded`, `violated`.
+When a chain finally fails, the ledger names the rollout that last weakened
+the guarantee rather than the one that exposed it.
+
+**What exists elsewhere.** The per-edge ingredients are all in production
+tools; the contribution is composing them mesh-wide over a batch, with a
+subset and an order as the answer:
 
 | Concern                                  | Pact broker | Buf | Schema registry | oasdiff | GUS |
 |------------------------------------------|:----:|:----:|:---------------:|:-------:|:---:|
@@ -46,254 +128,303 @@ ordering output. Concretely:
 | Cross-version old↔new pairings           | ✅¹  | ✅²  | ✅³             | ❌      | ✅  |
 | Direction-aware request/response rules   | partial | n/a | ✅³          | ✅      | ✅  |
 | Multi-service batch as one question      | ✅¹  | ❌   | ❌              | ❌      | ✅  |
+| Two parties' *new* schemas against each other (TGT) | ❌ | ❌ | ❌       | ❌      | ✅  |
 | Data-flow chain (source→relay→sink)      | ❌   | ❌   | ❌              | ❌      | ✅  |
 | Largest safe sub-batch + rollout order   | ❌   | ❌   | ❌              | ❌      | ✅  |
+| Guarantee history across rollouts        | ❌   | ❌   | ❌              | ❌      | ✅  |
 
-¹ `can-i-deploy` verifies candidate versions against everything deployed
-in an environment and accepts multiple pacticipants per query — it
-answers the batch question dynamically (example-based, yes/no, no subset
-or ordering). ² Buf's WIRE/WIRE_JSON categories exist precisely to keep
-mixed old/new binaries compatible. ³ Confluent's FULL/FULL_TRANSITIVE is
-the old↔new pairing guarantee for pub/sub, with direction-aware JSON
-Schema rules. See `docs/review-notes.md` for the full prior-art survey
-(incl. Gay & Hole subtyping, Dowling–Gallier propagation, the SOSP'21
-upgrade-failure study that motivates the problem, and Service Weaver,
-which dissolves it by construction).
+¹ `can-i-deploy` verifies candidates against everything deployed in an
+environment and accepts several pacticipants per query: it answers the
+batch question dynamically (example-based, yes/no, no subset or order).
+² Buf's WIRE/WIRE_JSON categories exist to keep mixed old/new binaries
+compatible. ³ Confluent's FULL/FULL_TRANSITIVE is the old↔new guarantee for
+pub/sub, with direction-aware JSON Schema rules. `docs/review-notes.md`
+carries the full prior-art survey.
 
-## How the answer is shaped
-
-For an edge `u → v` with baseline θ and proposal θ′, the two mixed
-deployment pairings are checked on both legs:
-
-- `C1  Send(θ_u) ≤ Accept(θ'_v)` — old caller → new provider (request)
-- `C2  Send(θ'_u) ≤ Accept(θ_v)` — new caller → old provider (request)
-- `C3  Return(θ'_v) ≤ Expect(θ_u)` — new provider → old caller (response)
-- `C4  Return(θ_v) ≤ Expect(θ'_u)` — old provider → new caller (response)
-- `TGT Send(θ') ≤ Accept(θ') ∧ Return(θ') ≤ Expect(θ')` — target state
-
-(That is 2 pairings × 2 legs plus the target state — not "four
-pairings"; the (θ,θ) pairing is the baseline, checked by
-`gus consistent`.) Caller-side `Send`/`Expect` schemas come from the
-caller's spec when it declares the outbound call (`x-role: client` on
-the provider's path, or a `/_calls/<provider>/<path>` entry). Without a
-caller declaration, GUS anchors the caller to the *old provider
-contract* for both states — C2/C4/TGT then hold trivially and C1/C3
-degenerate to an honest bidirectional provider self-diff (what a schema
-registry's FULL mode gives you), with no fabricated caller drift.
-
-**Clause generation follows the conjunct** (the deck's pinning rule): a
-C1/C3 failure pins the provider's θ′ side — the provider may only ship
-if the caller's old contract is fully gone first (`¬x_v ∨ x_u`, roll
-`u` before `v`); with a non-upgrading caller it's a unit exclusion. A
-C1+C4 co-failure on one edge is a **rollout deadlock**: each side must
-finish before the other starts, so no rolling order exists and the
-solver excludes the pair (only an atomic switchover could ship it).
-Propagation is Dowling–Gallier unit propagation — linear-time and
-uniquely maximal for the definite+unit fragment; once deadlock ("not
-both") constraints appear, maximum-cardinality is NP-hard, so the
-deadlock exclusion is deliberately conservative. `mss` re-verifies its
-own answer by re-running GUS restricted to the safe subset (post-hoc
-check), and emits the rollout order stages.
-
-The strict JSON lattice admits only `integer ≤ number`. The lenient
-profile (`coercion: lenient` in a scenario) additionally admits
-`int/num/bool ≤ string` — Jackson-style consumers only; Go, serde and
-pydantic v2 all reject those coercions, which is why lenient is opt-in
-rather than the default.
+## 3. The tool
 
 ```
-proposed upgrades U
-        │
-        ▼
-   executeGUS ──── failed conjuncts ───► Horn clauses + precedences
-   (C1–C4, TGT,                               │
-    chains)                                   ▼
-        │                              ComputeMSS (propagate,
-        ▼                               exclude deadlock cycles,
-    GUSResult                           topo-sort rollout order)
-        │                                     │
-        │                       post-hoc GUS on the safe subset
-        └──────────────┬──────────────────────┘
-                       ▼
-               pkg/viz.Build()   ──►  JSON artifact ──► viz/viz.html
+gus check       --graph g.yaml --scenario s.yaml [--format json]
+gus mss         --graph g.yaml --scenario s.yaml [--format json]
+gus consistent  --graph g.yaml --scenario s.yaml [--state baseline|target]
+gus validate    --graph g.yaml --scenario-dir dir/
+gus evolve      --graph g.yaml --steps-dir dir/ [--ledger file]
+gus viz         --graph g.yaml --scenario s.yaml --html out.html --template viz/viz.html
 ```
 
-## Case studies
+| Command | Answers | Exit code |
+|---|---|---|
+| `check` | Is this batch safe to roll unordered? Every finding, per edge and chain, with the failing pair (`[C1]`…`[TGT]`) and the field. | 0 clean · 1 hazards · 2 could not evaluate |
+| `mss` | The check, then the safe subset, its stage order, exclusion reasons, and the staged-replay certificate. | 1 when the full batch cannot ship as proposed |
+| `consistent` | Is one deployment state internally compatible? | as `check` |
+| `validate` | Run a directory of cases against their asserted outcomes (verdict, exact safe set, stage order, chain results, and with `breaks_exact` the complete finding set). | 1 on any mismatch |
+| `evolve` | Replay ordered rollouts, maintain `ledger.json`, print each identity's history. | 2 on evaluation errors |
+| `viz` | A self-contained HTML page of the case: mesh, violation cards, plan, chains. | |
 
-All scenarios run against a 9-service port of Google's **Online
-Boutique** (`scenarios/online-boutique/`) with 14 RPC edges. Each ships
-a YAML definition with **exact** expected outcomes (`gus validate`
-checks MSS set equality — including emptiness — plus expected edge and
-chain violations, and post-hoc verifies every computed subset). Every
-case declares an `id:` (`B`–`I`, `E01`–`E11`) that the tool prints in
-its headers — `=== GUS Check: [E03] ... ===` — and that the ledger uses
-as its step key.
+**Reading a finding.** Every line names three coordinates: the edge, the
+version pair, and the field.
 
-### Case B — Response enum widening (silent data hazard)
-ProductCatalog v2 adds `new-arrivals` to the `categories` response enum.
-Old consumers with closed switch statements crash on the unknown value.
-Caught on the response leg (`C3`): `Return(θ') ⊑ Expect(θ)` fails.
-(Honesty note: oasdiff also warns on response-enum additions; GraphQL
-Inspector classifies it "dangerous". The mesh-wide batch verdict is the
-GUS-specific part, not the rule itself.)
+```
+Edge frontend->shipping-quote [http] — BREAK (conjuncts C1):
+  [BREAK] [C1]$.account_tier
+    receiver requires field the sender does not send (and no default is declared)
+    old: <absent> → new: string
+    rule: REQ.1
+```
 
-### Case C — Enum migration with a straggler
-Shipping v2 replaces `express` with `same-day`. Frontend v2
-(co-developed) narrows its sends to `[standard]`, compatible with every
-shipping version. Checkout stays at v1 and still sends `express`, so
-shipping is pinned out by a unit clause — but the conjunct-aware clause
-`¬x_shipping ∨ x_frontend` is satisfied once shipping is excluded, so
-**frontend stays in the MSS** (`mss: [frontend]`). A conjunct-blind
-"exclude both endpoints" encoding would wrongly drag frontend out.
+`[C1]` says *which pair* breaks: old caller against new provider. That is
+exactly the pair a staged rollout can avoid, so `mss` turns it into "callers
+before shipping" rather than a rejection. `[TGT]` names a conflict between
+the two new versions themselves; no order avoids it. Warnings (`format-change`,
+a range risk such as int32→int64) are printed but never fail an edge or feed
+the solver. Broken chains print the path, the reason, and the upgrades in
+the batch whose lone revert would repair or dissolve the chain.
 
-### Case D — Chain-only break (no edge fires)
-Checkout v2 stops guaranteeing `order_id` on the confirmation call
-(optional in its client send). Email's accept schema tolerates the
-absence — **every per-edge conjunct passes** — but email declares
-`x-requires: order-identity`, and the chain check reports
-`chain-weakened` with checkout as the culprit. This is the bug class
-per-edge tools are structurally blind to, now actually computed by
-`pkg/chain` (wired into `check`, `mss`, `validate`, and the viz).
+Evaluation errors (unknown services or versions, missing specs or endpoints,
+`allOf`, a schema mixing `oneOf` and `anyOf`, kafka edges) are hard failures
+with exit code 2, never silent passes.
 
-### Case E — Hasty schema refactor (object restructure)
-Currency v2 "cleans up" `Money` from `{currency_code, units, nanos}` to
-`{currency_code, amount}`. Both calling edges break on the request leg
-(REQ.1: new required `amount`) and the response leg (RES.1: required
-fields vanish). MSS is empty.
+## 4. Architecture
 
-### Case F — Recursive types
-ProductCatalog v3 replaces the flat `categories` enum with a recursive
-`Category{name, children: [Category]}` tree — `kind-mismatch`, no
-pairing direction can bridge it. The loader inlines `$ref`s and emits
-`Ref` nodes only at cycle back-edges (in deterministic sorted order);
-the checker compares the one-step unfolding and assumes same-named
-back-edges coinductively.
+```
+graph.yaml + specs ─► pkg/schema (OpenAPI → type AST)
+                          │
+scenario.yaml ───────► cmd/gus executeGUS
+                          │  per touched edge: pkg/edge  (C1–C4, TGT over pkg/compat)
+                          │  per declared chain: pkg/chain (all simple paths, alias tiers)
+                          ▼
+                     GUSResult ── failed conjuncts ──► Horn clauses + precedences
+                          │                                  │
+                          │                          pkg/solver ComputeMSS
+                          │                          (propagate, excise deadlock
+                          │                           cycles, topo-sort stages)
+                          │                                  │
+                          │                    staged replay of GUS on the plan
+                          └──────────────┬───────────────────┘
+                                         ▼
+                        pkg/report (text/JSON)   pkg/viz (JSON → viz/viz.html)
+                        pkg/evolve (ledger, driven by gus evolve)
+```
 
-### Case G — Composite upgrade, non-trivial MSS
-Currency v2 and productcatalog v2 are each pinned by non-upgrading
-callers (unit clauses); email v2's optional response addition is safe.
-MSS = exactly `{email}`.
+| Package | Carries |
+|---|---|
+| `pkg/types` | The type AST: Prim, Enum (with declared base), Array, Map, Object (open/closed), Union, Nullable, Ref, Any. |
+| `pkg/lattice` | Primitive orders: strict and lenient JSON profiles, Protobuf widenings (no proto loader yet). |
+| `pkg/compat` | The two directed relations. Sums (Nullable, Union) normalized to variant set + null flag; enums as value sets; objects by field presence, required-ness and openness (`REQ.1/2/4`, `RES.1/4/5`); coinductive recursive types. |
+| `pkg/schema` | OpenAPI 3.0 loader: `$ref` inlining with cycle back-edges, `oneOf`/`anyOf` → Union, `additionalProperties` → closed object or Map, `x-role: client` outbound contracts, the `x-provides`/`x-requires`/`x-alias` extensions. |
+| `pkg/graph` | Mesh and scenario YAML, path-confined spec resolution, case IDs. |
+| `pkg/edge` | EdgeOK: the four mixed-pair conjuncts, TGT, chronology-correct labels, `Consistent(θ)`. |
+| `pkg/chain` | Chain discovery, simple-path enumeration (bounded, shortest-first), per-hop presence/nullability/type checks. |
+| `pkg/solver` | Dowling–Gallier propagation, Tarjan SCC deadlock excision, Kahn staging. |
+| `pkg/report` | Text and JSON output. |
+| `pkg/evolve` | The provenance ledger. |
+| `pkg/viz`, `viz/` | JSON artifact and the self-contained frontend. |
+| `cmd/gus` | Commands, clause generation from conjuncts, staged post-hoc replay, culprit attribution by revert-and-recheck, the validate oracle. |
 
-### Case H — Positive control (safe upgrade)
-Frontend v2 alone. Its client declarations (narrowed shipping sends,
-unchanged checkout expectations) pass every conjunct against the v1
-providers. With caller schemas actually consumed, this control is now
-meaningful — the earlier revision only passed because the caller-spec
-path was dead code.
+## 5. Using it with your services
 
-### Case I — Full-mesh upgrade storm
-Six of nine services upgrade under the lenient coercion profile;
-recommendation stays at v1 and pins productcatalog. The showpieces:
+**What you need.**
 
-- **Rollout deadlock.** `frontend v3 ↔ checkout v3` fail C1 (old
-  frontend lacks the new required `idempotency_key`) *and* C4 (old
-  checkout returns `order_id: string`, new frontend expects `integer` —
-  `string ≰ integer` even leniently, while C3 passes because
-  `integer ≤ string` *under the lenient profile only*). C1 wants
-  frontend first; C4 wants checkout first — no rolling order exists,
-  and the solver excludes the pair with an explicit deadlock reason.
-- **Chain type mismatch.** Checkout v3 provides `order-identity` as
-  `integer`; email requires `string`. The direct edge passes under
-  lenient coercion, but identities are strictly typed end-to-end:
-  `chain-type-mismatch`, culprit checkout.
+1. **One OpenAPI 3.0 document per service per version**, checked in. The
+   checker compares documents; it never reads code or traffic.
+2. **A mesh description** (`graph.yaml`): each service's versions and the
+   call edges between services.
 
-Expected (and exactly validated): MSS = `{shipping, email}`.
+   ```yaml
+   services:
+     checkout:
+       v1: specs/checkout/v1/openapi.yaml
+       v2: specs/checkout/v2/openapi.yaml
+     shipping:
+       v1: specs/shipping/v1/openapi.yaml
+   edges:
+     - name: checkout->shipping-quote
+       from: checkout
+       to: shipping
+       method: POST
+       path: /shipping/quote
+   ```
+
+3. **Caller-side contracts, where they matter.** By default a caller is
+   anchored to the provider's *old* contract (the checker assumes the caller
+   did not move, which is a self-diff of the provider: what a schema
+   registry's FULL mode gives you, mesh-wide). To check what a caller
+   actually sends and expects, declare the outbound call in the caller's own
+   document, either as the provider's path marked `x-role: client` or under
+   `/_calls/<provider>/<path>`:
+
+   ```yaml
+   paths:
+     /shipping/quote:            # the provider's path, in the CALLER's spec
+       post:
+         x-role: client
+         requestBody: { ... }    # what this service sends
+         responses:
+           "200": { ... }        # what this service expects back
+   ```
+
+   Only with caller contracts can the checker see caller-side changes (C2,
+   C4) and the target-state conflict (TGT).
+
+4. **Chain annotations** on the identities you care about: `x-provides` at
+   the source field, `x-requires` at the sink field, `x-alias` where a hop
+   renames the field.
+
+5. **A scenario per proposed batch**: the deployed baseline and the
+   upgrades. The `expect` block is optional and turns the file into a
+   regression assertion for `gus validate`.
+
+   ```yaml
+   id: R42
+   name: "Release train 42"
+   baseline: { checkout: v1, shipping: v1, frontend: v2 }
+   upgrades: { checkout: v2, shipping: v2 }
+   ```
+
+**A working loop.**
+
+```sh
+go build -o gus ./cmd/gus
+./gus consistent --graph graph.yaml --scenario train-42.yaml   # is the baseline sane?
+./gus mss        --graph graph.yaml --scenario train-42.yaml   # what can ship, in what order?
+./gus viz        --graph graph.yaml --scenario train-42.yaml --html train-42.html --template viz/viz.html
+```
+
+- **As a pre-merge gate on spec changes**: run `gus check` in CI with the
+  batch being proposed; exit code 1 blocks, 2 means the inputs need fixing.
+  `--format json` feeds annotations or dashboards.
+- **As a release-train planner**: run `gus mss` on the whole train and ship
+  the stages it prints; the staged replay in the output is the evidence.
+- **As a regression oracle**: keep scenario files with `expect` blocks and
+  run `gus validate` on every change to the specs or the checker.
+  `breaks_exact: true` asserts the complete finding set, so a new false
+  positive fails the build.
+- **After each shipped rollout**: append a step file and run `gus evolve`,
+  so guarantees that erode while unused are on record before anything
+  depends on them.
+
+**Adoption path.** Start with specs and `graph.yaml` alone: every provider
+change is judged against every caller edge mesh-wide with no caller work.
+Add `x-role: client` contracts on the edges where callers change (or where
+you have been bitten). Add chain annotations for the handful of identifiers
+that cross service boundaries. Each step is a few lines of YAML on
+documents you already keep, and each step strictly widens what the checker
+can see.
+
+## 6. Case studies
+
+All cases run against a 9-service port of Google's **Online Boutique**
+(`scenarios/online-boutique/`) with 14 RPC edges. Each case declares an
+`id:` (`B`–`I`, `E01`–`E11`) that the tool prints in its headers and that
+the ledger uses as its step key, and each asserts its verdict, exact safe
+set, stage order, chain results, and complete finding set under `gus
+validate`.
+
+**Standard cases (`scenarios/`)**, one change each:
+
+- **B — response enum widening.** ProductCatalog v2 adds `new-arrivals` to
+  the `categories` response enum; old consumers with closed switch
+  statements crash on it. Caught on the response leg (`C3`) on all three
+  caller edges at once. (oasdiff also warns on response-enum additions; the
+  mesh-wide batch verdict is the GUS-specific part, not the rule.)
+- **C — enum migration with a straggler.** Shipping v2 replaces `express`
+  with `same-day`; the co-developed Frontend v2 narrows its sends to
+  `[standard]`. Checkout stays at v1 and still sends `express`, so shipping
+  is excluded, but the conjunct-aware clause keeps **frontend in the safe
+  set**. A conjunct-blind "exclude both endpoints" encoding would wrongly
+  drag it out.
+- **D — chain-only break.** Checkout v2 stops guaranteeing `order_id` on
+  the confirmation call; Email's accept schema tolerates the absence, so
+  **every per-edge conjunct passes**, and only the chain fires
+  (`chain-weakened`). The finding inventory asserts zero edge findings.
+- **E — hasty schema refactor.** Currency v2 restructures `Money`; both
+  caller edges break on the request leg (`REQ.1`) and the response leg
+  (`RES.1`). The safe set is empty.
+- **F — recursive types.** ProductCatalog v3 replaces the flat enum with a
+  recursive `Category` tree: `kind-mismatch`. The loader emits `Ref` nodes
+  only at cycle back-edges and the checker compares the one-step unfolding
+  coinductively.
+- **G — composite upgrade.** Three unrelated upgrades; two are pinned by
+  non-upgrading callers, email's optional response addition is safe. The
+  safe set is exactly `{email}`.
+- **H — negative control.** Frontend v2 alone; its client declarations pass
+  every conjunct against the v1 providers. The checker must stay silent.
+- **I — full-mesh upgrade storm** (lenient profile). Six services upgrade.
+  `frontend ↔ checkout` fails C1 *and* C4 in opposite directions, a rollout
+  deadlock; a chain type flip (`integer` provided, `string` required) fires
+  even though the direct edge passes under lenient coercion. Safe set
+  `{shipping, email}`.
+
+**The evolution suite (`evolution/`)** replays the same mesh through eleven
+rollouts shaped like feature work, each step's baseline being what the
+previous steps actually shipped. It covers every rule, including the ones
+single cases cannot show: staged rollout orders (E03, E05, E07), the
+target-state deadlock (E10), rename bridging with `x-alias` (E08, E09), and
+a guarantee that erodes silently in E07 and only explodes in E11, where
+the per-step checker can only blame the new consumer and the ledger names
+the origin:
+
+```
+identity "shipment-tracking" — EXPOSED
+  born     @ E03: checkout provides it as string on field "shipment_ref" (required=true, ...)
+  eroded   @ E07: field "shipment_ref" went required→optional at checkout — ...
+  demanded @ E11: now required by [email] — the proposal was REJECTED ...
+  violated @ E11: chain check fails (chain-weakened) — guarantee last weakened at step "E07" ...
+```
+
+The storyline, the rule-coverage matrix and the full ledger are in
+`scenarios/online-boutique/evolution/README.md`; rendered pages for every
+case are under `viz/`.
+
+```sh
+./gus validate --graph scenarios/online-boutique/graph.yaml --scenario-dir scenarios/online-boutique/scenarios
+./gus validate --graph scenarios/online-boutique/graph.yaml --scenario-dir scenarios/online-boutique/evolution
+./gus evolve   --graph scenarios/online-boutique/graph.yaml --steps-dir   scenarios/online-boutique/evolution
+```
+
+## 7. Limits, and what adoption still needs
+
+Known limits, deliberately explicit:
+
+- **Specs are trusted.** No extraction from code or traffic; a drifted spec
+  yields a verdict about a document. Pair the checker with contract tests or
+  traffic-derived schemas if drift is a live risk.
+- **OpenAPI 3.0 JSON subset.** `allOf` is rejected (it must be flattened),
+  query/path/header parameters are ignored, only the lowest 2xx JSON
+  response schema is compared, value refinements (`minimum`, `pattern`,
+  `maxLength`) are not modelled, OpenAPI 3.1 type arrays are unsupported.
+  gRPC/Protobuf meshes are unrepresentable: the proto lattice exists, the
+  loader does not. Kafka edges are refused rather than guessed at.
+- **Two live versions per service.** Canaries with three or more live
+  versions need every pairing; the model hardcodes two. Rollbacks are not
+  distinguished from upgrades.
+- **Chains** cover request-carried identities along forward call paths,
+  judged in the baseline and target states only; a chain that breaks solely
+  in a transient mixture, or an identity carried back in a response, is out
+  of scope.
+- **Deadlock exclusion drops every member of a cycle**; a weighted solver
+  could ship more.
+- **Inputs are hand-written.** `graph.yaml` is not derived from mesh
+  configuration (Istio, Linkerd, Kubernetes services), versions are not
+  read from a registry or git tags, and scenario files are authored, not
+  generated from a deployment plan.
+- **Measured at nine services.** Checks run in tens of milliseconds on the
+  corpus; cost should grow with mesh and spec size rather than
+  combinatorially, but that is an argument, not a measurement.
 
 ## Repository layout
 
 ```
 cmd/gus/              CLI: check, mss, consistent, validate, evolve, viz
-pkg/
-  types/              Type AST (Prim, Enum, Array, Object, Map, Union,
-                        Nullable, Ref, Any)
-  lattice/            JSON primitive order (strict + lenient profiles),
-                        proto varint widenings
-  compat/             Role-based subtyping rules (REQ/RES directions)
-  schema/             OpenAPI loader → types.SchemaNode (x-role aware)
-  graph/              Mesh + scenario YAML loaders (path-confined specs)
-  edge/               EdgeOK conjuncts C1–C4 + TGT, Consistent(θ)
-  chain/              x-provides / x-requires chain integrity (typed)
-  solver/             Unit propagation + deadlock cycles + rollout order
-  report/             Structured output
-  viz/                JSON artifact builder for the frontend
-scenarios/
-  online-boutique/    Service mesh + OpenAPI specs + scenario YAMLs
-    evolution/        11-step feature-evolution storyline + provenance ledger
-viz/                  Self-contained SVG frontend + pre-rendered scenarios
-docs/
-  gus-mss-deck.pdf    The paper deck (see review-notes.md for errata)
-  review-notes.md     Slide-by-slide review: corrections, prior art,
-                        significance assessment
+pkg/                  types, lattice, compat, schema, graph, edge, chain, solver, report, evolve, viz
+scenarios/online-boutique/
+  graph.yaml          the mesh
+  specs/<svc>/<ver>/  one OpenAPI document per service version (38 in total)
+  scenarios/          cases B–I
+  evolution/          cases E01–E11, README with the storyline, ledger.json
+viz/                  self-contained frontend template + a rendered page per case
+docs/                 workshop paper (docs/paper), first-principles primer, review notes, deck
 ```
-
-## The evolution suite and the provenance ledger
-
-`scenarios/online-boutique/evolution/` replays the same mesh through eleven
-feature rollouts (accounts, payment methods, an expand/contract Money
-migration, session tracing, promo codes), each step's baseline being what
-the previous steps actually shipped. Together they cover every rule the
-checker knows — including the ones single scenarios can't show: staged
-rollout orders, target-state (TGT) deadlocks, x-alias rename bridging, and
-a guarantee that erodes silently in E07 and only explodes in E11.
-
-```sh
-./gus validate --graph scenarios/online-boutique/graph.yaml \
-               --scenario-dir scenarios/online-boutique/evolution
-./gus evolve   --graph scenarios/online-boutique/graph.yaml \
-               --steps-dir scenarios/online-boutique/evolution
-```
-
-`gus evolve` maintains a ledger (persisted between invocations) tracking
-every x-provides identity's guarantee — field, type, required/nullable,
-carrying paths — at every shipped state. Its purpose is the class of bug
-per-step checks structurally cannot see: a guarantee weakened while nothing
-requires it ships without a single failing check; when a requirer appears
-rollouts later, the per-step tool can only blame the requirer. The ledger
-answers with the true origin (`guarantee last weakened at step "E07"`) and
-records all carrying paths per identity, since a diamond mesh can route an
-identity along any of several upgrade paths. See
-`scenarios/online-boutique/evolution/README.md` for the full storyline.
-
-## Getting started
-
-```sh
-go build -o gus ./cmd/gus
-
-# Run all scenarios against their exact expected outcomes
-./gus validate --graph scenarios/online-boutique/graph.yaml \
-               --scenario-dir scenarios/online-boutique/scenarios
-
-# Interactive view of case I
-./gus viz --graph scenarios/online-boutique/graph.yaml \
-          --scenario scenarios/online-boutique/scenarios/scenario-i.yaml \
-          --html viz/scenario-i.html --template viz/viz.html
-open viz/scenario-i.html
-```
-
-Exit codes: `0` clean, `1` hazards found (for `mss`: the full batch is
-not shippable), `2` inputs could not be evaluated. Evaluation errors —
-unknown services or versions, missing specs or endpoints, `allOf`/
-`anyOf` (unsupported), kafka edges (no topic→schema resolution yet) —
-are hard failures, never silent passes.
-
-## Status & scope
-
-Proof of concept. Known limits, deliberately explicit:
-
-- **Specs are trusted.** No Tier-1 source extraction or traffic
-  validation yet; a drifted spec yields a verdict about a document.
-- **OpenAPI 3.0 subset.** `allOf`/`anyOf` rejected, query/path
-  parameters ignored, first-2xx JSON response only, OpenAPI 3.1 null
-  unions unsupported. gRPC/proto meshes are unrepresentable (the proto
-  lattice exists for the formalism but has no loader).
-- **Two versions per service.** Canary rollouts with 3+ live versions
-  need C(n,2) pairings; the model hardcodes n=2. Rollbacks are not
-  distinguished from upgrades.
-- **Chains** cover request-carried identities on forward call paths,
-  matched by name/case/x-alias; response-carried identities and
-  diamond topologies are out of scope.
-- **Deadlock exclusion is conservative** (drops every cycle member);
-  a weighted MaxSAT solver could ship more.
 
 ## License
 

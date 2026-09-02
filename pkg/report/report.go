@@ -30,11 +30,18 @@ func (r *GUSResult) Text() string {
 	sb.WriteString(fmt.Sprintf("Decision: %s\n", status))
 
 	for _, er := range r.Edges {
-		if er.OK {
+		if len(er.Violations) == 0 {
 			continue
 		}
-		sb.WriteString(fmt.Sprintf("\nEdge %s [%s] — BREAK (conjuncts %s):\n",
-			er.Edge.Name, er.Edge.Channel, strings.Join(er.FailedConjuncts, ",")))
+		if er.OK {
+			// WARN-only edge: nothing fails, but the findings are advisory
+			// (range risks) and must be visible to whoever ships the batch.
+			sb.WriteString(fmt.Sprintf("\nEdge %s [%s] — WARN (no conjunct fails; advisory findings):\n",
+				er.Edge.Name, er.Edge.Channel))
+		} else {
+			sb.WriteString(fmt.Sprintf("\nEdge %s [%s] — BREAK (conjuncts %s):\n",
+				er.Edge.Name, er.Edge.Channel, strings.Join(er.FailedConjuncts, ",")))
+		}
 		if !er.CallerSpecUsed {
 			sb.WriteString("  (caller schema unavailable — Tier-3 fallback: caller assumed pinned to the old provider contract)\n")
 		}
