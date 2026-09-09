@@ -304,6 +304,8 @@ func ExplainViolation(ed graph.EdgeDef, conj string, v types.Violation) string {
 		return fmt.Sprintf("Type kind for %s changed fundamentally (%s vs %s) — no pairing direction can bridge the change.", field, v.OldType, v.NewType)
 	case "map-key-mismatch":
 		return fmt.Sprintf("Map key type for %s changed — GUS treats map keys as invariant.", field)
+	case "oneof-ambiguity":
+		return fmt.Sprintf("During %s, a value of %s fits more than one alternative of a oneOf on %s, which accepts a value only when exactly one alternative matches.", window, field, ep)
 	case "union-request-narrowing":
 		return fmt.Sprintf("During %s, at least one union variant still sent for %s on %s is no longer handled.", window, field, ep)
 	case "union-response-widening":

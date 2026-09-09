@@ -115,3 +115,52 @@ func TestRefLocalName(t *testing.T) {
 	requireRule(t, "frontend.Category vs productcatalog.Node",
 		Check(types.Ref("frontend.Category"), types.Ref("productcatalog.Node"), types.DirREQ, cfg()), "ref-name-mismatch", types.SevBREAK)
 }
+
+// A boolean primitive is the enumeration {true, false}: it fits a
+// two-value boolean enum in both directions and breaks against a narrower one.
+func TestBooleanAsEnum(t *testing.T) {
+	b := types.Prim("boolean", "")
+	tf := enumOf("boolean", "true", "false")
+	requireClean(t, "boolean -> enum{true,false} REQ", Check(b, tf, types.DirREQ, cfg()))
+	requireClean(t, "enum{true,false} <- boolean RES", Check(tf, b, types.DirRES, cfg()))
+	requireClean(t, "enum{true,false} -> boolean REQ", Check(tf, b, types.DirREQ, cfg()))
+	requireRule(t, "boolean -> enum{true} REQ", Check(b, enumOf("boolean", "true"), types.DirREQ, cfg()), "enum-request-narrowing", types.SevBREAK)
+	requireClean(t, "boolean -> boolean REQ", Check(b, b, types.DirREQ, cfg()))
+}
+
+func fieldsOf(m map[string]*types.Node, required ...string) map[string]*types.Field {
+	req := map[string]bool{}
+	for _, r := range required {
+		req[r] = true
+	}
+	out := map[string]*types.Field{}
+	for k, v := range m {
+		out[k] = &types.Field{Schema: v, Required: req[k]}
+	}
+	return out
+}
+
+func oneOf(variants ...*types.Node) *types.Node {
+	u := types.Union(variants)
+	u.Exclusive = true
+	return u
+}
+
+// oneOf admits a value only when exactly one alternative matches, so a
+// variant admitted outright by two alternatives is rejected.
+func TestOneOfAmbiguity(t *testing.T) {
+	str := types.Prim("string", "")
+	withA := types.Object(fieldsOf(map[string]*types.Node{"a": str}, "a"), true)
+	withB := types.Object(fieldsOf(map[string]*types.Node{"b": str}, "b"), true)
+	sendsA := types.Object(fieldsOf(map[string]*types.Node{"a": str}, "a"), true)
+	// Open objects overlap: a document with "a" fits both alternatives.
+	requireRule(t, "obj{a} -> oneOf(obj{a}, obj{b} open) REQ",
+		Check(sendsA, oneOf(withA, types.Object(fieldsOf(map[string]*types.Node{"b": str}), true)), types.DirREQ, cfg()), "oneof-ambiguity", types.SevBREAK)
+	// The same alternatives as anyOf admit it.
+	requireClean(t, "obj{a} -> anyOf(obj{a}, obj{b} open) REQ",
+		Check(sendsA, types.Union([]*types.Node{withA, types.Object(fieldsOf(map[string]*types.Node{"b": str}), true)}), types.DirREQ, cfg()))
+	// Alternatives that require different fields do not both admit it.
+	requireClean(t, "obj{a} -> oneOf(obj{a req}, obj{b req}) REQ", Check(sendsA, oneOf(withA, withB), types.DirREQ, cfg()))
+	// Response leg: an exclusive consumer expectation, producer variant fits two alternatives.
+	requireRule(t, "oneOf(str, str) <- str RES", Check(oneOf(str, str), str, types.DirRES, cfg()), "oneof-ambiguity", types.SevBREAK)
+}

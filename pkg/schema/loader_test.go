@@ -96,3 +96,24 @@ paths:
 		t.Errorf("anyOf: got %s, want a two-variant union", req.Summary())
 	}
 }
+
+func TestOneOfIsExclusiveUnion(t *testing.T) {
+	spec := loadDoc(t, `
+openapi: 3.0.0
+paths:
+  /x:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - { type: string }
+                - { type: integer }
+      responses: {}
+`)
+	req := spec.Endpoints[EndpointKey{Path: "/x", Method: "POST"}].Request
+	if req.Kind != types.KindUnion || !req.Exclusive {
+		t.Errorf("oneOf: got %s exclusive=%v, want an exclusive union", req.Summary(), req.Exclusive)
+	}
+}

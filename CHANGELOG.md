@@ -5,6 +5,26 @@ All notable changes to this repository are tracked here. Format follows
 anchored to the GUS/MSS paper submission rather than semver — until the
 formalism stabilises, API changes are expected.
 
+## 0.3.3 — subschema alignment (2026-09-08)
+
+Two canonicalization steps from Habib et al., "Finding Data Compatibility
+Bugs with JSON Subschema Checking" (ISSTA 2021), adopted where they cost
+nothing; the report (ch. 3) now cites the paper as the definition of the
+pair relation and states the checker's accuracy against it.
+
+### Added
+- `oneOf` is loaded as an exclusive Union (`Node.Exclusive`). The part of
+  its exactly-one constraint that is decidable without negation is enforced:
+  a variant admitted outright by two alternatives of an exclusive union is
+  reported as `oneof-ambiguity` (BREAK). Partial overlap with a second
+  alternative is still not detected.
+
+### Fixed
+- A boolean primitive is the enumeration `{true, false}` when compared with
+  an enum, so `boolean` against `enum: [true, false]` no longer reports a
+  break in either direction; `boolean` against `enum: [true]` still reports
+  `enum-request-narrowing`.
+
 ## 0.3.2 — case IDs, report alignment, checker fixes (2026-09-02)
 
 ### Added

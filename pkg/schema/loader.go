@@ -274,6 +274,7 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 			variants = append(variants, vn)
 		}
 		node := types.Union(variants)
+		node.Exclusive = len(s.OneOf) > 0
 		if s.Nullable {
 			node = types.Nullable(node)
 		}

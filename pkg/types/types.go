@@ -76,6 +76,9 @@ type Node struct {
 
 	// KindUnion
 	Variants []*Node
+	// Exclusive marks a oneOf: a value must match exactly one variant. An
+	// anyOf (or a Protobuf oneof read as a plain sum) leaves it false.
+	Exclusive bool
 
 	// KindNullable
 	Inner *Node

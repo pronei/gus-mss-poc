@@ -91,6 +91,12 @@ func (c *checker) check(left, right *types.Node, dir types.Direction, path strin
 	// kind falls through to kind-mismatch.
 	if (left.Kind == types.KindEnum && right.Kind == types.KindPrim) ||
 		(left.Kind == types.KindPrim && right.Kind == types.KindEnum) {
+		// A boolean primitive is the two-value enumeration {true, false}
+		// (Habib et al.'s canonicalization), so boolean against an enum is
+		// an enum-against-enum comparison rather than a primitive one.
+		if l, r := boolAsEnum(left), boolAsEnum(right); l.Kind == types.KindEnum && r.Kind == types.KindEnum {
+			return c.checkEnum(l, r, dir, path)
+		}
 		return c.checkEnumPrim(left, right, dir, path)
 	}
 
@@ -117,6 +123,38 @@ func (c *checker) check(left, right *types.Node, dir types.Direction, path strin
 	default:
 		return nil
 	}
+}
+
+var boolEnum = &types.Node{Kind: types.KindEnum, EnumValues: []string{"true", "false"}, EnumBase: "boolean"}
+
+// boolAsEnum reads a boolean primitive as the enumeration {true, false}.
+func boolAsEnum(n *types.Node) *types.Node {
+	if n.Kind == types.KindPrim && n.Prim == "boolean" {
+		return boolEnum
+	}
+	return n
+}
+
+// noBreaks reports whether a comparison produced no BREAK-severity finding.
+func noBreaks(vs []types.Violation) bool {
+	for _, v := range vs {
+		if v.Severity == types.SevBREAK {
+			return false
+		}
+	}
+	return true
+}
+
+// exclusiveAlternatives returns the direct alternatives of a oneOf (possibly
+// wrapped in Nullable), or nil when the node is not an exclusive union.
+func exclusiveAlternatives(n *types.Node) []*types.Node {
+	if n.Kind == types.KindNullable {
+		n = n.Inner
+	}
+	if n != nil && n.Kind == types.KindUnion && n.Exclusive {
+		return n.Variants
+	}
+	return nil
 }
 
 // --- Sums: Nullable and Union ---
@@ -173,12 +211,45 @@ func (c *checker) checkSum(left, right *types.Node, dir types.Direction, path st
 		// consumer of a never-null producer: the extra admission is safe.
 	}
 
+	// The exactly-one constraint of a oneOf, in the part decidable without
+	// negation: a variant admitted outright by two alternatives of the
+	// exclusive side is rejected by it whatever else holds. A variant that
+	// overlaps a second alternative only partially is not detected.
+	var vs []types.Violation
+	admitter, emitted, role := right, leftVars, "sender"
+	if dir == types.DirRES {
+		admitter, emitted, role = left, rightVars, "producer"
+	}
+	if alts := exclusiveAlternatives(admitter); len(alts) > 1 {
+		for i, e := range emitted {
+			fits := 0
+			for _, alt := range alts {
+				var cvs []types.Violation
+				if dir == types.DirREQ {
+					cvs = c.check(e, alt, dir, path)
+				} else {
+					cvs = c.check(alt, e, dir, path)
+				}
+				if noBreaks(cvs) {
+					fits++
+				}
+			}
+			if fits > 1 {
+				vs = append(vs, types.Violation{
+					Path: path, Severity: types.SevBREAK, Rule: "oneof-ambiguity",
+					Message: fmt.Sprintf("%s variant %d (%s) fits %d alternatives of a oneOf that admits a value only when exactly one matches", role, i, summary(e), fits),
+					OldType: summary(left), NewType: summary(right),
+				})
+			}
+		}
+	}
+
 	// One plain variant on each side: compare directly so the precise rule
 	// (prim-mismatch, REQ.1, ...) is reported rather than a union rule.
 	if len(leftVars) == 1 && len(rightVars) == 1 {
-		return c.check(leftVars[0], rightVars[0], dir, path)
+		return append(vs, c.check(leftVars[0], rightVars[0], dir, path)...)
 	}
-	return c.checkUnion(leftVars, rightVars, left, right, dir, path)
+	return append(vs, c.checkUnion(leftVars, rightVars, left, right, dir, path)...)
 }
 
 // --- Ref (coinductive) ---
@@ -547,14 +618,6 @@ func (c *checker) checkObjectRes(consumer, producer *types.Node, path string) []
 // warning neither blocks nor vanishes because the type sits inside a union.
 
 func (c *checker) checkUnion(leftVars, rightVars []*types.Node, left, right *types.Node, dir types.Direction, path string) []types.Violation {
-	noBreaks := func(vs []types.Violation) bool {
-		for _, v := range vs {
-			if v.Severity == types.SevBREAK {
-				return false
-			}
-		}
-		return true
-	}
 	// matchOne looks for a candidate admitting the probed variant: a clean
 	// match wins outright; otherwise the first WARN-only match counts and
 	// carries its warnings.
