@@ -1,7 +1,14 @@
-// Package schema loads OpenAPI 3.0 specs into the GUS type AST.
+// Package schema loads interface documents into the GUS type AST.
+//
+// Two dialects are supported, selected by Config.Dialect: OpenAPI 3.0
+// documents (the mesh's own format, read by Load) and standalone JSON Schema
+// documents (read by LoadSchema). They differ only in how a sum is written
+// and where reusable schemas live; everything downstream of the loader is
+// dialect-agnostic.
 package schema
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
@@ -10,6 +17,37 @@ import (
 	"github.com/faults-lab/gus/pkg/types"
 	"gopkg.in/yaml.v3"
 )
+
+// Dialect selects the schema syntax a document is read under.
+type Dialect int
+
+const (
+	// DialectOpenAPI is OpenAPI 3.0: exactly one `type` name per schema, null
+	// expressed only by `nullable: true`, reusable schemas under
+	// components/schemas. It is the zero value, hence the default.
+	DialectOpenAPI Dialect = iota
+	// DialectJSONSchema is a standalone JSON Schema document (draft-04
+	// onward, and the OpenAPI 3.1 schema object): `type` may be a list of
+	// names, "null" is a type of its own, and reusable schemas live under
+	// definitions or $defs.
+	DialectJSONSchema
+)
+
+func (d Dialect) String() string {
+	if d == DialectJSONSchema {
+		return "json-schema"
+	}
+	return "openapi-3.0"
+}
+
+// Config controls how a document is read.
+type Config struct {
+	// Dialect the document is written in; the zero value is DialectOpenAPI.
+	Dialect Dialect
+	// ServicePrefix qualifies the Ref names emitted at recursive back-edges,
+	// keeping two services' identically named components distinct.
+	ServicePrefix string
+}
 
 // Spec holds all schemas extracted from a single spec file.
 type Spec struct {
@@ -29,10 +67,17 @@ type EndpointSchemas struct {
 	Role     string // "" for the service's own API; "client" for a declared outbound call
 }
 
-// Load parses a spec file and returns the extracted schemas.
-// Supports .yaml, .yml, and .json extensions for OpenAPI 3.0.
-// servicePrefix is used to qualify Ref names (e.g., "checkout").
+// Load parses an OpenAPI 3.0 spec file and returns the extracted schemas.
+// Supports .yaml, .yml, and .json extensions. servicePrefix is used to
+// qualify Ref names (e.g., "checkout"). It is LoadWithConfig under the
+// default dialect.
 func Load(path string, servicePrefix string) (*Spec, error) {
+	return LoadWithConfig(path, Config{ServicePrefix: servicePrefix})
+}
+
+// LoadWithConfig parses a spec file under cfg and returns its endpoint
+// schemas.
+func LoadWithConfig(path string, cfg Config) (*Spec, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("schema: read %s: %w", path, err)
@@ -44,7 +89,8 @@ func Load(path string, servicePrefix string) (*Spec, error) {
 	}
 
 	ctx := &resolveCtx{
-		prefix:     servicePrefix,
+		prefix:     cfg.ServicePrefix,
+		dialect:    cfg.Dialect,
 		components: doc.Components.Schemas,
 		resolved:   make(map[string]*types.Node),
 	}
@@ -153,7 +199,7 @@ type mediaTypeObj struct {
 
 type schemaObj struct {
 	Ref                  string                `yaml:"$ref"`
-	Type                 string                `yaml:"type"`
+	Type                 typeSpec              `yaml:"type"`
 	Format               string                `yaml:"format"`
 	Nullable             bool                  `yaml:"nullable"`
 	Enum                 []string              `yaml:"enum"`
@@ -165,6 +211,10 @@ type schemaObj struct {
 	AllOf                []*schemaObj          `yaml:"allOf"`
 	AnyOf                []*schemaObj          `yaml:"anyOf"`
 	Default              interface{}           `yaml:"default"`
+	// Bare JSON Schema documents keep their reusable schemas here rather than
+	// under components/schemas.
+	Definitions map[string]*schemaObj `yaml:"definitions"`
+	Defs        map[string]*schemaObj `yaml:"$defs"`
 
 	// GUS extensions.
 	XProvides string `yaml:"x-provides"`
@@ -197,10 +247,45 @@ func (a *additionalProps) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
+// typeSpec is JSON Schema's `type`: a single type name in OpenAPI 3.0, a
+// list of names (draft-04 and OpenAPI 3.1, e.g. ["string", "null"]) in bare
+// JSON Schema documents.
+type typeSpec []string
+
+func (t *typeSpec) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind == yaml.ScalarNode {
+		var one string
+		if err := value.Decode(&one); err != nil {
+			return err
+		}
+		*t = typeSpec{one}
+		return nil
+	}
+	var many []string
+	if err := value.Decode(&many); err != nil {
+		return err
+	}
+	*t = typeSpec(many)
+	return nil
+}
+
+// split returns the non-null type names and whether "null" was among them.
+func (t typeSpec) split() (names []string, nullable bool) {
+	for _, n := range t {
+		if n == "null" {
+			nullable = true
+			continue
+		}
+		names = append(names, n)
+	}
+	return names, nullable
+}
+
 // --- Schema resolution ---
 
 type resolveCtx struct {
 	prefix     string
+	dialect    Dialect
 	components map[string]*schemaObj
 	resolved   map[string]*types.Node
 	resolving  map[string]bool // cycle detection
@@ -281,15 +366,58 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 		return node, nil
 	}
 
+	typeNames, typeNull := s.Type.split()
+	// The sum syntaxes below belong to JSON Schema. Under the OpenAPI 3.0
+	// dialect they are refused rather than guessed at, so a 3.1 document fed
+	// to the 3.0 reader fails loudly instead of being misread.
+	if ctx.dialect != DialectJSONSchema {
+		if len(s.Type) > 1 {
+			return nil, fmt.Errorf("type %v is a list: JSON Schema and OpenAPI 3.1 syntax, not readable as OpenAPI 3.0 (load it with Dialect: DialectJSONSchema)", []string(s.Type))
+		}
+		if typeNull {
+			return nil, fmt.Errorf(`type: "null" is JSON Schema syntax; OpenAPI 3.0 expresses null with nullable: true`)
+		}
+	}
+	nullable := s.Nullable || typeNull
+
+	// A list of several types is a sum: the same keywords read once per type.
+	if len(typeNames) > 1 {
+		variants := make([]*types.Node, 0, len(typeNames))
+		for _, name := range typeNames {
+			one := *s
+			one.Type = typeSpec{name}
+			one.Nullable = false
+			vn, err := ctx.convertSchema(&one)
+			if err != nil {
+				return nil, err
+			}
+			variants = append(variants, vn)
+		}
+		node := types.Union(variants)
+		if nullable {
+			node = types.Nullable(node)
+		}
+		return node, nil
+	}
+	primary := ""
+	if len(typeNames) == 1 {
+		primary = typeNames[0]
+	}
+	// `type: "null"` on its own admits exactly the null value (bare JSON
+	// Schema; OpenAPI 3.0 reaches null only through nullable).
+	if typeNull && len(typeNames) == 0 && len(s.Enum) == 0 && len(s.Properties) == 0 {
+		return types.Prim("null", ""), nil
+	}
+
 	// Handle enum. The values are kept as strings; the declared type is the
 	// authority on their base (a string enum may spell out "10" or "true").
 	if len(s.Enum) > 0 {
 		node := types.Enum(s.Enum)
-		switch s.Type {
+		switch primary {
 		case "string", "integer", "number", "boolean":
-			node.EnumBase = s.Type
+			node.EnumBase = primary
 		}
-		if s.Nullable {
+		if nullable {
 			node = types.Nullable(node)
 		}
 		return node, nil
@@ -297,7 +425,7 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 
 	var node *types.Node
 
-	switch s.Type {
+	switch primary {
 	case "string":
 		node = types.Prim("string", s.Format)
 	case "integer":
@@ -335,7 +463,7 @@ func (ctx *resolveCtx) convertSchema(s *schemaObj) (*types.Node, error) {
 		}
 	}
 
-	if s.Nullable {
+	if nullable {
 		node = types.Nullable(node)
 	}
 
@@ -415,12 +543,62 @@ func (ctx *resolveCtx) convertObject(s *schemaObj) (*types.Node, error) {
 
 // resolveRef resolves a $ref string like "#/components/schemas/Foo".
 func (ctx *resolveCtx) resolveRef(ref string) (*types.Node, error) {
-	const prefix = "#/components/schemas/"
-	if !strings.HasPrefix(ref, prefix) {
-		return nil, fmt.Errorf("unsupported $ref: %s", ref)
+	prefixes := []string{"#/components/schemas/"}
+	if ctx.dialect == DialectJSONSchema {
+		prefixes = []string{"#/definitions/", "#/$defs/", "#/components/schemas/"}
 	}
-	name := ref[len(prefix):]
-	return ctx.resolve(name)
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(ref, prefix) {
+			return ctx.resolve(ref[len(prefix):])
+		}
+	}
+	return nil, fmt.Errorf("unsupported $ref: %s", ref)
+}
+
+// LoadSchema reads a standalone schema document (JSON or YAML) into the type
+// AST: the root schema is converted after its reusable definitions are
+// resolved in sorted order. Pass Config{Dialect: DialectJSONSchema} for a
+// bare JSON Schema document; metadata keys a dialect does not define
+// ($schema, and Iglu's self) are ignored.
+func LoadSchema(path string, cfg Config) (*types.Node, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("schema: read %s: %w", path, err)
+	}
+	// JSON is YAML, except that JSON files commonly indent with tabs, which
+	// the YAML parser rejects; route JSON through a structural round-trip.
+	if trimmed := strings.TrimSpace(string(data)); strings.HasPrefix(trimmed, "{") {
+		var generic interface{}
+		if err := json.Unmarshal(data, &generic); err != nil {
+			return nil, fmt.Errorf("schema: parse %s: %w", path, err)
+		}
+		if data, err = yaml.Marshal(generic); err != nil {
+			return nil, fmt.Errorf("schema: re-encode %s: %w", path, err)
+		}
+	}
+	var root schemaObj
+	if err := yaml.Unmarshal(data, &root); err != nil {
+		return nil, fmt.Errorf("schema: parse %s: %w", path, err)
+	}
+	components := make(map[string]*schemaObj, len(root.Definitions)+len(root.Defs))
+	for name, def := range root.Definitions {
+		components[name] = def
+	}
+	for name, def := range root.Defs {
+		components[name] = def
+	}
+	ctx := &resolveCtx{prefix: cfg.ServicePrefix, dialect: cfg.Dialect, components: components, resolved: make(map[string]*types.Node)}
+	names := make([]string, 0, len(components))
+	for name := range components {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		if _, err := ctx.resolve(name); err != nil {
+			return nil, fmt.Errorf("schema: resolve definition %s: %w", name, err)
+		}
+	}
+	return ctx.convertSchema(&root)
 }
 
 // extractResponseSchema finds the first 2xx response with a JSON schema.

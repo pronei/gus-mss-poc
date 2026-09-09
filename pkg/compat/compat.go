@@ -166,11 +166,20 @@ func exclusiveAlternatives(n *types.Node) []*types.Node {
 // RES: producer-nullable requires consumer-nullable (consumer must expect null).
 
 func isSum(n *types.Node) bool {
-	return n.Kind == types.KindNullable || n.Kind == types.KindUnion
+	return n.Kind == types.KindNullable || n.Kind == types.KindUnion || isNullPrim(n)
+}
+
+// isNullPrim recognizes the bare `null` type: the value set {null}, which
+// flatten reads as "admits null" with no plain variant.
+func isNullPrim(n *types.Node) bool {
+	return n.Kind == types.KindPrim && n.Prim == "null"
 }
 
 // flatten returns the plain variants of n and whether n admits null.
 func flatten(n *types.Node) ([]*types.Node, bool) {
+	if isNullPrim(n) {
+		return nil, true
+	}
 	switch n.Kind {
 	case types.KindNullable:
 		vs, _ := flatten(n.Inner)

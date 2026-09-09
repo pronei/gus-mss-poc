@@ -5,6 +5,31 @@ All notable changes to this repository are tracked here. Format follows
 anchored to the GUS/MSS paper submission rather than semver — until the
 formalism stabilises, API changes are expected.
 
+## 0.3.4 — dialects (2026-09-09)
+
+The loader is now dialect-driven, so the checker's relation can be run over
+standalone JSON Schema corpora as well as the mesh's OpenAPI documents. This
+is what the Iglu Central differential run against IBM's jsonsubschema needs
+(that harness lives on the `experiments` branch, not here).
+
+### Added
+- `schema.Config` with `Dialect`: `DialectOpenAPI` (3.0, the zero value and
+  the mesh's format) or `DialectJSONSchema` (draft-04 onward and the
+  OpenAPI 3.1 schema object). `schema.LoadWithConfig` reads a spec file
+  under a config; `schema.Load` is the unchanged default-dialect wrapper.
+- `schema.LoadSchema(path, cfg)` reads a standalone schema document, JSON or
+  YAML, into the type AST: `type` lists, `definitions`/`$defs` references,
+  and JSON indented with tabs. Metadata keys the dialect does not define
+  (`$schema`, Iglu's `self`) are ignored.
+- The bare `null` type: `type: "null"` is the value set {null}, and a `null`
+  member of a `type` list makes the schema nullable.
+
+### Changed
+- Under `DialectOpenAPI` a `type` list or a `"null"` type is now a hard
+  error naming the dialect to use, rather than a YAML unmarshal failure (a
+  list) or a silent read as `Any` (a null type). `$ref` targets outside
+  `#/components/schemas/` stay refused under that dialect.
+
 ## 0.3.3 — subschema alignment (2026-09-08)
 
 Two canonicalization steps from Habib et al., "Finding Data Compatibility

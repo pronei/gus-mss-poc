@@ -164,3 +164,18 @@ func TestOneOfAmbiguity(t *testing.T) {
 	// Response leg: an exclusive consumer expectation, producer variant fits two alternatives.
 	requireRule(t, "oneOf(str, str) <- str RES", Check(oneOf(str, str), str, types.DirRES, cfg()), "oneof-ambiguity", types.SevBREAK)
 }
+
+// The bare null type is the value set {null}: it fits any null-admitting
+// receiver, nothing else, and is fitted only by null.
+func TestNullPrimitive(t *testing.T) {
+	null := types.Prim("null", "")
+	str := types.Prim("string", "")
+	requireClean(t, "null -> Nullable(str) REQ", Check(null, types.Nullable(str), types.DirREQ, cfg()))
+	requireClean(t, "null -> null REQ", Check(null, null, types.DirREQ, cfg()))
+	requireRule(t, "null -> str REQ", Check(null, str, types.DirREQ, cfg()), "nullable-request-narrowing", types.SevBREAK)
+	requireRule(t, "Nullable(str) -> null REQ", Check(types.Nullable(str), null, types.DirREQ, cfg()), "union-request-narrowing", types.SevBREAK)
+	// A null alternative of a oneOf admits no object, so it cannot make an
+	// object variant ambiguous.
+	obj := types.Object(fieldsOf(map[string]*types.Node{"a": str}, "a"), true)
+	requireClean(t, "obj -> oneOf(obj, null) REQ", Check(obj, oneOf(obj, null), types.DirREQ, cfg()))
+}
