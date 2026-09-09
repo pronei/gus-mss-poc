@@ -1,0 +1,64 @@
+pairs: 142 from gus, 142 from jss, 142 joined
+jsonsubschema undecided: {'UnsupportedNegatedObject': 18, 'NoMatch': 1}
+
+== old <: new (backward compatible) ==
+  gus=false     jss=false     14
+  gus=false     jss=undecided 7
+  gus=gus-error jss=-         1
+  gus=true      jss=false     28
+  gus=true      jss=true      80
+  gus=true      jss=undecided 12
+  agreement on decided pairs: 94/122 = 77.0%
+  gus break disputed by jss (gus=false, jss=true): 0
+  gus pass disputed by jss (gus=true, jss=false): 28
+  disagreements gus=true jss=false [structural]: 16
+     com.iterable/system_webhook 1-0-0->1-0-1  gus rules=-  structural diff=['/properties/userId']
+     com.iterable/system_webhook 1-0-1->2-0-0  gus rules=-  structural diff=['/properties/dataFields/properties/attachmentUrlAndroid', '/properties/dataFields/properties/attachmentUrlIos', '/properties/dataFields/properties/billingParty']
+     com.optimizely.optimizelyx/summary 1-0-0->1-1-0  gus rules=-  structural diff=['/properties/campaignId']
+     com.sendgrid/bounce 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+     com.sendgrid/click 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+     com.sendgrid/deferred 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+     com.sendgrid/delivered 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+     com.sendgrid/dropped 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+     com.sendgrid/group_resubscribe 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+     com.sendgrid/group_unsubscribe 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+     com.sendgrid/open 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+     com.sendgrid/processed 1-0-0->2-0-0  gus rules=-  structural diff=['/properties/marketing_campaign_id', '/properties/marketing_campaign_name', '/properties/marketing_campaign_split_id']
+  disagreements gus=true jss=false [refinement-only]: 12
+     com.sendgrid/bounce 2-0-0->3-0-0  gus rules=-  structural diff=[]
+     com.sendgrid/click 2-0-0->3-0-0  gus rules=-  structural diff=[]
+     com.sendgrid/deferred 2-0-0->3-0-0  gus rules=-  structural diff=[]
+
+== new <: old (forward compatible) ==
+  gus=false     jss=false     84
+  gus=false     jss=undecided 15
+  gus=gus-error jss=-         1
+  gus=true      jss=false     22
+  gus=true      jss=true      16
+  gus=true      jss=undecided 4
+  agreement on decided pairs: 100/122 = 82.0%
+  gus break disputed by jss (gus=false, jss=true): 0
+  gus pass disputed by jss (gus=true, jss=false): 22
+  disagreements gus=true jss=false [refinement-only]: 14
+     com.iterable/system_webhook 2-0-0->2-0-1  gus rules=-  structural diff=[]
+     com.sendgrid/bounce 2-0-0->3-0-0  gus rules=-  structural diff=[]
+     com.sendgrid/click 2-0-0->3-0-0  gus rules=-  structural diff=[]
+  disagreements gus=true jss=false [structural]: 8
+     com.mandrill/message_bounced 1-0-1->1-0-2  gus rules=-  structural diff=['/additionalProperties', '/properties/msg/additionalProperties']
+     com.mandrill/message_delayed 1-0-1->1-0-2  gus rules=-  structural diff=['/additionalProperties', '/properties/msg/additionalProperties']
+     com.mandrill/message_marked_as_spam 1-0-1->1-0-2  gus rules=-  structural diff=['/additionalProperties', '/properties/msg/additionalProperties']
+     com.mandrill/message_rejected 1-0-0->1-0-1  gus rules=-  structural diff=['/additionalProperties', '/properties/msg/additionalProperties']
+     com.mandrill/message_sent 1-0-0->1-0-1  gus rules=-  structural diff=['/additionalProperties', '/properties/msg/additionalProperties']
+     com.mandrill/message_soft_bounced 1-0-1->1-0-2  gus rules=-  structural diff=['/additionalProperties', '/properties/msg/additionalProperties']
+     com.mandrill/recipient_unsubscribed 1-0-1->1-0-2  gus rules=-  structural diff=['/additionalProperties', '/properties/msg/additionalProperties', '/properties/msg/properties/metadata/additionalProperties']
+     com.snowplowanalytics.snowplow/ua_parser_config 1-0-0->1-0-1  gus rules=-  structural diff=['/properties/parameters/additionalProperties', '/properties/parameters/properties']
+
+== SchemaVer bump vs old <: new (decided pairs) ==
+  ADDITION  gus=false  jss=false  2
+  ADDITION  gus=true   jss=false  3
+  ADDITION  gus=true   jss=true   74
+  MODEL     gus=false  jss=false  12
+  MODEL     gus=true   jss=false  24
+  MODEL     gus=true   jss=true   3
+  REVISION  gus=true   jss=false  1
+  REVISION  gus=true   jss=true   3

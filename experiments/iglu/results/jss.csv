@@ -1,0 +1,143 @@
+vendor,name,old,new,jss_status,jss_old_sub_new,jss_new_sub_old,seconds
+com.amazon.aws.cloudfront,wd_access_log,1-0-0,1-0-1,ok,True,False,0.2
+com.amazon.aws.cloudfront,wd_access_log,1-0-1,1-0-2,ok,True,False,0.1
+com.amazon.aws.cloudfront,wd_access_log,1-0-2,1-0-3,ok,True,False,0.1
+com.amazon.aws.cloudfront,wd_access_log,1-0-3,1-0-4,ok,True,False,0.1
+com.amazon.aws.cloudfront,wd_access_log,1-0-4,1-0-5,ok,True,False,0.1
+com.amazon.aws.cloudfront,wd_access_log,1-0-5,1-0-6,ok,True,False,0.1
+com.apple,notification_event,1-0-0,1-0-1,ok,True,False,0.1
+com.callrail,call_complete,1-0-0,1-0-1,ok,True,False,0.1
+com.callrail,call_complete,1-0-1,1-0-2,ok,True,False,0.2
+com.iterable,system_webhook,1-0-0,1-0-1,ok,False,True,0.3
+com.iterable,system_webhook,1-0-1,2-0-0,ok,False,False,0.4
+com.iterable,system_webhook,2-0-0,2-0-1,ok,True,False,0.5
+com.mandrill,message_bounced,1-0-0,1-0-1,ok,True,False,0.1
+com.mandrill,message_bounced,1-0-1,1-0-2,ok,True,False,0.1
+com.mandrill,message_clicked,1-0-0,1-0-1,ok,True,False,0.1
+com.mandrill,message_clicked,1-0-1,1-0-2,ok,True,False,0.2
+com.mandrill,message_delayed,1-0-0,1-0-1,ok,True,False,0.1
+com.mandrill,message_delayed,1-0-1,1-0-2,ok,True,False,0.1
+com.mandrill,message_marked_as_spam,1-0-0,1-0-1,ok,True,False,0.1
+com.mandrill,message_marked_as_spam,1-0-1,1-0-2,ok,True,False,0.1
+com.mandrill,message_opened,1-0-0,1-0-1,ok,True,False,0.2
+com.mandrill,message_opened,1-0-1,1-0-2,ok,True,False,0.2
+com.mandrill,message_opened,1-0-2,1-0-3,ok,True,False,0.3
+com.mandrill,message_rejected,1-0-0,1-0-1,ok,True,False,0.1
+com.mandrill,message_sent,1-0-0,1-0-1,ok,True,False,0.1
+com.mandrill,message_soft_bounced,1-0-0,1-0-1,ok,True,False,0.1
+com.mandrill,message_soft_bounced,1-0-1,1-0-2,ok,True,False,0.1
+com.mandrill,recipient_unsubscribed,1-0-0,1-0-1,ok,True,False,0.1
+com.mandrill,recipient_unsubscribed,1-0-1,1-0-2,ok,True,False,0.1
+com.marketo,event,1-0-0,2-0-0,ok,True,True,0.2
+com.optimizely.optimizelyx,summary,1-0-0,1-1-0,ok,False,True,0.1
+com.sendgrid,bounce,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,bounce,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,click,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,click,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,deferred,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,deferred,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,delivered,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,delivered,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,dropped,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,dropped,2-0-0,3-0-0,ok,False,True,0.1
+com.sendgrid,group_resubscribe,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,group_resubscribe,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,group_unsubscribe,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,group_unsubscribe,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,open,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,open,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,processed,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,processed,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,spamreport,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,spamreport,2-0-0,3-0-0,ok,False,False,0.1
+com.sendgrid,unsubscribe,1-0-0,2-0-0,ok,False,True,0.1
+com.sendgrid,unsubscribe,2-0-0,3-0-0,ok,False,False,0.1
+com.snowplowanalytics.accelerators.travel,schedule_update,1-0-0,1-0-1,ok,False,False,0.1
+com.snowplowanalytics.iglu,resolver-config,1-0-0,1-0-1,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'http': {'type': 'object', 'properties': {'uri': {'type': 'string', 'format': 'uri'}}, 'required': ['uri'], 'additionalProper","UnsupportedNegatedObject: Object negation at {'properties': {'http': {'type': 'object', 'properties': {'uri': {'type': 'string', 'format': 'uri'}}, 'required': ['uri'], 'additionalProper",0.1
+com.snowplowanalytics.iglu,resolver-config,1-0-1,1-0-2,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'http': {'type': 'object', 'properties': {'uri': {'type': 'string', 'format': 'uri'}, 'apikey': {'anyOf': [{'type': 'null'}, ","UnsupportedNegatedObject: Object negation at {'properties': {'http': {'type': 'object', 'properties': {'uri': {'type': 'string', 'format': 'uri'}, 'apikey': {'anyOf': [{'type': 'null'}, ",0.1
+com.snowplowanalytics.iglu,resolver-config,1-0-2,1-0-3,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'http': {'type': 'object', 'properties': {'uri': {'type': 'string', 'format': 'uri'}, 'apikey': {'anyOf': [{'type': 'string'}","UnsupportedNegatedObject: Object negation at {'properties': {'http': {'type': 'object', 'properties': {'uri': {'type': 'string', 'format': 'uri'}, 'apikey': {'anyOf': [{'type': 'string'}",0.1
+com.snowplowanalytics.mobile,remote_config,1-0-0,1-0-1,ok,False,False,0.2
+com.snowplowanalytics.monitoring.batch,load_succeeded,1-0-0,2-0-0,ok,False,False,0.1
+com.snowplowanalytics.monitoring.batch,load_succeeded,2-0-0,3-0-0,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'transformation': {'anyOf': [{'type': 'string', 'pattern': '^WIDEROW$', 'enum': ['WIDEROW']}]}, 'fileFormat': {'anyOf': [{'ty","UnsupportedNegatedObject: Object negation at {'properties': {'transformation': {'anyOf': [{'type': 'string', 'pattern': '^WIDEROW$', 'enum': ['WIDEROW']}]}, 'fileFormat': {'anyOf': [{'ty",0.1
+com.snowplowanalytics.monitoring.batch,load_succeeded,3-0-0,3-0-1,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'transformation': {'anyOf': [{'type': 'string', 'pattern': '^WIDEROW$', 'enum': ['WIDEROW']}]}, 'fileFormat': {'anyOf': [{'ty","UnsupportedNegatedObject: Object negation at {'properties': {'transformation': {'anyOf': [{'type': 'string', 'pattern': '^WIDEROW$', 'enum': ['WIDEROW']}]}, 'fileFormat': {'anyOf': [{'ty",0.1
+com.snowplowanalytics.oss,oss_context,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.oss,oss_context,1-0-1,1-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow.badrows,enrichment_failures,1-0-0,2-0-0,ok,False,False,0.8
+com.snowplowanalytics.snowplow.badrows,enrichment_failures,2-0-0,2-0-1,ok,True,False,0.8
+com.snowplowanalytics.snowplow.badrows,loader_iglu_error,1-0-0,2-0-0,ok,False,False,0.8
+com.snowplowanalytics.snowplow.badrows,loader_iglu_error,2-0-0,2-0-1,ok,True,False,1.2
+com.snowplowanalytics.snowplow.badrows,loader_parsing_error,1-0-0,2-0-0,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'type': {'anyOf': [{'type': 'string', 'pattern': '^UnhandledRowDecodingError$', 'enum': ['UnhandledRowDecodingError']}]}, 'me","UnsupportedNegatedObject: Object negation at {'properties': {'type': {'anyOf': [{'type': 'string', 'pattern': '^UnhandledRowDecodingError$', 'enum': ['UnhandledRowDecodingError']}]}, 'me",0.1
+com.snowplowanalytics.snowplow.badrows,loader_runtime_error,1-0-0,1-0-1,ok,False,False,0.4
+com.snowplowanalytics.snowplow.badrows,recovery_error,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow.badrows,schema_violations,1-0-0,2-0-0,ok,False,False,0.8
+com.snowplowanalytics.snowplow.badrows,schema_violations,2-0-0,2-0-1,ok,True,False,0.8
+com.snowplowanalytics.snowplow.badrows,tracker_protocol_violations,1-0-0,1-0-1,ok,True,False,0.6
+com.snowplowanalytics.snowplow.ecommerce,snowplow_ecommerce_action,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow.ecommerce,snowplow_ecommerce_action,1-0-1,1-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow.enrichments,api_request_enrichment_config,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow.enrichments,api_request_enrichment_config,1-0-1,1-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow.enrichments,bot_detection_enrichment_config,1-0-0,1-0-1,ok,False,False,0.1
+com.snowplowanalytics.snowplow.enrichments,iab_spiders_and_robots_enrichment,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow.enrichments,pii_enrichment_config,1-0-0,2-0-0,unknown,"UnsupportedNegatedObject: Object negation at {'required': ['json'], 'type': 'object'} is not supported.","UnsupportedNegatedObject: Object negation at {'required': ['json'], 'type': 'object'} is not supported.",0.1
+com.snowplowanalytics.snowplow.enrichments,pii_enrichment_config,2-0-0,2-0-1,unknown,"UnsupportedNegatedObject: Object negation at {'required': ['json'], 'type': 'object'} is not supported.","UnsupportedNegatedObject: Object negation at {'required': ['json'], 'type': 'object'} is not supported.",0.1
+com.snowplowanalytics.snowplow.enrichments,sql_query_enrichment_config,1-0-0,1-0-1,unknown,"UnsupportedNegatedObject: Object negation at {'type': 'object', 'properties': {'mysql': {'type': 'object', 'properties': {'host': {'type': 'string'}, 'port': {'type': 'integer', 'minimum","UnsupportedNegatedObject: Object negation at {'type': 'object', 'properties': {'mysql': {'type': 'object', 'properties': {'host': {'type': 'string'}, 'port': {'type': 'integer', 'minimum",0.1
+com.snowplowanalytics.snowplow.storage,amazon_dynamodb_config,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow.storage,amazon_dynamodb_config,1-0-1,2-0-0,unknown,"UnsupportedNegatedObject: Object negation at {'type': 'object', 'properties': {'accessKeyId': {'type': 'string'}, 'secretAccessKey': {'type': 'string'}}, 'required': ['accessKeyId', 'sec","UnsupportedNegatedObject: Object negation at {'type': 'object', 'properties': {'accessKeyId': {'type': 'string'}, 'secretAccessKey': {'type': 'string'}}, 'required': ['accessKeyId', 'sec",0.1
+com.snowplowanalytics.snowplow.storage,elastic_config,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow.storage,postgresql_config,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow.storage,postgresql_config,1-0-1,1-1-0,ok,True,False,0.1
+com.snowplowanalytics.snowplow.storage,postgresql_config,1-1-0,2-0-0,ok,False,False,0.1
+com.snowplowanalytics.snowplow.storage,redshift_config,1-0-0,2-0-0,ok,False,False,0.1
+com.snowplowanalytics.snowplow.storage,redshift_config,2-0-0,2-1-0,ok,True,False,0.1
+com.snowplowanalytics.snowplow.storage,redshift_config,2-1-0,3-0-0,ok,False,False,0.1
+com.snowplowanalytics.snowplow.storage,redshift_config,3-0-0,4-0-0,ok,True,False,0.2
+com.snowplowanalytics.snowplow.storage,shredding_complete,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow.storage,shredding_complete,1-0-1,2-0-0,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'transformation': {'anyOf': [{'type': 'string', 'pattern': '^WIDEROW$', 'enum': ['WIDEROW']}]}, 'fileFormat': {'anyOf': [{'ty","UnsupportedNegatedObject: Object negation at {'properties': {'transformation': {'anyOf': [{'type': 'string', 'pattern': '^WIDEROW$', 'enum': ['WIDEROW']}]}, 'fileFormat': {'anyOf': [{'ty",0.1
+com.snowplowanalytics.snowplow.storage,shredding_complete,2-0-0,2-0-1,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'transformation': {'anyOf': [{'type': 'string', 'pattern': '^WIDEROW$', 'enum': ['WIDEROW']}]}, 'fileFormat': {'anyOf': [{'ty","UnsupportedNegatedObject: Object negation at {'properties': {'transformation': {'anyOf': [{'type': 'string', 'pattern': '^WIDEROW$', 'enum': ['WIDEROW']}]}, 'fileFormat': {'anyOf': [{'ty",0.1
+com.snowplowanalytics.snowplow.storage,snowflake_config,1-0-0,1-0-1,unknown,"UnsupportedNegatedObject: Object negation at {'type': 'object', 'properties': {'roleArn': {'anyOf': [{'type': 'string', 'minLength': 20}, {'type': 'null'}]}, 'sessionDuration': {'type': ","UnsupportedNegatedObject: Object negation at {'type': 'object', 'properties': {'roleArn': {'anyOf': [{'type': 'string', 'minLength': 20}, {'type': 'null'}]}, 'sessionDuration': {'type': ",0.1
+com.snowplowanalytics.snowplow.storage,snowflake_config,1-0-1,1-0-2,unknown,"UnsupportedNegatedObject: Object negation at {'type': 'object', 'properties': {'roleArn': {'anyOf': [{'type': 'string', 'minLength': 20}, {'type': 'null'}]}, 'sessionDuration': {'type': ","UnsupportedNegatedObject: Object negation at {'type': 'object', 'properties': {'roleArn': {'anyOf': [{'type': 'string', 'minLength': 20}, {'type': 'null'}]}, 'sessionDuration': {'type': ",0.1
+com.snowplowanalytics.snowplow.storage,snowflake_config,1-0-2,1-0-3,unknown,"UnsupportedNegatedObject: Object negation at {'type': 'object', 'description': 'Temporary credentials', 'properties': {'roleArn': {'anyOf': [{'description': 'roleArn of temporary credent","UnsupportedNegatedObject: Object negation at {'type': 'object', 'description': 'Temporary credentials', 'properties': {'roleArn': {'anyOf': [{'description': 'roleArn of temporary credent",0.1
+com.snowplowanalytics.snowplow,anon_ip,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,application_error,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,application_error,1-0-1,1-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow,asn,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,bot_detection,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,browser_context,1-0-0,2-0-0,ok,True,False,0.1
+com.snowplowanalytics.snowplow,campaign_attribution,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,client_session,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,client_session,1-0-1,1-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow,contexts,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,elasticsearch_enriched_event,1-0-0,1-0-1,ok,True,False,2.3
+com.snowplowanalytics.snowplow,elasticsearch_enriched_event,1-0-1,2-0-0,ok,False,True,0.9
+com.snowplowanalytics.snowplow,event_fingerprint_config,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,event_specification,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,event_specification,1-0-1,1-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow,event_specification,1-0-2,1-0-3,ok,True,False,0.1
+com.snowplowanalytics.snowplow,event_specification,1-0-3,1-0-4,ok,True,False,0.1
+com.snowplowanalytics.snowplow,geolocation_context,1-0-0,1-1-0,ok,True,False,0.1
+com.snowplowanalytics.snowplow,identity,1-0-0,2-0-0,ok,False,False,0.1
+com.snowplowanalytics.snowplow,identity_merge,1-0-0,2-0-0,ok,False,False,0.1
+com.snowplowanalytics.snowplow,ip_lookups,1-0-0,2-0-0,ok,False,False,0.1
+com.snowplowanalytics.snowplow,ip_lookups,2-0-0,2-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,javascript_script_config,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,link_click,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,media_player,1-0-0,2-0-0,ok,False,False,0.1
+com.snowplowanalytics.snowplow,mobile_context,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,mobile_context,1-0-1,1-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow,mobile_context,1-0-2,1-0-3,ok,True,False,0.1
+com.snowplowanalytics.snowplow,payload_data,1-0-0,1-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,payload_data,1-0-1,1-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow,payload_data,1-0-2,1-0-3,ok,True,False,0.1
+com.snowplowanalytics.snowplow,payload_data,1-0-3,1-0-4,ok,True,False,0.1
+com.snowplowanalytics.snowplow,recoveries,1-0-0,2-0-0,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'lt': {'type': 'integer'}}, 'type': 'object'} is not supported.","UnsupportedNegatedObject: Object negation at {'properties': {'lt': {'type': 'integer'}}, 'type': 'object'} is not supported.",0.1
+com.snowplowanalytics.snowplow,recoveries,2-0-0,3-0-0,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'lt': {'type': 'integer'}}, 'type': 'object'} is not supported.","UnsupportedNegatedObject: Object negation at {'properties': {'lt': {'type': 'integer'}}, 'type': 'object'} is not supported.",0.1
+com.snowplowanalytics.snowplow,recoveries,3-0-0,4-0-0,unknown,"UnsupportedNegatedObject: Object negation at {'properties': {'lt': {'type': 'integer'}}, 'required': ['lt'], 'additionalProperties': False, 'type': 'object'} is not supported.","UnsupportedNegatedObject: Object negation at {'properties': {'lt': {'type': 'integer'}}, 'required': ['lt'], 'additionalProperties': False, 'type': 'object'} is not supported.",0.1
+com.snowplowanalytics.snowplow,referer_parser,1-0-0,2-0-0,ok,False,False,0.1
+com.snowplowanalytics.snowplow,referer_parser,2-0-0,2-0-1,ok,True,False,0.1
+com.snowplowanalytics.snowplow,referer_parser,2-0-1,2-0-2,ok,True,False,0.1
+com.snowplowanalytics.snowplow,ua_parser_config,1-0-0,1-0-1,ok,True,False,0.1
+nl.basjes,yauaa_context,1-0-0,1-0-1,ok,True,False,0.2
+nl.basjes,yauaa_context,1-0-1,1-0-2,ok,True,False,0.2
+nl.basjes,yauaa_context,1-0-2,1-0-3,ok,True,False,0.2
+nl.basjes,yauaa_context,1-0-3,1-0-4,ok,True,False,0.2
+nl.basjes,yauaa_context,1-0-4,1-0-5,unknown,NoMatch: Could not parse 'Desktop|Anonymized|Unknown|UNKNOWN|Mobile|Tablet|Phone|Watch|Virtual\\ Reality|eReader|Set\\-top\\ box|TV|Game\\ Console|Home\\ Appliance|Handh,NoMatch: Could not parse 'Desktop|Anonymized|Unknown|UNKNOWN|Mobile|Tablet|Phone|Watch|Virtual\\ Reality|eReader|Set\\-top\\ box|TV|Game\\ Console|Home\\ Appliance|Handh,0.2

@@ -13,3 +13,7 @@ vendor/
 
 # OS
 .DS_Store
+
+# Python bytecode from the experiment scripts
+__pycache__/
+*.pyc
