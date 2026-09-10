@@ -1,0 +1,15 @@
+baseline:
+    ad: c12
+    cart: c12
+    checkout: c12
+    currency: c12
+    email: c12
+    frontend: c12
+    payment: c12
+    productcatalog: c12
+    recommendation: c12
+    shipping: c12
+description: '12-c4d8670 -> 13-d2c729d: Update Product List to Match Cymbal Branding/Story (#600) (d2c729d)'
+id: P12-13
+name: Update Product List to Match Cymbal Branding/Story (#600)
+upgrades: {}

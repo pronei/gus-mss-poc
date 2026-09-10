@@ -1,0 +1,117 @@
+components:
+    schemas:
+        Address:
+            properties:
+                city:
+                    type: string
+                    x-proto-field-number: 2
+                country:
+                    type: string
+                    x-proto-field-number: 4
+                state:
+                    type: string
+                    x-proto-field-number: 3
+                street_address:
+                    type: string
+                    x-proto-field-number: 1
+                zip_code:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 5
+            type: object
+        CartItem:
+            properties:
+                product_id:
+                    type: string
+                    x-proto-field-number: 1
+                quantity:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        GetQuoteRequest:
+            properties:
+                address:
+                    $ref: '#/components/schemas/Address'
+                    x-proto-field-number: 1
+                items:
+                    items:
+                        $ref: '#/components/schemas/CartItem'
+                    type: array
+                    x-proto-field-number: 2
+            type: object
+        GetQuoteResponse:
+            properties:
+                cost_usd:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 1
+            type: object
+        Money:
+            properties:
+                currency_code:
+                    type: string
+                    x-proto-field-number: 1
+                nanos:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 3
+                units:
+                    format: int64
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        ShipOrderRequest:
+            properties:
+                address:
+                    $ref: '#/components/schemas/Address'
+                    x-proto-field-number: 1
+                items:
+                    items:
+                        $ref: '#/components/schemas/CartItem'
+                    type: array
+                    x-proto-field-number: 2
+            type: object
+        ShipOrderResponse:
+            properties:
+                tracking_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: 'Projected from demo.proto at 86c8c06 (pb: add "categories" field to Product (#60))'
+    title: hipstershop.ShippingService
+    version: 11-86c8c06
+openapi: 3.0.3
+paths:
+    /hipstershop.ShippingService/GetQuote:
+        post:
+            operationId: GetQuote
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GetQuoteRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetQuoteResponse'
+                    description: GetQuoteResponse
+    /hipstershop.ShippingService/ShipOrder:
+        post:
+            operationId: ShipOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ShipOrderRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ShipOrderResponse'
+                    description: ShipOrderResponse

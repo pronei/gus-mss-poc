@@ -1,0 +1,3 @@
+SEMANTIC currency        Convert request                  type renamed ConversionRequest -> CurrencyConversionRequest (structure compared below)
+SEMANTIC currency        Convert response                 type renamed ConversionResponse -> Money (structure compared below)
+WIRE     currency        Convert response                 ConversionResponse.result#1: message -> string is not wire-compatible

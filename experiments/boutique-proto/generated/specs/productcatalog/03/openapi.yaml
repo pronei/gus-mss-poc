@@ -1,0 +1,117 @@
+components:
+    schemas:
+        Empty:
+            description: empty message
+            properties: {}
+            type: object
+        GetProductRequest:
+            properties:
+                id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        ListProductsResponse:
+            properties:
+                products:
+                    items:
+                        $ref: '#/components/schemas/Product'
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+        MoneyAmount:
+            properties:
+                decimal:
+                    format: uint32
+                    type: integer
+                    x-proto-field-number: 1
+                fractional:
+                    format: uint32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        Product:
+            properties:
+                description:
+                    type: string
+                    x-proto-field-number: 3
+                id:
+                    type: string
+                    x-proto-field-number: 1
+                name:
+                    type: string
+                    x-proto-field-number: 2
+                picture:
+                    type: string
+                    x-proto-field-number: 4
+                price_usd:
+                    $ref: '#/components/schemas/MoneyAmount'
+                    x-proto-field-number: 5
+            type: object
+        SearchProductsRequest:
+            properties:
+                query:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        SearchProductsResponse:
+            properties:
+                results:
+                    items:
+                        $ref: '#/components/schemas/Product'
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: Projected from demo.proto at 2316e25 (change Product.id to string)
+    title: hipstershop.ProductCatalogService
+    version: 03-2316e25
+openapi: 3.0.3
+paths:
+    /hipstershop.ProductCatalogService/GetProduct:
+        post:
+            operationId: GetProduct
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GetProductRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+                    description: Product
+    /hipstershop.ProductCatalogService/ListProducts:
+        post:
+            operationId: ListProducts
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Empty'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListProductsResponse'
+                    description: ListProductsResponse
+    /hipstershop.ProductCatalogService/SearchProducts:
+        post:
+            operationId: SearchProducts
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SearchProductsRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SearchProductsResponse'
+                    description: SearchProductsResponse

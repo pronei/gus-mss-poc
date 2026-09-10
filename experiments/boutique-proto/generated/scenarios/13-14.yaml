@@ -1,0 +1,15 @@
+baseline:
+    ad: c13
+    cart: c13
+    checkout: c13
+    currency: c13
+    email: c13
+    frontend: c13
+    payment: c13
+    productcatalog: c13
+    recommendation: c13
+    shipping: c13
+description: '13-d2c729d -> 14-76571f5: Clean up docs and meta files (#1721) (76571f5)'
+id: P13-14
+name: Clean up docs and meta files (#1721)
+upgrades: {}

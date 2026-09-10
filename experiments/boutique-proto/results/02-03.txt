@@ -1,0 +1,46 @@
+=== GUS Check: [P02-03] change Product.id to string ===
+Decision: NO
+
+Edge frontend->productcatalog-ListProducts [http] — BREAK (conjuncts C3):
+  (caller schema unavailable — Tier-3 fallback: caller assumed pinned to the old provider contract)
+  [BREAK] [C3]$.products[*].id
+    producer returns string but consumer expects integer (not admitted in the lattice)
+    old: integer(int32) → new: string
+    rule: prim-mismatch
+
+Edge frontend->productcatalog-GetProduct [http] — BREAK (conjuncts C1,C3):
+  (caller schema unavailable — Tier-3 fallback: caller assumed pinned to the old provider contract)
+  [BREAK] [C1]$.id
+    sender type integer is not admitted by receiver type string in the lattice
+    old: integer(int32) → new: string
+    rule: prim-mismatch
+  [BREAK] [C3]$.id
+    producer returns string but consumer expects integer (not admitted in the lattice)
+    old: integer(int32) → new: string
+    rule: prim-mismatch
+
+Edge checkout->productcatalog-GetProduct [http] — BREAK (conjuncts C1,C3):
+  (caller schema unavailable — Tier-3 fallback: caller assumed pinned to the old provider contract)
+  [BREAK] [C1]$.id
+    sender type integer is not admitted by receiver type string in the lattice
+    old: integer(int32) → new: string
+    rule: prim-mismatch
+  [BREAK] [C3]$.id
+    producer returns string but consumer expects integer (not admitted in the lattice)
+    old: integer(int32) → new: string
+    rule: prim-mismatch
+
+Edge recommendation->productcatalog-ListProducts [http] — BREAK (conjuncts C3):
+  (caller schema unavailable — Tier-3 fallback: caller assumed pinned to the old provider contract)
+  [BREAK] [C3]$.products[*].id
+    producer returns string but consumer expects integer (not admitted in the lattice)
+    old: integer(int32) → new: string
+    rule: prim-mismatch
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  productcatalog c02→c03 — breaks edge frontend->productcatalog-ListProducts [C3]: old frontend instances persist
+
+Post-hoc verification of the safe subset: PASS

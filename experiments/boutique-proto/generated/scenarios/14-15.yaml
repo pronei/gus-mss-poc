@@ -1,0 +1,15 @@
+baseline:
+    ad: c14
+    cart: c14
+    checkout: c14
+    currency: c14
+    email: c14
+    frontend: c14
+    payment: c14
+    productcatalog: c14
+    recommendation: c14
+    shipping: c14
+description: '14-76571f5 -> 15-ca90f35: Bump dependencies in Go services (#2716) (ca90f35)'
+id: P14-15
+name: Bump dependencies in Go services (#2716)
+upgrades: {}

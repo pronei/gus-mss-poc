@@ -1,0 +1,4 @@
+=== GUS Check: [P10-11] pb: add "categories" field to Product (#60) ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

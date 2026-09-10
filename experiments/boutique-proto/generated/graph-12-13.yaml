@@ -1,0 +1,132 @@
+edges:
+    - from: frontend
+      method: POST
+      name: frontend->cart-AddItem
+      path: /hipstershop.CartService/AddItem
+      to: cart
+    - from: frontend
+      method: POST
+      name: frontend->cart-GetCart
+      path: /hipstershop.CartService/GetCart
+      to: cart
+    - from: frontend
+      method: POST
+      name: frontend->cart-EmptyCart
+      path: /hipstershop.CartService/EmptyCart
+      to: cart
+    - from: frontend
+      method: POST
+      name: frontend->productcatalog-ListProducts
+      path: /hipstershop.ProductCatalogService/ListProducts
+      to: productcatalog
+    - from: frontend
+      method: POST
+      name: frontend->productcatalog-GetProduct
+      path: /hipstershop.ProductCatalogService/GetProduct
+      to: productcatalog
+    - from: frontend
+      method: POST
+      name: frontend->currency-GetSupportedCurrencies
+      path: /hipstershop.CurrencyService/GetSupportedCurrencies
+      to: currency
+    - from: frontend
+      method: POST
+      name: frontend->currency-Convert
+      path: /hipstershop.CurrencyService/Convert
+      to: currency
+    - from: frontend
+      method: POST
+      name: frontend->recommendation-ListRecommendations
+      path: /hipstershop.RecommendationService/ListRecommendations
+      to: recommendation
+    - from: frontend
+      method: POST
+      name: frontend->shipping-GetQuote
+      path: /hipstershop.ShippingService/GetQuote
+      to: shipping
+    - from: frontend
+      method: POST
+      name: frontend->checkout-PlaceOrder
+      path: /hipstershop.CheckoutService/PlaceOrder
+      to: checkout
+    - from: frontend
+      method: POST
+      name: frontend->ad-GetAds
+      path: /hipstershop.AdService/GetAds
+      to: ad
+    - from: checkout
+      method: POST
+      name: checkout->cart-GetCart
+      path: /hipstershop.CartService/GetCart
+      to: cart
+    - from: checkout
+      method: POST
+      name: checkout->cart-EmptyCart
+      path: /hipstershop.CartService/EmptyCart
+      to: cart
+    - from: checkout
+      method: POST
+      name: checkout->productcatalog-GetProduct
+      path: /hipstershop.ProductCatalogService/GetProduct
+      to: productcatalog
+    - from: checkout
+      method: POST
+      name: checkout->currency-Convert
+      path: /hipstershop.CurrencyService/Convert
+      to: currency
+    - from: checkout
+      method: POST
+      name: checkout->shipping-GetQuote
+      path: /hipstershop.ShippingService/GetQuote
+      to: shipping
+    - from: checkout
+      method: POST
+      name: checkout->shipping-ShipOrder
+      path: /hipstershop.ShippingService/ShipOrder
+      to: shipping
+    - from: checkout
+      method: POST
+      name: checkout->payment-Charge
+      path: /hipstershop.PaymentService/Charge
+      to: payment
+    - from: checkout
+      method: POST
+      name: checkout->email-SendOrderConfirmation
+      path: /hipstershop.EmailService/SendOrderConfirmation
+      to: email
+    - from: recommendation
+      method: POST
+      name: recommendation->productcatalog-ListProducts
+      path: /hipstershop.ProductCatalogService/ListProducts
+      to: productcatalog
+services:
+    ad:
+        c12: specs/ad/12/openapi.yaml
+        c13: specs/ad/13/openapi.yaml
+    cart:
+        c12: specs/cart/12/openapi.yaml
+        c13: specs/cart/13/openapi.yaml
+    checkout:
+        c12: specs/checkout/12/openapi.yaml
+        c13: specs/checkout/13/openapi.yaml
+    currency:
+        c12: specs/currency/12/openapi.yaml
+        c13: specs/currency/13/openapi.yaml
+    email:
+        c12: specs/email/12/openapi.yaml
+        c13: specs/email/13/openapi.yaml
+    frontend:
+        c12: specs/frontend/12/openapi.yaml
+        c13: specs/frontend/13/openapi.yaml
+    payment:
+        c12: specs/payment/12/openapi.yaml
+        c13: specs/payment/13/openapi.yaml
+    productcatalog:
+        c12: specs/productcatalog/12/openapi.yaml
+        c13: specs/productcatalog/13/openapi.yaml
+    recommendation:
+        c12: specs/recommendation/12/openapi.yaml
+        c13: specs/recommendation/13/openapi.yaml
+    shipping:
+        c12: specs/shipping/12/openapi.yaml
+        c13: specs/shipping/13/openapi.yaml

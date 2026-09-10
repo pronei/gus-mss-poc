@@ -1,0 +1,4 @@
+WIRE     productcatalog  ListProducts response            Product.id#1: int32 -> string is not wire-compatible
+WIRE     productcatalog  GetProduct request               GetProductRequest.id#1: int32 -> string is not wire-compatible
+WIRE     productcatalog  GetProduct response              Product.id#1: int32 -> string is not wire-compatible
+WIRE     productcatalog  SearchProducts response          Product.id#1: int32 -> string is not wire-compatible

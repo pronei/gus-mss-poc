@@ -1,0 +1,16 @@
+baseline:
+    ad: c08
+    cart: c08
+    checkout: c08
+    currency: c08
+    email: c08
+    frontend: c08
+    payment: c08
+    productcatalog: c08
+    recommendation: c08
+    shipping: c08
+description: '08-24aaa3e -> 09-390e489: pb: fix style issue in Ads message (390e489)'
+id: P08-09
+name: 'pb: fix style issue in Ads message'
+upgrades:
+    ad: c09

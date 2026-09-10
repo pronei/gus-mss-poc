@@ -1,0 +1,16 @@
+baseline:
+    ad: c10
+    cart: c10
+    checkout: c10
+    currency: c10
+    email: c10
+    frontend: c10
+    payment: c10
+    productcatalog: c10
+    recommendation: c10
+    shipping: c10
+description: '10-f35fdbc -> 11-86c8c06: pb: add "categories" field to Product (#60) (86c8c06)'
+id: P10-11
+name: 'pb: add "categories" field to Product (#60)'
+upgrades:
+    productcatalog: c11

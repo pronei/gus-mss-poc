@@ -1,0 +1,4 @@
+=== GUS Check: [P03-04] pb: breaking change to currencyservice protos ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

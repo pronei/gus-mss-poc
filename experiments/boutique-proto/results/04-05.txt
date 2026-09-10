@@ -1,0 +1,4 @@
+=== GUS Check: [P04-05] pb: breaking change to Money, remove MoneyAmount ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

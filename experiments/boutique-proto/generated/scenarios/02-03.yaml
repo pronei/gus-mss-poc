@@ -1,0 +1,15 @@
+baseline:
+    cart: c02
+    checkout: c02
+    currency: c02
+    email: c02
+    frontend: c02
+    payment: c02
+    productcatalog: c02
+    recommendation: c02
+    shipping: c02
+description: '02-0cf418d -> 03-2316e25: change Product.id to string (2316e25)'
+id: P02-03
+name: change Product.id to string
+upgrades:
+    productcatalog: c03

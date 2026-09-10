@@ -1,0 +1,102 @@
+components:
+    schemas:
+        AddItemRequest:
+            properties:
+                item:
+                    $ref: '#/components/schemas/CartItem'
+                    x-proto-field-number: 2
+                user_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        Cart:
+            properties:
+                items:
+                    items:
+                        $ref: '#/components/schemas/CartItem'
+                    type: array
+                    x-proto-field-number: 2
+                user_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        CartItem:
+            properties:
+                product_id:
+                    type: string
+                    x-proto-field-number: 1
+                quantity:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        Empty:
+            description: empty message
+            properties: {}
+            type: object
+        EmptyCartRequest:
+            properties:
+                user_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        GetCartRequest:
+            properties:
+                user_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: Projected from demo.proto at d2c729d (Update Product List to Match Cymbal Branding/Story (#600))
+    title: hipstershop.CartService
+    version: 13-d2c729d
+openapi: 3.0.3
+paths:
+    /hipstershop.CartService/AddItem:
+        post:
+            operationId: AddItem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AddItemRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Empty'
+                    description: Empty
+    /hipstershop.CartService/EmptyCart:
+        post:
+            operationId: EmptyCart
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EmptyCartRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Empty'
+                    description: Empty
+    /hipstershop.CartService/GetCart:
+        post:
+            operationId: GetCart
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GetCartRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Cart'
+                    description: Cart

@@ -1,0 +1,183 @@
+components:
+    schemas:
+        Address:
+            properties:
+                city:
+                    type: string
+                    x-proto-field-number: 3
+                country:
+                    type: string
+                    x-proto-field-number: 4
+                street_address_1:
+                    type: string
+                    x-proto-field-number: 1
+                street_address_2:
+                    type: string
+                    x-proto-field-number: 2
+                zip_code:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 5
+            type: object
+        CartItem:
+            properties:
+                product_id:
+                    type: string
+                    x-proto-field-number: 1
+                quantity:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        CreateOrderRequest:
+            properties:
+                address:
+                    $ref: '#/components/schemas/Address'
+                    x-proto-field-number: 3
+                user_currency:
+                    type: string
+                    x-proto-field-number: 2
+                user_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        CreateOrderResponse:
+            properties:
+                items:
+                    items:
+                        $ref: '#/components/schemas/OrderItem'
+                    type: array
+                    x-proto-field-number: 1
+                shipping_cost:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 2
+            type: object
+        CreditCardInfo:
+            properties:
+                credit_card_cvv:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 2
+                credit_card_expiration_month:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 4
+                credit_card_expiration_year:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 3
+                credit_card_number:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        Money:
+            properties:
+                amount:
+                    $ref: '#/components/schemas/MoneyAmount'
+                    x-proto-field-number: 2
+                currency_code:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        MoneyAmount:
+            properties:
+                decimal:
+                    format: uint32
+                    type: integer
+                    x-proto-field-number: 1
+                fractional:
+                    format: uint32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        OrderItem:
+            properties:
+                cost:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 2
+                item:
+                    $ref: '#/components/schemas/CartItem'
+                    x-proto-field-number: 1
+            type: object
+        OrderResult:
+            properties:
+                items:
+                    items:
+                        $ref: '#/components/schemas/OrderItem'
+                    type: array
+                    x-proto-field-number: 5
+                order_id:
+                    type: string
+                    x-proto-field-number: 1
+                shipping_address:
+                    $ref: '#/components/schemas/Address'
+                    x-proto-field-number: 4
+                shipping_cost:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 3
+                shipping_tracking_id:
+                    type: string
+                    x-proto-field-number: 2
+            type: object
+        PlaceOrderRequest:
+            properties:
+                address:
+                    $ref: '#/components/schemas/Address'
+                    x-proto-field-number: 3
+                credit_card:
+                    $ref: '#/components/schemas/CreditCardInfo'
+                    x-proto-field-number: 6
+                email:
+                    type: string
+                    x-proto-field-number: 5
+                user_currency:
+                    type: string
+                    x-proto-field-number: 2
+                user_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        PlaceOrderResponse:
+            properties:
+                order:
+                    $ref: '#/components/schemas/OrderResult'
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: Projected from demo.proto at 0cf418d (recommender now returns ids instead of products)
+    title: hipstershop.CheckoutService
+    version: 02-0cf418d
+openapi: 3.0.3
+paths:
+    /hipstershop.CheckoutService/CreateOrder:
+        post:
+            operationId: CreateOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateOrderRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateOrderResponse'
+                    description: CreateOrderResponse
+    /hipstershop.CheckoutService/PlaceOrder:
+        post:
+            operationId: PlaceOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PlaceOrderRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PlaceOrderResponse'
+                    description: PlaceOrderResponse

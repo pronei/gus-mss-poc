@@ -1,0 +1,18 @@
+01-02  recommender now returns ids instead of products              upgrades=[recommendation]
+02-03  change Product.id to string                                  upgrades=[productcatalog]
+03-04  pb: breaking change to currencyservice protos                upgrades=[currency]
+04-05  pb: breaking change to Money, remove MoneyAmount             upgrades=[checkout currency email payment productcatalog shipping]
+05-06  breaking changes to Address in proto                         upgrades=[checkout email shipping]
+06-07  checkoutservice: remove PrepareOrder rpc                     upgrades=[checkout]
+        frontend->checkout CreateOrder: endpoint REMOVED at 07-ed942a9 (/hipstershop.CheckoutService/CreateOrder)
+07-08  Add proto for Ads Service.                                   upgrades=[]
+        frontend->ad GetAds: endpoint ADDED at 08-24aaa3e (/hipstershop.AdsService/GetAds)
+        service ad ADDED at 08-24aaa3e (no baseline to upgrade from)
+08-09  pb: fix style issue in Ads message                           upgrades=[ad]
+09-10  Initial commit for Ads Service. (#21)                        upgrades=[ad]
+        frontend->ad GetAds: endpoint path CHANGED /hipstershop.AdsService/GetAds -> /hipstershop.AdService/GetAds
+10-11  pb: add "categories" field to Product (#60)                  upgrades=[productcatalog]
+11-12  Add licenses (#367)                                          upgrades=[]
+12-13  Update Product List to Match Cymbal Branding/Story (#600)    upgrades=[]
+13-14  Clean up docs and meta files (#1721)                         upgrades=[]
+14-15  Bump dependencies in Go services (#2716)                     upgrades=[]

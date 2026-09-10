@@ -1,0 +1,4 @@
+=== GUS Check: [P07-08] Add proto for Ads Service. ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

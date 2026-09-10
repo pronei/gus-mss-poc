@@ -1,0 +1,17 @@
+baseline:
+    cart: c06
+    checkout: c06
+    currency: c06
+    email: c06
+    frontend: c06
+    payment: c06
+    productcatalog: c06
+    recommendation: c06
+    shipping: c06
+description: |-
+    06-6f10ac9 -> 07-ed942a9: checkoutservice: remove PrepareOrder rpc (ed942a9)
+    Outside the per-edge model: frontend->checkout CreateOrder: endpoint REMOVED at 07-ed942a9 (/hipstershop.CheckoutService/CreateOrder)
+id: P06-07
+name: 'checkoutservice: remove PrepareOrder rpc'
+upgrades:
+    checkout: c07

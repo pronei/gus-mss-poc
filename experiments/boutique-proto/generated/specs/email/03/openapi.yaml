@@ -1,0 +1,115 @@
+components:
+    schemas:
+        Address:
+            properties:
+                city:
+                    type: string
+                    x-proto-field-number: 3
+                country:
+                    type: string
+                    x-proto-field-number: 4
+                street_address_1:
+                    type: string
+                    x-proto-field-number: 1
+                street_address_2:
+                    type: string
+                    x-proto-field-number: 2
+                zip_code:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 5
+            type: object
+        CartItem:
+            properties:
+                product_id:
+                    type: string
+                    x-proto-field-number: 1
+                quantity:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        Empty:
+            description: empty message
+            properties: {}
+            type: object
+        Money:
+            properties:
+                amount:
+                    $ref: '#/components/schemas/MoneyAmount'
+                    x-proto-field-number: 2
+                currency_code:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        MoneyAmount:
+            properties:
+                decimal:
+                    format: uint32
+                    type: integer
+                    x-proto-field-number: 1
+                fractional:
+                    format: uint32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        OrderItem:
+            properties:
+                cost:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 2
+                item:
+                    $ref: '#/components/schemas/CartItem'
+                    x-proto-field-number: 1
+            type: object
+        OrderResult:
+            properties:
+                items:
+                    items:
+                        $ref: '#/components/schemas/OrderItem'
+                    type: array
+                    x-proto-field-number: 5
+                order_id:
+                    type: string
+                    x-proto-field-number: 1
+                shipping_address:
+                    $ref: '#/components/schemas/Address'
+                    x-proto-field-number: 4
+                shipping_cost:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 3
+                shipping_tracking_id:
+                    type: string
+                    x-proto-field-number: 2
+            type: object
+        SendOrderConfirmationRequest:
+            properties:
+                email:
+                    type: string
+                    x-proto-field-number: 1
+                order:
+                    $ref: '#/components/schemas/OrderResult'
+                    x-proto-field-number: 2
+            type: object
+info:
+    description: Projected from demo.proto at 2316e25 (change Product.id to string)
+    title: hipstershop.EmailService
+    version: 03-2316e25
+openapi: 3.0.3
+paths:
+    /hipstershop.EmailService/SendOrderConfirmation:
+        post:
+            operationId: SendOrderConfirmation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendOrderConfirmationRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Empty'
+                    description: Empty

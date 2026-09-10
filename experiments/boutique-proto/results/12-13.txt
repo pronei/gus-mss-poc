@@ -1,0 +1,4 @@
+=== GUS Check: [P12-13] Update Product List to Match Cymbal Branding/Story (#600) ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

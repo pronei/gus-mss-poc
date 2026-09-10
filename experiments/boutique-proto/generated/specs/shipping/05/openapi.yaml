@@ -1,0 +1,117 @@
+components:
+    schemas:
+        Address:
+            properties:
+                city:
+                    type: string
+                    x-proto-field-number: 3
+                country:
+                    type: string
+                    x-proto-field-number: 4
+                street_address_1:
+                    type: string
+                    x-proto-field-number: 1
+                street_address_2:
+                    type: string
+                    x-proto-field-number: 2
+                zip_code:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 5
+            type: object
+        CartItem:
+            properties:
+                product_id:
+                    type: string
+                    x-proto-field-number: 1
+                quantity:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        GetQuoteRequest:
+            properties:
+                address:
+                    $ref: '#/components/schemas/Address'
+                    x-proto-field-number: 1
+                items:
+                    items:
+                        $ref: '#/components/schemas/CartItem'
+                    type: array
+                    x-proto-field-number: 2
+            type: object
+        GetQuoteResponse:
+            properties:
+                cost_usd:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 1
+            type: object
+        Money:
+            properties:
+                currency_code:
+                    type: string
+                    x-proto-field-number: 1
+                nanos:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 3
+                units:
+                    format: int64
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+        ShipOrderRequest:
+            properties:
+                address:
+                    $ref: '#/components/schemas/Address'
+                    x-proto-field-number: 1
+                items:
+                    items:
+                        $ref: '#/components/schemas/CartItem'
+                    type: array
+                    x-proto-field-number: 2
+            type: object
+        ShipOrderResponse:
+            properties:
+                tracking_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: 'Projected from demo.proto at e20ed32 (pb: breaking change to Money, remove MoneyAmount)'
+    title: hipstershop.ShippingService
+    version: 05-e20ed32
+openapi: 3.0.3
+paths:
+    /hipstershop.ShippingService/GetQuote:
+        post:
+            operationId: GetQuote
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GetQuoteRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetQuoteResponse'
+                    description: GetQuoteResponse
+    /hipstershop.ShippingService/ShipOrder:
+        post:
+            operationId: ShipOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ShipOrderRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ShipOrderResponse'
+                    description: ShipOrderResponse

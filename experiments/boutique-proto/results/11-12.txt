@@ -1,0 +1,4 @@
+=== GUS Check: [P11-12] Add licenses (#367) ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

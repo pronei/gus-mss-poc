@@ -1,0 +1,3 @@
+WIRE     ad              service                          service renamed AdsService -> AdService: every RPC path changes
+SEMANTIC ad              GetAds request                   type renamed AdsRequest -> AdRequest (structure compared below)
+SEMANTIC ad              GetAds response                  type renamed AdsResponse -> AdResponse (structure compared below)

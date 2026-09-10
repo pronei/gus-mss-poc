@@ -1,0 +1,15 @@
+baseline:
+    cart: c03
+    checkout: c03
+    currency: c03
+    email: c03
+    frontend: c03
+    payment: c03
+    productcatalog: c03
+    recommendation: c03
+    shipping: c03
+description: '03-2316e25 -> 04-22f6fcc: pb: breaking change to currencyservice protos (22f6fcc)'
+id: P03-04
+name: 'pb: breaking change to currencyservice protos'
+upgrades:
+    currency: c04

@@ -1,0 +1,81 @@
+components:
+    schemas:
+        CurrencyConversionRequest:
+            properties:
+                from:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 1
+                to_code:
+                    type: string
+                    x-proto-field-number: 2
+            type: object
+        Empty:
+            description: empty message
+            properties: {}
+            type: object
+        GetSupportedCurrenciesResponse:
+            properties:
+                currency_codes:
+                    items:
+                        type: string
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+        Money:
+            properties:
+                amount:
+                    $ref: '#/components/schemas/MoneyAmount'
+                    x-proto-field-number: 2
+                currency_code:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        MoneyAmount:
+            properties:
+                decimal:
+                    format: uint32
+                    type: integer
+                    x-proto-field-number: 1
+                fractional:
+                    format: uint32
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+info:
+    description: 'Projected from demo.proto at 22f6fcc (pb: breaking change to currencyservice protos)'
+    title: hipstershop.CurrencyService
+    version: 04-22f6fcc
+openapi: 3.0.3
+paths:
+    /hipstershop.CurrencyService/Convert:
+        post:
+            operationId: Convert
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CurrencyConversionRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Money'
+                    description: Money
+    /hipstershop.CurrencyService/GetSupportedCurrencies:
+        post:
+            operationId: GetSupportedCurrencies
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Empty'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetSupportedCurrenciesResponse'
+                    description: GetSupportedCurrenciesResponse

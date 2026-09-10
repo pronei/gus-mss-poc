@@ -1,0 +1,75 @@
+components:
+    schemas:
+        CurrencyConversionRequest:
+            properties:
+                from:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 1
+                to_code:
+                    type: string
+                    x-proto-field-number: 2
+            type: object
+        Empty:
+            description: empty message
+            properties: {}
+            type: object
+        GetSupportedCurrenciesResponse:
+            properties:
+                currency_codes:
+                    items:
+                        type: string
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+        Money:
+            properties:
+                currency_code:
+                    type: string
+                    x-proto-field-number: 1
+                nanos:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 3
+                units:
+                    format: int64
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+info:
+    description: Projected from demo.proto at 76571f5 (Clean up docs and meta files (#1721))
+    title: hipstershop.CurrencyService
+    version: 14-76571f5
+openapi: 3.0.3
+paths:
+    /hipstershop.CurrencyService/Convert:
+        post:
+            operationId: Convert
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CurrencyConversionRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Money'
+                    description: Money
+    /hipstershop.CurrencyService/GetSupportedCurrencies:
+        post:
+            operationId: GetSupportedCurrencies
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Empty'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetSupportedCurrenciesResponse'
+                    description: GetSupportedCurrenciesResponse

@@ -1,0 +1,15 @@
+baseline:
+    cart: c01
+    checkout: c01
+    currency: c01
+    email: c01
+    frontend: c01
+    payment: c01
+    productcatalog: c01
+    recommendation: c01
+    shipping: c01
+description: '01-e926f33 -> 02-0cf418d: recommender now returns ids instead of products (0cf418d)'
+id: P01-02
+name: recommender now returns ids instead of products
+upgrades:
+    recommendation: c02

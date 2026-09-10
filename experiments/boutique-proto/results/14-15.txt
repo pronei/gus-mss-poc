@@ -1,0 +1,4 @@
+=== GUS Check: [P14-15] Bump dependencies in Go services (#2716) ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

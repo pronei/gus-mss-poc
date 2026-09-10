@@ -1,0 +1,14 @@
+WIRE     checkout        CreateOrder response             Money.amount#2: message -> int64 is not wire-compatible
+WIRE     checkout        PlaceOrder response              Money.amount#2: message -> int64 is not wire-compatible
+WIRE     currency        Convert request                  Money.amount#2: message -> int64 is not wire-compatible
+WIRE     currency        Convert response                 Money.amount#2: message -> int64 is not wire-compatible
+WIRE     email           SendOrderConfirmation request    Money.amount#2: message -> int64 is not wire-compatible
+WIRE     payment         Charge request                   Money.amount#2: message -> int64 is not wire-compatible
+WIRE     productcatalog  ListProducts response            MoneyAmount.decimal#1: uint32 -> string is not wire-compatible
+SEMANTIC productcatalog  ListProducts response            MoneyAmount.fractional#2: number 2 now named "units" (old readers take "units"'s value as "fractional")
+WIRE     productcatalog  GetProduct response              MoneyAmount.decimal#1: uint32 -> string is not wire-compatible
+SEMANTIC productcatalog  GetProduct response              MoneyAmount.fractional#2: number 2 now named "units" (old readers take "units"'s value as "fractional")
+WIRE     productcatalog  SearchProducts response          MoneyAmount.decimal#1: uint32 -> string is not wire-compatible
+SEMANTIC productcatalog  SearchProducts response          MoneyAmount.fractional#2: number 2 now named "units" (old readers take "units"'s value as "fractional")
+WIRE     shipping        GetQuote response                MoneyAmount.decimal#1: uint32 -> string is not wire-compatible
+SEMANTIC shipping        GetQuote response                MoneyAmount.fractional#2: number 2 now named "units" (old readers take "units"'s value as "fractional")

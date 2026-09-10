@@ -1,0 +1,1 @@
+WIRE     recommendation  ListRecommendations response     ListRecommendationsResponse.products#1: message -> string is not wire-compatible

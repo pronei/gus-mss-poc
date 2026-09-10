@@ -1,0 +1,4 @@
+=== GUS Check: [P01-02] recommender now returns ids instead of products ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

@@ -1,0 +1,4 @@
+=== GUS Check: [P08-09] pb: fix style issue in Ads message ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

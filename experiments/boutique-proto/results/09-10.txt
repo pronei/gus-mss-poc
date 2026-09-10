@@ -1,0 +1,4 @@
+=== GUS Check: [P09-10] Initial commit for Ads Service. (#21) ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

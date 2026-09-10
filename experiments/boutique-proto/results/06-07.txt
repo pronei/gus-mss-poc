@@ -1,0 +1,4 @@
+=== GUS Check: [P06-07] checkoutservice: remove PrepareOrder rpc ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

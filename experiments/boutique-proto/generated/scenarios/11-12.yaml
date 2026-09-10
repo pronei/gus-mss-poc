@@ -1,0 +1,15 @@
+baseline:
+    ad: c11
+    cart: c11
+    checkout: c11
+    currency: c11
+    email: c11
+    frontend: c11
+    payment: c11
+    productcatalog: c11
+    recommendation: c11
+    shipping: c11
+description: '11-86c8c06 -> 12-c4d8670: Add licenses (#367) (c4d8670)'
+id: P11-12
+name: Add licenses (#367)
+upgrades: {}

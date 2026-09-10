@@ -1,0 +1,43 @@
+components:
+    schemas:
+        ListRecommendationsRequest:
+            properties:
+                product_ids:
+                    items:
+                        type: string
+                    type: array
+                    x-proto-field-number: 2
+                user_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        ListRecommendationsResponse:
+            properties:
+                product_ids:
+                    items:
+                        type: string
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: Projected from demo.proto at 6f10ac9 (breaking changes to Address in proto)
+    title: hipstershop.RecommendationService
+    version: 06-6f10ac9
+openapi: 3.0.3
+paths:
+    /hipstershop.RecommendationService/ListRecommendations:
+        post:
+            operationId: ListRecommendations
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ListRecommendationsRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListRecommendationsResponse'
+                    description: ListRecommendationsResponse

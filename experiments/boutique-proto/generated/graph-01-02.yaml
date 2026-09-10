@@ -1,0 +1,129 @@
+edges:
+    - from: frontend
+      method: POST
+      name: frontend->cart-AddItem
+      path: /hipstershop.CartService/AddItem
+      to: cart
+    - from: frontend
+      method: POST
+      name: frontend->cart-GetCart
+      path: /hipstershop.CartService/GetCart
+      to: cart
+    - from: frontend
+      method: POST
+      name: frontend->cart-EmptyCart
+      path: /hipstershop.CartService/EmptyCart
+      to: cart
+    - from: frontend
+      method: POST
+      name: frontend->productcatalog-ListProducts
+      path: /hipstershop.ProductCatalogService/ListProducts
+      to: productcatalog
+    - from: frontend
+      method: POST
+      name: frontend->productcatalog-GetProduct
+      path: /hipstershop.ProductCatalogService/GetProduct
+      to: productcatalog
+    - from: frontend
+      method: POST
+      name: frontend->currency-GetSupportedCurrencies
+      path: /hipstershop.CurrencyService/GetSupportedCurrencies
+      to: currency
+    - from: frontend
+      method: POST
+      name: frontend->currency-Convert
+      path: /hipstershop.CurrencyService/Convert
+      to: currency
+    - from: frontend
+      method: POST
+      name: frontend->recommendation-ListRecommendations
+      path: /hipstershop.RecommendationService/ListRecommendations
+      to: recommendation
+    - from: frontend
+      method: POST
+      name: frontend->shipping-GetQuote
+      path: /hipstershop.ShippingService/GetQuote
+      to: shipping
+    - from: frontend
+      method: POST
+      name: frontend->checkout-CreateOrder
+      path: /hipstershop.CheckoutService/CreateOrder
+      to: checkout
+    - from: frontend
+      method: POST
+      name: frontend->checkout-PlaceOrder
+      path: /hipstershop.CheckoutService/PlaceOrder
+      to: checkout
+    - from: checkout
+      method: POST
+      name: checkout->cart-GetCart
+      path: /hipstershop.CartService/GetCart
+      to: cart
+    - from: checkout
+      method: POST
+      name: checkout->cart-EmptyCart
+      path: /hipstershop.CartService/EmptyCart
+      to: cart
+    - from: checkout
+      method: POST
+      name: checkout->productcatalog-GetProduct
+      path: /hipstershop.ProductCatalogService/GetProduct
+      to: productcatalog
+    - from: checkout
+      method: POST
+      name: checkout->currency-Convert
+      path: /hipstershop.CurrencyService/Convert
+      to: currency
+    - from: checkout
+      method: POST
+      name: checkout->shipping-GetQuote
+      path: /hipstershop.ShippingService/GetQuote
+      to: shipping
+    - from: checkout
+      method: POST
+      name: checkout->shipping-ShipOrder
+      path: /hipstershop.ShippingService/ShipOrder
+      to: shipping
+    - from: checkout
+      method: POST
+      name: checkout->payment-Charge
+      path: /hipstershop.PaymentService/Charge
+      to: payment
+    - from: checkout
+      method: POST
+      name: checkout->email-SendOrderConfirmation
+      path: /hipstershop.EmailService/SendOrderConfirmation
+      to: email
+    - from: recommendation
+      method: POST
+      name: recommendation->productcatalog-ListProducts
+      path: /hipstershop.ProductCatalogService/ListProducts
+      to: productcatalog
+services:
+    cart:
+        c01: specs/cart/01/openapi.yaml
+        c02: specs/cart/02/openapi.yaml
+    checkout:
+        c01: specs/checkout/01/openapi.yaml
+        c02: specs/checkout/02/openapi.yaml
+    currency:
+        c01: specs/currency/01/openapi.yaml
+        c02: specs/currency/02/openapi.yaml
+    email:
+        c01: specs/email/01/openapi.yaml
+        c02: specs/email/02/openapi.yaml
+    frontend:
+        c01: specs/frontend/01/openapi.yaml
+        c02: specs/frontend/02/openapi.yaml
+    payment:
+        c01: specs/payment/01/openapi.yaml
+        c02: specs/payment/02/openapi.yaml
+    productcatalog:
+        c01: specs/productcatalog/01/openapi.yaml
+        c02: specs/productcatalog/02/openapi.yaml
+    recommendation:
+        c01: specs/recommendation/01/openapi.yaml
+        c02: specs/recommendation/02/openapi.yaml
+    shipping:
+        c01: specs/shipping/01/openapi.yaml
+        c02: specs/shipping/02/openapi.yaml

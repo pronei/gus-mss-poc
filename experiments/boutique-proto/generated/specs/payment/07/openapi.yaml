@@ -1,0 +1,71 @@
+components:
+    schemas:
+        ChargeRequest:
+            properties:
+                amount:
+                    $ref: '#/components/schemas/Money'
+                    x-proto-field-number: 1
+                credit_card:
+                    $ref: '#/components/schemas/CreditCardInfo'
+                    x-proto-field-number: 2
+            type: object
+        ChargeResponse:
+            properties:
+                transaction_id:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        CreditCardInfo:
+            properties:
+                credit_card_cvv:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 2
+                credit_card_expiration_month:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 4
+                credit_card_expiration_year:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 3
+                credit_card_number:
+                    type: string
+                    x-proto-field-number: 1
+            type: object
+        Money:
+            properties:
+                currency_code:
+                    type: string
+                    x-proto-field-number: 1
+                nanos:
+                    format: int32
+                    type: integer
+                    x-proto-field-number: 3
+                units:
+                    format: int64
+                    type: integer
+                    x-proto-field-number: 2
+            type: object
+info:
+    description: 'Projected from demo.proto at ed942a9 (checkoutservice: remove PrepareOrder rpc)'
+    title: hipstershop.PaymentService
+    version: 07-ed942a9
+openapi: 3.0.3
+paths:
+    /hipstershop.PaymentService/Charge:
+        post:
+            operationId: Charge
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChargeRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChargeResponse'
+                    description: ChargeResponse

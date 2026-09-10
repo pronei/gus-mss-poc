@@ -1,0 +1,16 @@
+baseline:
+    cart: c07
+    checkout: c07
+    currency: c07
+    email: c07
+    frontend: c07
+    payment: c07
+    productcatalog: c07
+    recommendation: c07
+    shipping: c07
+description: |-
+    07-ed942a9 -> 08-24aaa3e: Add proto for Ads Service. (24aaa3e)
+    Outside the per-edge model: frontend->ad GetAds: endpoint ADDED at 08-24aaa3e (/hipstershop.AdsService/GetAds); service ad ADDED at 08-24aaa3e (no baseline to upgrade from)
+id: P07-08
+name: Add proto for Ads Service.
+upgrades: {}

@@ -1,0 +1,49 @@
+components:
+    schemas:
+        Ad:
+            properties:
+                redirect_url:
+                    type: string
+                    x-proto-field-number: 1
+                text:
+                    type: string
+                    x-proto-field-number: 2
+            type: object
+        AdRequest:
+            properties:
+                context_keys:
+                    items:
+                        type: string
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+        AdResponse:
+            properties:
+                ads:
+                    items:
+                        $ref: '#/components/schemas/Ad'
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: Projected from demo.proto at ca90f35 (Bump dependencies in Go services (#2716))
+    title: hipstershop.AdService
+    version: 15-ca90f35
+openapi: 3.0.3
+paths:
+    /hipstershop.AdService/GetAds:
+        post:
+            operationId: GetAds
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdResponse'
+                    description: AdResponse

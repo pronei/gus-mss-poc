@@ -1,0 +1,17 @@
+baseline:
+    cart: c05
+    checkout: c05
+    currency: c05
+    email: c05
+    frontend: c05
+    payment: c05
+    productcatalog: c05
+    recommendation: c05
+    shipping: c05
+description: '05-e20ed32 -> 06-6f10ac9: breaking changes to Address in proto (6f10ac9)'
+id: P05-06
+name: breaking changes to Address in proto
+upgrades:
+    checkout: c06
+    email: c06
+    shipping: c06

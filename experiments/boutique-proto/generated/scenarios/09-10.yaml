@@ -1,0 +1,18 @@
+baseline:
+    ad: c09
+    cart: c09
+    checkout: c09
+    currency: c09
+    email: c09
+    frontend: c09
+    payment: c09
+    productcatalog: c09
+    recommendation: c09
+    shipping: c09
+description: |-
+    09-390e489 -> 10-f35fdbc: Initial commit for Ads Service. (#21) (f35fdbc)
+    Outside the per-edge model: frontend->ad GetAds: endpoint path CHANGED /hipstershop.AdsService/GetAds -> /hipstershop.AdService/GetAds
+id: P09-10
+name: Initial commit for Ads Service. (#21)
+upgrades:
+    ad: c10

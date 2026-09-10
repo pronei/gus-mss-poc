@@ -1,0 +1,4 @@
+=== GUS Check: [P05-06] breaking changes to Address in proto ===
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

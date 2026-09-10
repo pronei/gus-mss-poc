@@ -1,0 +1,5 @@
+info:
+    title: frontend (no proto; pure caller)
+    version: 03-2316e25
+openapi: 3.0.3
+paths: {}

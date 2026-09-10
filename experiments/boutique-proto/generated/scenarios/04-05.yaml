@@ -1,0 +1,20 @@
+baseline:
+    cart: c04
+    checkout: c04
+    currency: c04
+    email: c04
+    frontend: c04
+    payment: c04
+    productcatalog: c04
+    recommendation: c04
+    shipping: c04
+description: '04-22f6fcc -> 05-e20ed32: pb: breaking change to Money, remove MoneyAmount (e20ed32)'
+id: P04-05
+name: 'pb: breaking change to Money, remove MoneyAmount'
+upgrades:
+    checkout: c05
+    currency: c05
+    email: c05
+    payment: c05
+    productcatalog: c05
+    shipping: c05

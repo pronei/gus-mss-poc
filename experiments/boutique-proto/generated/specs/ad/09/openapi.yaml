@@ -1,0 +1,49 @@
+components:
+    schemas:
+        Ad:
+            properties:
+                redirect_url:
+                    type: string
+                    x-proto-field-number: 1
+                text:
+                    type: string
+                    x-proto-field-number: 2
+            type: object
+        AdsRequest:
+            properties:
+                context_keys:
+                    items:
+                        type: string
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+        AdsResponse:
+            properties:
+                ads:
+                    items:
+                        $ref: '#/components/schemas/Ad'
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: 'Projected from demo.proto at 390e489 (pb: fix style issue in Ads message)'
+    title: hipstershop.AdsService
+    version: 09-390e489
+openapi: 3.0.3
+paths:
+    /hipstershop.AdsService/GetAds:
+        post:
+            operationId: GetAds
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdsRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdsResponse'
+                    description: AdsResponse

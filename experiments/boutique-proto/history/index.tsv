@@ -1,0 +1,15 @@
+01-e926f33	2018-06-13T21:26:03Z	e926f33910aef3454943108828bb39f13b9e5531	Import proto
+02-0cf418d	2018-06-14T23:10:11Z	0cf418df99df17663371bf49b918e476ce60445e	recommender now returns ids instead of products
+03-2316e25	2018-06-20T19:20:39Z	2316e2550454fcac535cf149c558c76fb2582877	change Product.id to string
+04-22f6fcc	2018-06-20T23:58:26Z	22f6fccaf7a0bffd48d1b9c57dbef4a5e9cf6a82	pb: breaking change to currencyservice protos
+05-e20ed32	2018-06-27T19:08:20Z	e20ed325f187a19a150fa05c0cc15a5af9c7a88c	pb: breaking change to Money, remove MoneyAmount
+06-6f10ac9	2018-06-27T22:51:33Z	6f10ac979447ee2c66226a3e5da286f982bb6592	breaking changes to Address in proto
+07-ed942a9	2018-06-28T07:48:46Z	ed942a91fe5fef4404398773d5ffb75b59bb3821	checkoutservice: remove PrepareOrder rpc
+08-24aaa3e	2018-08-16T16:11:26Z	24aaa3e376a170bf60c9ccba2d255da3428d926d	Add proto for Ads Service.
+09-390e489	2018-08-16T19:50:32Z	390e489cd70c9daaa03fa29640ea42d5b79cfda3	pb: fix style issue in Ads message
+10-f35fdbc	2018-08-23T00:02:46Z	f35fdbcac332cd52b248ebd143da097aa3bb2127	Initial commit for Ads Service. (#21)
+11-86c8c06	2018-10-02T04:33:25Z	86c8c06cc1e0aa616796a19493f042466d93098d	pb: add "categories" field to Product (#60)
+12-c4d8670	2020-07-15T18:56:37Z	c4d86703c5c67e56620d04609021f96c9f230eab	Add licenses (#367)
+13-d2c729d	2021-09-23T20:56:59Z	d2c729d10700b4758dbd09062170ec02cc46b974	Update Product List to Match Cymbal Branding/Story (#600)
+14-76571f5	2023-04-27T18:42:15Z	76571f537c703c1409ae3186357d88f3e60deddc	Clean up docs and meta files (#1721)
+15-ca90f35	2024-09-05T17:22:39Z	ca90f3537ceae02e214de604f26c57e260ed9d44	Bump dependencies in Go services (#2716)

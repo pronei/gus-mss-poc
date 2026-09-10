@@ -1,0 +1,49 @@
+components:
+    schemas:
+        Ad:
+            properties:
+                redirect_url:
+                    type: string
+                    x-proto-field-number: 1
+                text:
+                    type: string
+                    x-proto-field-number: 2
+            type: object
+        AdRequest:
+            properties:
+                context_keys:
+                    items:
+                        type: string
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+        AdResponse:
+            properties:
+                ads:
+                    items:
+                        $ref: '#/components/schemas/Ad'
+                    type: array
+                    x-proto-field-number: 1
+            type: object
+info:
+    description: Projected from demo.proto at c4d8670 (Add licenses (#367))
+    title: hipstershop.AdService
+    version: 12-c4d8670
+openapi: 3.0.3
+paths:
+    /hipstershop.AdService/GetAds:
+        post:
+            operationId: GetAds
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdRequest'
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdResponse'
+                    description: AdResponse
