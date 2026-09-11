@@ -97,7 +97,9 @@ data-flow chain.
 same type, and `x-alias: <previous-name>` at a hop that renames it.
 Passthrough hops need nothing. Every simple call path from source to sink
 is validated against what each hop *sends onward*, which is what makes a
-rename detectable at all.
+rename detectable at all; the sink must read the name the last hop delivers
+(or declare `x-alias` for it), and a demand nothing in the mesh provides is a
+break, not silence.
 
 **From findings to a plan.** Each failing conjunct pins one side: a C1 or C3
 failure says the provider may only finish rolling after the caller's old
