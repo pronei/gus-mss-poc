@@ -7,8 +7,11 @@ description: >
   conjunct passes (checkout tolerates the field, email tolerates its
   absence), which is precisely why pairwise tools see nothing. The chain
   walk cannot find the identity in what checkout sends onward:
-  chain-field-missing, and since no single revert repairs the chain, the
-  whole feature trio ships together or not at all.
+  chain-field-missing. Only one revert repairs the chain: withholding the
+  demand (email v3). Reverting frontend would leave the demand with no
+  provider at all, which is not a repair; reverting checkout changes
+  nothing. So the source and the rename hop ship, and the demanding end
+  waits for the alias of E09.
 baseline:
   cart: v1
   checkout: v6
@@ -25,7 +28,7 @@ upgrades:
   frontend: v6
 expect:
   gus: FAIL
-  mss: [checkout]
+  mss: [checkout, frontend]
   breaks_exact: true
   chains:
     - key: session-trace
