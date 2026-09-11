@@ -175,8 +175,9 @@ backend, then collector, then sdk — and the batch results show it; a rename
 declared for the wrong section (1.29→1.30) or not at all (1.25→1.26) has
 none, because no hop can translate it. The 1.21.0 wave has no safe order
 either, for a different reason: the new backend needs `url.path`, which no
-old sdk emits, while every old hop needs the old names — the corpus's own
-release notes recommend exactly the flag-day the checker finds.
+old sdk emits, while every old hop needs the old names — the project's own migration guidance for that wave was dual emission
+(`OTEL_SEMCONV_STABILITY_OPT_IN=http/dup`: both names for a transition
+period), a dual-write the checker's state model has no place for.
 
 ### The safe subset
 
