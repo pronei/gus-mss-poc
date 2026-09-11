@@ -110,6 +110,16 @@ type StepObservation struct {
 	Rejected  bool       // the violation caused exclusions (the demand did not ship)
 }
 
+// KnownKeys lists every identity the ledger has ever recorded, in sorted order.
+func (l *Ledger) KnownKeys() []string {
+	keys := make([]string, 0, len(l.Identities))
+	for k := range l.Identities {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
 // RecordStep folds one step's observations into the ledger.
 func (l *Ledger) RecordStep(step string, obs []StepObservation) {
 	seen := map[string]bool{}
