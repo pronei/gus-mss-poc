@@ -5,6 +5,42 @@ All notable changes to this repository are tracked here. Format follows
 anchored to the GUS/MSS paper submission rather than semver — until the
 formalism stabilises, API changes are expected.
 
+## 0.3.5 — chains under real renames (2026-09-10)
+
+Running the chain checker over the OpenTelemetry semantic-conventions
+history (that harness lives on the `experiments` branch) exposed six gaps
+in the data-flow chain machinery. All are fixed here with regression tests;
+the corpus suites (8 cases, 11 evolution steps) and the corpus ledger are
+unchanged.
+
+### Fixed
+- A property whose name itself contains dots (`http.request.method`) was
+  looked up at intermediate hops by the last dot-separated segment of the
+  annotation path and never found. The scanner records the field's own
+  name (`chain.Annotation.Leaf`) and the walk uses it.
+- The sink was never checked: a rename at the last hop into an unchanged
+  sink passed every check. The sink must now read the delivered name —
+  exactly, case-insensitively, or through its own `x-alias`
+  (`chain-field-missing` otherwise).
+- A demand no service provides was silently skipped. It is now a
+  `chain-no-provider` break, attributed to whichever upgrade's rollback
+  restores the provider or withdraws the demand.
+- With several edges between the same pair of services, only the first
+  edge's outbound contract was searched. All are searched, preferring the
+  contract on the path the identity arrived on (`FieldLookup` gains
+  `viaPath`, `FieldInfo` gains `Path`).
+- Chains were identified across states by key and field names, so a renamed
+  endpoint field looked like a vanished (hence repaired) chain during culprit
+  attribution and produced an unsafe subset. Chains are now identified by
+  key and endpoint services.
+- The ledger dropped an identity that stopped being provided while nothing
+  demanded it. Known identities stay observed and the loss is recorded as
+  `withdrawn`.
+
+### Changed
+- Chain evaluation is memoized per fully materialized deployment state; the
+  culprit search re-evaluated the same reverted state once per broken chain.
+
 ## 0.3.4 — dialects (2026-09-09)
 
 The loader is now dialect-driven, so the checker's relation can be run over
