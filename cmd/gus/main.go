@@ -425,12 +425,15 @@ func executeGUS(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef, upgra
 			if err != nil {
 				return nil, err
 			}
-			// The revert repairs the chain if it now passes — or if it no
-			// longer exists (the revert withdrew the annotation demanding it).
+			// The revert repairs the chain if the demand it serves is now
+			// met by every chain that serves it — or if the demand is gone
+			// (the revert withdrew the annotation). A revert that removes the
+			// provider instead turns the chain into an unprovided demand,
+			// which is not a repair.
 			repaired := true
 			for _, rc := range rcs {
-				if chainID(rc) == chainID(*cr) {
-					repaired = rc.OK
+				if rc.Key == cr.Key && rc.Requirer.Service == cr.Requirer.Service && !rc.OK {
+					repaired = false
 					break
 				}
 			}
