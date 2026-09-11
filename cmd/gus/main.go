@@ -513,8 +513,8 @@ func evaluateChains(loader *specLoader, g *graph.Graph, versions map[string]stri
 		// Prefer the schema the service actually SENDS toward the next hop
 		// (its declared outbound contract for that edge); fall back to a
 		// whole-spec search when no outbound contract is declared.
-		if send := callerSendSchema(g, spec, service, next); send != nil {
-			return lookupFieldIn([]*types.Node{send}, fieldName)
+		if sends := callerSendSchemas(g, spec, service, next); len(sends) > 0 {
+			return lookupFieldIn(sends, fieldName)
 		}
 		return lookupField(spec, fieldName)
 	}
@@ -549,9 +549,12 @@ func scanMesh(loader *specLoader, g *graph.Graph, full map[string]string) (map[s
 	return specs, annotations, nil
 }
 
-// callerSendSchema returns the request schema `service` declares for its
-// outbound call to `next`, or nil if no edge or no client declaration exists.
-func callerSendSchema(g *graph.Graph, spec *schema.Spec, service, next string) *types.Node {
+// callerSendSchemas returns the request schemas `service` declares for its
+// outbound calls to `next` — one per edge between the pair, since chain paths
+// are service-level and the identity may travel along any of them. Empty
+// when no edge or no client declaration exists.
+func callerSendSchemas(g *graph.Graph, spec *schema.Spec, service, next string) []*types.Node {
+	var sends []*types.Node
 	for _, e := range g.Def.Edges {
 		if e.From != service || e.To != next {
 			continue
@@ -561,13 +564,14 @@ func callerSendSchema(g *graph.Graph, spec *schema.Spec, service, next string) *
 			Path:   filepath.ToSlash(filepath.Join("/_calls", e.To, e.Path)),
 			Method: method,
 		}]; ok {
-			return ep.Request
+			sends = append(sends, ep.Request)
+			continue
 		}
 		if ep, ok := spec.Endpoints[schema.EndpointKey{Path: e.Path, Method: method}]; ok && ep.Role == "client" {
-			return ep.Request
+			sends = append(sends, ep.Request)
 		}
 	}
-	return nil
+	return sends
 }
 
 // lookupField applies the resolver tiers over every endpoint schema of a

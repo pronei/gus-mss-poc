@@ -176,10 +176,9 @@ func observeStep(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef,
 		o := evolve.StepObservation{Key: key}
 		if provided[key] {
 			a := providers[key]
-			parts := strings.Split(a.Field, ".")
 			g8 := &evolve.Guarantee{
 				Provider: a.Service,
-				Field:    parts[len(parts)-1],
+				Field:    a.LeafName(),
 				Required: a.Required,
 				Nullable: a.Nullable,
 			}
