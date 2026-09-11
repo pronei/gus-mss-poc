@@ -400,8 +400,14 @@ func executeGUS(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef, upgra
 			continue
 		}
 		var onPathUp []string
-		for _, svc := range cr.ChainPath {
-			if _, ok := upgrades[svc]; ok {
+		candidates := append([]string(nil), cr.ChainPath...)
+		if len(candidates) == 0 { // no path (or no provider): the endpoints are the only suspects
+			candidates = append(candidates, cr.Provider.Service, cr.Requirer.Service)
+		}
+		seenCand := map[string]bool{}
+		for _, svc := range candidates {
+			if _, ok := upgrades[svc]; ok && svc != "" && !seenCand[svc] {
+				seenCand[svc] = true
 				onPathUp = append(onPathUp, svc)
 			}
 		}
@@ -464,8 +470,12 @@ func checkBaselineConsistency(loader *specLoader, g *graph.Graph, sc *graph.Scen
 	return nil
 }
 
+// chainID names a chain across deployment states: the identity and the two
+// endpoint services. Field names are deliberately left out — a rename at
+// either end changes the field, not the chain, and including them made a
+// renamed provider look like a repaired (vanished) chain during attribution.
 func chainID(cr chain.ChainResult) string {
-	return cr.Key + "|" + cr.Provider.Service + "|" + cr.Provider.Field + "|" + cr.Requirer.Service + "|" + cr.Requirer.Field
+	return cr.Key + "|" + cr.Provider.Service + "|" + cr.Requirer.Service
 }
 
 func overlay(base, upgrades map[string]string) map[string]string {
@@ -505,16 +515,28 @@ func evaluateChains(loader *specLoader, g *graph.Graph, versions map[string]stri
 		edges = append(edges, chain.EdgeInfo{Caller: e.From, Provider: e.To})
 	}
 
-	lookup := func(service, next, fieldName string) *chain.FieldInfo {
+	lookup := func(service, next, fieldName, viaPath string) *chain.FieldInfo {
 		spec, ok := specs[service]
 		if !ok {
 			return nil
 		}
 		// Prefer the schema the service actually SENDS toward the next hop
-		// (its declared outbound contract for that edge); fall back to a
-		// whole-spec search when no outbound contract is declared.
-		if sends := callerSendSchemas(g, spec, service, next); len(sends) > 0 {
-			return lookupFieldIn(sends, fieldName)
+		// (its declared outbound contract for that edge); with several edges
+		// toward the same hop, the one on the path the identity arrived on
+		// wins, then all of them. Fall back to a whole-spec search when no
+		// outbound contract is declared.
+		sends := callerSendSchemas(g, spec, service, next)
+		if len(sends) > 0 {
+			var samePath []outboundContract
+			for _, sc := range sends {
+				if sc.path == viaPath {
+					samePath = append(samePath, sc)
+				}
+			}
+			if fi := lookupInContracts(samePath, fieldName); fi != nil {
+				return fi
+			}
+			return lookupInContracts(sends, fieldName)
 		}
 		return lookupField(spec, fieldName)
 	}
@@ -549,12 +571,19 @@ func scanMesh(loader *specLoader, g *graph.Graph, full map[string]string) (map[s
 	return specs, annotations, nil
 }
 
+// outboundContract is one declared outbound request schema and the
+// provider path it targets.
+type outboundContract struct {
+	path   string
+	schema *types.Node
+}
+
 // callerSendSchemas returns the request schemas `service` declares for its
 // outbound calls to `next` — one per edge between the pair, since chain paths
 // are service-level and the identity may travel along any of them. Empty
 // when no edge or no client declaration exists.
-func callerSendSchemas(g *graph.Graph, spec *schema.Spec, service, next string) []*types.Node {
-	var sends []*types.Node
+func callerSendSchemas(g *graph.Graph, spec *schema.Spec, service, next string) []outboundContract {
+	var sends []outboundContract
 	for _, e := range g.Def.Edges {
 		if e.From != service || e.To != next {
 			continue
@@ -564,14 +593,28 @@ func callerSendSchemas(g *graph.Graph, spec *schema.Spec, service, next string) 
 			Path:   filepath.ToSlash(filepath.Join("/_calls", e.To, e.Path)),
 			Method: method,
 		}]; ok {
-			sends = append(sends, ep.Request)
+			sends = append(sends, outboundContract{path: e.Path, schema: ep.Request})
 			continue
 		}
 		if ep, ok := spec.Endpoints[schema.EndpointKey{Path: e.Path, Method: method}]; ok && ep.Role == "client" {
-			sends = append(sends, ep.Request)
+			sends = append(sends, outboundContract{path: e.Path, schema: ep.Request})
 		}
 	}
 	return sends
+}
+
+// lookupInContracts applies the resolver tiers over the given outbound
+// contracts and stamps the hit with the path it was found on.
+func lookupInContracts(contracts []outboundContract, fieldName string) *chain.FieldInfo {
+	for _, tier := range []int{0, 1, 2} {
+		for _, c := range contracts {
+			if fi := lookupFieldTier(c.schema, fieldName, tier); fi != nil {
+				fi.Path = c.path
+				return fi
+			}
+		}
+	}
+	return nil
 }
 
 // lookupField applies the resolver tiers over every endpoint schema of a
@@ -584,6 +627,31 @@ func lookupField(spec *schema.Spec, fieldName string) *chain.FieldInfo {
 		roots = append(roots, ep.Request, ep.Response)
 	}
 	return lookupFieldIn(roots, fieldName)
+}
+
+// lookupFieldTier applies one resolver tier (0 exact, 1 case-normalized,
+// 2 x-alias) over a single schema tree.
+func lookupFieldTier(root *types.Node, fieldName string, tier int) *chain.FieldInfo {
+	var hit *chain.FieldInfo
+	lower := strings.ToLower(fieldName)
+	collectFields(root, func(h fieldHit) {
+		if hit != nil {
+			return
+		}
+		match := false
+		switch tier {
+		case 0:
+			match = h.name == fieldName
+		case 1:
+			match = h.name != fieldName && strings.ToLower(h.name) == lower
+		case 2:
+			match = h.alias == fieldName
+		}
+		if match {
+			hit = &chain.FieldInfo{Name: h.name, Required: h.required, Nullable: h.nullable, Schema: h.schema}
+		}
+	})
+	return hit
 }
 
 // lookupFieldIn applies the resolver tiers over the given schema trees.
