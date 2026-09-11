@@ -33,6 +33,11 @@
       "events": [
         {
           "step": "E08",
+          "kind": "born",
+          "detail": "frontend provides it as string on field \"client_session_id\" (required=true, nullable=false)"
+        },
+        {
+          "step": "E08",
           "kind": "demanded",
           "detail": "now required by [email] — the proposal was REJECTED because the guarantee no longer holds"
         },
@@ -43,8 +48,8 @@
         },
         {
           "step": "E09",
-          "kind": "born",
-          "detail": "frontend provides it as string on field \"client_session_id\" (required=true, nullable=false)"
+          "kind": "path-changed",
+          "detail": "carrying paths changed: [] → [frontend\u003echeckout\u003eemail] — the identity now transits hops that never carried it before"
         },
         {
           "step": "E09",
