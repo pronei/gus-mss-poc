@@ -562,18 +562,8 @@ func evaluateChainsUncached(loader *specLoader, g *graph.Graph, full map[string]
 		// toward the same hop, the one on the path the identity arrived on
 		// wins, then all of them. Fall back to a whole-spec search when no
 		// outbound contract is declared.
-		sends := callerSendSchemas(g, spec, service, next)
-		if len(sends) > 0 {
-			var samePath []outboundContract
-			for _, sc := range sends {
-				if sc.path == viaPath {
-					samePath = append(samePath, sc)
-				}
-			}
-			if fi := lookupInContracts(samePath, fieldName); fi != nil {
-				return fi
-			}
-			return lookupInContracts(sends, fieldName)
+		if sends := callerSendSchemas(g, spec, service, next); len(sends) > 0 {
+			return resolveOutbound(sends, fieldName, viaPath)
 		}
 		return lookupField(spec, fieldName)
 	}
@@ -638,6 +628,25 @@ func callerSendSchemas(g *graph.Graph, spec *schema.Spec, service, next string) 
 		}
 	}
 	return sends
+}
+
+// resolveOutbound resolves a field among a service's outbound contracts
+// toward the next hop. When the service forwards on the very path the
+// identity arrived on (a pipeline or proxy), only those contracts answer —
+// a same-named field of an unrelated payload on another path must not stand
+// in for it. Only when no contract on the arrival path exists (the hop calls
+// a different path, the general mesh case) are all contracts searched.
+func resolveOutbound(sends []outboundContract, fieldName, viaPath string) *chain.FieldInfo {
+	var samePath []outboundContract
+	for _, sc := range sends {
+		if sc.path == viaPath {
+			samePath = append(samePath, sc)
+		}
+	}
+	if len(samePath) > 0 {
+		return lookupInContracts(samePath, fieldName)
+	}
+	return lookupInContracts(sends, fieldName)
 }
 
 // lookupInContracts applies the resolver tiers over the given outbound
