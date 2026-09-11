@@ -87,7 +87,7 @@ func runEvolve(args []string) {
 			continue
 		}
 
-		obs, err := observeStep(loader, g, sc, shipped, safeUpgrades, gusResult)
+		obs, err := observeStep(loader, g, sc, shipped, safeUpgrades, gusResult, ledger.KnownKeys())
 		if err != nil {
 			fatalf("step %s: %v", sc.Display(), err)
 		}
@@ -106,7 +106,7 @@ func runEvolve(args []string) {
 // PROPOSED state (what this step tried to do) — a rejected demand still
 // belongs in the history.
 func observeStep(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef,
-	shipped, safeUpgrades map[string]string, gusResult *report.GUSResult) ([]evolve.StepObservation, error) {
+	shipped, safeUpgrades map[string]string, gusResult *report.GUSResult, known []string) ([]evolve.StepObservation, error) {
 
 	_, shippedAnns, err := scanMesh(loader, g, shipped)
 	if err != nil {
@@ -163,6 +163,12 @@ func observeStep(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef,
 		keys[k] = true
 	}
 	for k := range proposedRequirers {
+		keys[k] = true
+	}
+	// An identity the ledger already tracks stays observed even when nothing
+	// provides or demands it any more: that is how a withdrawn guarantee is
+	// recorded instead of silently dropping out of the history.
+	for _, k := range known {
 		keys[k] = true
 	}
 	sortedKeys := make([]string, 0, len(keys))
