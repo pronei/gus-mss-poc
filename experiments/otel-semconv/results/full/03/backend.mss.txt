@@ -1,0 +1,20 @@
+=== GUS Check: [T03-backend] 1.18.0 -> 1.19.0: upgrade backend ===
+Decision: NO
+
+Chain cloud/cloud.resource_id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "cloud/cloud.resource_id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain faas.server/cloud.resource_id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "faas.server/cloud.resource_id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.18.0→v1.19.0 — breaks data-flow chain "cloud/cloud.resource_id" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

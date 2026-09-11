@@ -1,0 +1,20 @@
+=== GUS Check: [T23-sdk] 1.37.0 -> 1.38.0: upgrade sdk ===
+Decision: NO
+
+Chain rpc.client/network.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/network.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/network.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/network.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  sdk v1.37.0→v1.38.0 — breaks data-flow chain "rpc.client/network.type" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

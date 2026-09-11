@@ -1,0 +1,9 @@
+id: T30-backend
+name: '1.43.0 -> 1.44.0: upgrade backend'
+description: Semantic conventions 1.43.0 -> 1.44.0; backend move to 1.44.0, the rest stay at 1.43.0.
+baseline:
+  sdk: v1.43.0
+  collector: v1.43.0
+  backend: v1.43.0
+upgrades:
+  backend: v1.44.0

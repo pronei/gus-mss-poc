@@ -1,0 +1,136 @@
+=== GUS Check: [T06-sdk-collector] 1.21.0 -> 1.22.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain container/container.image.tag — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/container.image.tag" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/server.socket.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/server.socket.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/server.socket.domain — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/server.socket.domain" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/server.socket.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/server.socket.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain faas.server/cloud.resource_id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "faas.server/cloud.resource_id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain faas.server/faas.invocation_id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "faas.server/faas.invocation_id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/server.socket.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/server.socket.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/server.socket.domain — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/server.socket.domain" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/server.socket.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/server.socket.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/client.socket.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/client.socket.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/client.socket.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/client.socket.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/server.socket.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/server.socket.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/server.socket.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/server.socket.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.body.size" arrives at sink backend as field "messaging.message.body.size" but the sink reads "messaging.message.payload_size_bytes" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/messaging.message.payload_compressed_size_bytes — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.message.payload_compressed_size_bytes" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/server.socket.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/server.socket.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/server.socket.domain — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/server.socket.domain" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/server.socket.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/server.socket.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.client/server.socket.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/server.socket.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.client/server.socket.domain — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/server.socket.domain" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.client/server.socket.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/server.socket.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/client.socket.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/client.socket.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/client.socket.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/client.socket.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/server.socket.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/server.socket.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/server.socket.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/server.socket.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.21.0→v1.22.0 — breaks data-flow chain "messaging/messaging.message.body.size" (chain-field-missing)
+  sdk v1.21.0→v1.22.0 — breaks data-flow chain "container/container.image.tag" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

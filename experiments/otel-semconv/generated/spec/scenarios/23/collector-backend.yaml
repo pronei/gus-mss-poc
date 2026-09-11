@@ -1,0 +1,11 @@
+id: T23-collector-backend
+name: '1.37.0 -> 1.38.0: upgrade collector+backend'
+description: Semantic conventions 1.37.0 -> 1.38.0; collector, backend move to 1.38.0, the rest stay at
+  1.37.0.
+baseline:
+  sdk: v1.37.0
+  collector: v1.37.0
+  backend: v1.37.0
+upgrades:
+  collector: v1.38.0
+  backend: v1.38.0

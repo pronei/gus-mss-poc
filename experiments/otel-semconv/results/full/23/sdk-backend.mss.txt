@@ -1,0 +1,65 @@
+=== GUS Check: [T23-sdk-backend] 1.37.0 -> 1.38.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain process/process.args_count — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "process.args_count" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain process/process.creation.time — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "process.creation.time" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain process/process.interactive — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "process.interactive" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain process/process.title — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "process.title" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain process/process.working_directory — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "process.working_directory" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/error.type — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "error.type" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.protocol.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.protocol.version" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.server/error.type — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "error.type" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.server/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.protocol.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.server/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.protocol.version" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {sdk v1.37.0→v1.38.0}
+
+Excluded:
+  backend v1.37.0→v1.38.0 — breaks data-flow chain "process/process.args_count" (chain-field-missing)
+
+Post-hoc verification of the safe subset: FAIL (solver returned an unsafe subset — please report this)

@@ -1,0 +1,26 @@
+=== GUS Check: [T12-sdk-backend] 1.26.0 -> 1.27.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain deployment/deployment.environment.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "deployment.environment.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.consumer.group.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.consumer.group.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain messaging/messaging.destination.subscription.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.destination.subscription.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.26.0→v1.27.0 — breaks data-flow chain "messaging/messaging.consumer.group.name" (chain-field-missing)
+  sdk v1.26.0→v1.27.0 — breaks data-flow chain "deployment/deployment.environment.name" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

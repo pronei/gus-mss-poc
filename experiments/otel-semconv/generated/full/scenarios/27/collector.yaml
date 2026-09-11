@@ -1,0 +1,9 @@
+id: T27-collector
+name: '1.41.0 -> 1.41.1: upgrade collector'
+description: Semantic conventions 1.41.0 -> 1.41.1; collector move to 1.41.1, the rest stay at 1.41.0.
+baseline:
+  sdk: v1.41.0
+  collector: v1.41.0
+  backend: v1.41.0
+upgrades:
+  collector: v1.41.1

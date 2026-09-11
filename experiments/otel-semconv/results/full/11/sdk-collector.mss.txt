@@ -1,0 +1,45 @@
+=== GUS Check: [T11-sdk-collector] 1.25.0 -> 1.26.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain db.client/db.instance.id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/db.instance.id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/db.namespace — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "db.client/db.namespace" arrives at sink backend as field "db.namespace" but the sink reads "db.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk
+
+Chain db.client/db.operation.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "db.client/db.operation.name" arrives at sink backend as field "db.operation.name" but the sink reads "db.operation" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk
+
+Chain db.client/db.query.text — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "db.client/db.query.text" arrives at sink backend as field "db.query.text" but the sink reads "db.statement" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk
+
+Chain db.client/db.user — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/db.user" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.client.id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.client.id" arrives at sink backend as field "messaging.client.id" but the sink reads "messaging.client_id" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.operation.type — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.operation.type" arrives at sink backend as field "messaging.operation.type" but the sink reads "messaging.operation" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {collector v1.25.0→v1.26.0}
+
+Excluded:
+  sdk v1.25.0→v1.26.0 — breaks data-flow chain "db.client/db.instance.id" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

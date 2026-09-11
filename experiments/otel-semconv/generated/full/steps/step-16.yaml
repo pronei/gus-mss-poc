@@ -1,0 +1,11 @@
+id: T16
+name: 1.30.0 -> 1.31.0
+description: 'Rollout step: every service moves from semantic conventions 1.30.0 to 1.31.0.'
+baseline:
+  sdk: v1.30.0
+  collector: v1.30.0
+  backend: v1.30.0
+upgrades:
+  sdk: v1.31.0
+  collector: v1.31.0
+  backend: v1.31.0

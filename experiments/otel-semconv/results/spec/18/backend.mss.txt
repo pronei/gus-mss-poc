@@ -1,0 +1,3 @@
+Decision: YES
+
+All upgrades are safe. No MSS computation needed.

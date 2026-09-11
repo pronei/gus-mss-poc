@@ -1,0 +1,11 @@
+id: T22
+name: 1.36.0 -> 1.37.0
+description: 'Rollout step: every service moves from semantic conventions 1.36.0 to 1.37.0.'
+baseline:
+  sdk: v1.36.0
+  collector: v1.36.0
+  backend: v1.36.0
+upgrades:
+  sdk: v1.37.0
+  collector: v1.37.0
+  backend: v1.37.0

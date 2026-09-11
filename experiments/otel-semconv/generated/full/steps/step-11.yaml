@@ -1,0 +1,11 @@
+id: T11
+name: 1.25.0 -> 1.26.0
+description: 'Rollout step: every service moves from semantic conventions 1.25.0 to 1.26.0.'
+baseline:
+  sdk: v1.25.0
+  collector: v1.25.0
+  backend: v1.25.0
+upgrades:
+  sdk: v1.26.0
+  collector: v1.26.0
+  backend: v1.26.0

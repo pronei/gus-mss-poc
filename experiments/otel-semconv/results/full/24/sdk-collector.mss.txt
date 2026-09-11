@@ -1,0 +1,41 @@
+=== GUS Check: [T24-sdk-collector] 1.38.0 -> 1.39.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain rpc.client/rpc.service — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/rpc.service" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.client/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "rpc.client/rpc.system.name" arrives at sink backend as field "rpc.system.name" but the sink reads "rpc.system" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain rpc.server/rpc.service — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/rpc.service" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "rpc.server/rpc.system.name" arrives at sink backend as field "rpc.system.name" but the sink reads "rpc.system" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain service/service.instance.id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "service/service.instance.id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain service/service.namespace — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "service/service.namespace" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.38.0→v1.39.0 — breaks data-flow chain "rpc.client/rpc.system.name" (chain-field-missing)
+  sdk v1.38.0→v1.39.0 — breaks data-flow chain "rpc.client/rpc.service" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

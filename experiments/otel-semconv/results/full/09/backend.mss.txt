@@ -1,0 +1,25 @@
+=== GUS Check: [T09-backend] 1.23.1 -> 1.24.0: upgrade backend ===
+Decision: NO
+
+Chain db.client/db.instance.id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/db.instance.id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain messaging/error.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/error.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain messaging/server.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/server.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.23.1→v1.24.0 — breaks data-flow chain "db.client/db.instance.id" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

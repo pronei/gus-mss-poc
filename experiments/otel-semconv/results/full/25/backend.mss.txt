@@ -1,0 +1,15 @@
+=== GUS Check: [T25-backend] 1.39.0 -> 1.40.0: upgrade backend ===
+Decision: NO
+
+Chain service/service.criticality — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "service/service.criticality" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.39.0→v1.40.0 — breaks data-flow chain "service/service.criticality" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

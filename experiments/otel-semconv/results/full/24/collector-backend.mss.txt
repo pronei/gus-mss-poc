@@ -1,0 +1,45 @@
+=== GUS Check: [T24-collector-backend] 1.38.0 -> 1.39.0: upgrade collector+backend ===
+Decision: NO
+
+Chain k8s.pod/k8s.pod.hostname — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "k8s.pod/k8s.pod.hostname" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain k8s.pod/k8s.pod.ip — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "k8s.pod/k8s.pod.ip" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain k8s.pod/k8s.pod.start_time — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "k8s.pod/k8s.pod.start_time" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/rpc.method_original — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/rpc.method_original" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/rpc.response.status_code — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/rpc.response.status_code" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.server/rpc.method_original — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/rpc.method_original" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.server/rpc.response.status_code — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/rpc.response.status_code" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.38.0→v1.39.0}
+
+Excluded:
+  backend v1.38.0→v1.39.0 — breaks data-flow chain "k8s.pod/k8s.pod.hostname" (chain-no-provider)
+
+Post-hoc verification of the safe subset: FAIL (solver returned an unsafe subset — please report this)

@@ -1,0 +1,9 @@
+id: T21-backend
+name: '1.35.0 -> 1.36.0: upgrade backend'
+description: Semantic conventions 1.35.0 -> 1.36.0; backend move to 1.36.0, the rest stay at 1.35.0.
+baseline:
+  sdk: v1.35.0
+  collector: v1.35.0
+  backend: v1.35.0
+upgrades:
+  backend: v1.36.0

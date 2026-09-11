@@ -1,0 +1,90 @@
+=== GUS Check: [T14-backend] 1.28.0 -> 1.29.0: upgrade backend ===
+Decision: NO
+
+Chain db.client/db.query.summary — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/db.query.summary" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain db.client/db.response.returned_rows — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/db.response.returned_rows" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/http.request.body.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/http.request.body.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/http.request.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/http.request.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/http.response.body.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/http.response.body.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/http.response.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/http.response.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/url.template — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/url.template" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/user_agent.synthetic.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/user_agent.synthetic.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/http.request.body.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/http.request.body.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/http.request.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/http.request.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/http.response.body.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/http.response.body.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/http.response.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/http.response.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/user_agent.synthetic.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/user_agent.synthetic.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain process/process.linux.cgroup — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "process/process.linux.cgroup" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain service/service.instance.id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "service/service.instance.id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain service/service.namespace — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "service/service.namespace" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.28.0→v1.29.0 — breaks data-flow chain "db.client/db.query.summary" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

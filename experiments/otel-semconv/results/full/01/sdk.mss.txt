@@ -1,0 +1,60 @@
+=== GUS Check: [T01-sdk] 1.16.0 -> 1.17.0: upgrade sdk ===
+Decision: NO
+
+Chain messaging/messaging.destination — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.destination" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.destination_kind — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.destination_kind" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.payload_size_bytes" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.conversation_id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.conversation_id" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.id" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.payload_compressed_size_bytes — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.payload_compressed_size_bytes" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.temp_destination — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.temp_destination" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.url — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.url" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "net.app.protocol.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "net.app.protocol.version" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  sdk v1.16.0→v1.17.0 — breaks data-flow chain "messaging/messaging.destination" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

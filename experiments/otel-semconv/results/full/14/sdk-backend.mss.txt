@@ -1,0 +1,90 @@
+=== GUS Check: [T14-sdk-backend] 1.28.0 -> 1.29.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain db.client/db.query.summary — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "db.query.summary" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain db.client/db.response.returned_rows — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "db.response.returned_rows" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/http.request.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.request.body.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/http.request.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.request.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/http.response.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.response.body.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/http.response.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.response.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/url.template — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "url.template" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/user_agent.synthetic.type — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "user_agent.synthetic.type" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/http.request.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.request.body.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/http.request.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.request.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/http.response.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.response.body.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/http.response.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.response.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/user_agent.synthetic.type — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "user_agent.synthetic.type" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain process/process.linux.cgroup — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "process.linux.cgroup" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain service/service.instance.id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "service.instance.id" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain service/service.namespace — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "service.namespace" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {sdk v1.28.0→v1.29.0}
+
+Excluded:
+  backend v1.28.0→v1.29.0 — breaks data-flow chain "db.client/db.query.summary" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

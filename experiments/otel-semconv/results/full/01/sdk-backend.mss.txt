@@ -1,0 +1,51 @@
+=== GUS Check: [T01-sdk-backend] 1.16.0 -> 1.17.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain messaging/messaging.batch.message_count — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.batch.message_count" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain messaging/messaging.message.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.payload_size_bytes" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.conversation_id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.conversation_id" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.id" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.payload_compressed_size_bytes — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.payload_compressed_size_bytes" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.operation.type — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.operation" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain messaging/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "net.app.protocol.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "net.app.protocol.version" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.16.0→v1.17.0 — breaks data-flow chain "messaging/messaging.batch.message_count" (chain-field-missing)
+  sdk v1.16.0→v1.17.0 — breaks data-flow chain "messaging/messaging.message.body.size" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

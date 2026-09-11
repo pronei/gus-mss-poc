@@ -1,0 +1,20 @@
+=== GUS Check: [T26-collector-backend] 1.40.0 -> 1.41.0: upgrade collector+backend ===
+Decision: NO
+
+Chain process/process.creation.time — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "process.creation.time" is optional at source sdk but identity "process/process.creation.time" must arrive present at sink backend
+  attributed within the batch to: backend
+
+Chain process/process.pid — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "process.pid" is optional at source sdk but identity "process/process.pid" must arrive present at sink backend
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.40.0→v1.41.0}
+
+Excluded:
+  backend v1.40.0→v1.41.0 — breaks data-flow chain "process/process.creation.time" (chain-weakened)
+
+Post-hoc verification of the safe subset: PASS

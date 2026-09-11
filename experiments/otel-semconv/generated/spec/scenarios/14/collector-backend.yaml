@@ -1,0 +1,11 @@
+id: T14-collector-backend
+name: '1.28.0 -> 1.29.0: upgrade collector+backend'
+description: Semantic conventions 1.28.0 -> 1.29.0; collector, backend move to 1.29.0, the rest stay at
+  1.28.0.
+baseline:
+  sdk: v1.28.0
+  collector: v1.28.0
+  backend: v1.28.0
+upgrades:
+  collector: v1.29.0
+  backend: v1.29.0

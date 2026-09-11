@@ -1,0 +1,9 @@
+id: T12-sdk
+name: '1.26.0 -> 1.27.0: upgrade sdk'
+description: Semantic conventions 1.26.0 -> 1.27.0; sdk move to 1.27.0, the rest stay at 1.26.0.
+baseline:
+  sdk: v1.26.0
+  collector: v1.26.0
+  backend: v1.26.0
+upgrades:
+  sdk: v1.27.0

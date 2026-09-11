@@ -1,0 +1,11 @@
+id: T16-collector-backend
+name: '1.30.0 -> 1.31.0: upgrade collector+backend'
+description: Semantic conventions 1.30.0 -> 1.31.0; collector, backend move to 1.31.0, the rest stay at
+  1.30.0.
+baseline:
+  sdk: v1.30.0
+  collector: v1.30.0
+  backend: v1.30.0
+upgrades:
+  collector: v1.31.0
+  backend: v1.31.0

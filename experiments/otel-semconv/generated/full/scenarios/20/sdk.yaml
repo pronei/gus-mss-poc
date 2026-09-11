@@ -1,0 +1,9 @@
+id: T20-sdk
+name: '1.34.0 -> 1.35.0: upgrade sdk'
+description: Semantic conventions 1.34.0 -> 1.35.0; sdk move to 1.35.0, the rest stay at 1.34.0.
+baseline:
+  sdk: v1.34.0
+  collector: v1.34.0
+  backend: v1.34.0
+upgrades:
+  sdk: v1.35.0

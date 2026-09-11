@@ -1,0 +1,9 @@
+id: T26-sdk
+name: '1.40.0 -> 1.41.0: upgrade sdk'
+description: Semantic conventions 1.40.0 -> 1.41.0; sdk move to 1.41.0, the rest stay at 1.40.0.
+baseline:
+  sdk: v1.40.0
+  collector: v1.40.0
+  backend: v1.40.0
+upgrades:
+  sdk: v1.41.0

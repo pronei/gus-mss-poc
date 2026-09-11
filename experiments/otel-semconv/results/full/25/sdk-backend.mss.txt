@@ -1,0 +1,15 @@
+=== GUS Check: [T25-sdk-backend] 1.39.0 -> 1.40.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain service/service.criticality — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "service.criticality" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {sdk v1.39.0→v1.40.0}
+
+Excluded:
+  backend v1.39.0→v1.40.0 — breaks data-flow chain "service/service.criticality" (chain-field-missing)
+
+Post-hoc verification of the safe subset: FAIL (solver returned an unsafe subset — please report this)

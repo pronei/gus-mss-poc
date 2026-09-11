@@ -1,0 +1,15 @@
+=== GUS Check: [T10-collector-backend] 1.24.0 -> 1.25.0: upgrade collector+backend ===
+Decision: NO
+
+Chain messaging/messaging.destination.partition.id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.destination.partition.id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.24.0→v1.25.0}
+
+Excluded:
+  backend v1.24.0→v1.25.0 — breaks data-flow chain "messaging/messaging.destination.partition.id" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

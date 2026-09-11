@@ -1,0 +1,184 @@
+===== profile spec =====
+      87  chains expected broken
+      87  chains reported broken
+      37  decision NO
+       0  edge (pair-relation) breaks
+      37  mss computed
+      35  mss subset maximal per oracle
+      35  mss subset safe per oracle
+      35  post-hoc PASS
+     210  runs
+     210  scenarios: broken set agrees
+     210  scenarios: broken set and rules agree
+
+  ledger (270 identities, 30 steps):
+     135  added: expected
+     135  added: found in ledger
+       3  demoted: expected
+       3  demoted: found in ledger
+       7  promoted: expected
+       7  promoted: found in ledger
+      43  renamed: expected
+      43  renamed: found in ledger
+     117  withdrawn: expected
+     117  withdrawn: found in ledger
+  unpredicted ledger events by kind: {}
+
+
+  per scenario: step  releases  batch  decision  mss-safe  oracle-best-size  post-hoc  mss-safe-per-oracle  rules
+    01  1.16.0->1.17.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    01  1.16.0->1.17.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    01  1.16.0->1.17.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    01  1.16.0->1.17.0  sdk-backend  NO  sdk  0  FAIL  False  ['chain-field-missing']
+    01  1.16.0->1.17.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    04  1.19.0->1.20.0  backend  NO  -  0  PASS  True  ['chain-weakened']
+    04  1.19.0->1.20.0  collector-backend  NO  collector  1  PASS  True  ['chain-weakened']
+    05  1.20.0->1.21.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider', 'chain-weakened']
+    05  1.20.0->1.21.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    05  1.20.0->1.21.0  backend  NO  -  0  PASS  True  ['chain-no-provider', 'chain-weakened']
+    05  1.20.0->1.21.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider', 'chain-weakened']
+    05  1.20.0->1.21.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    05  1.20.0->1.21.0  collector-backend  NO  collector  0  FAIL  False  ['chain-no-provider', 'chain-weakened']
+    07  1.22.0->1.23.0  backend  NO  -  0  PASS  True  ['chain-weakened']
+    07  1.22.0->1.23.0  collector-backend  NO  collector  1  PASS  True  ['chain-weakened']
+    11  1.25.0->1.26.0  sdk  NO  -  0  PASS  True  ['chain-field-missing']
+    11  1.25.0->1.26.0  backend  NO  -  0  PASS  True  ['chain-field-missing']
+    11  1.25.0->1.26.0  sdk-collector  NO  collector  1  PASS  True  ['chain-field-missing']
+    11  1.25.0->1.26.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    11  1.25.0->1.26.0  collector-backend  NO  collector  1  PASS  True  ['chain-field-missing']
+    12  1.26.0->1.27.0  sdk  NO  -  0  PASS  True  ['chain-weakened']
+    12  1.26.0->1.27.0  backend  NO  -  0  PASS  True  ['chain-weakened']
+    12  1.26.0->1.27.0  sdk-collector  NO  collector  1  PASS  True  ['chain-weakened']
+    12  1.26.0->1.27.0  collector-backend  NO  collector  1  PASS  True  ['chain-weakened']
+    15  1.29.0->1.30.0  sdk  NO  -  0  PASS  True  ['chain-field-missing']
+    15  1.29.0->1.30.0  backend  NO  -  0  PASS  True  ['chain-field-missing']
+    15  1.29.0->1.30.0  sdk-collector  NO  collector  1  PASS  True  ['chain-field-missing']
+    15  1.29.0->1.30.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    15  1.29.0->1.30.0  collector-backend  NO  collector  1  PASS  True  ['chain-field-missing']
+    16  1.30.0->1.31.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    16  1.30.0->1.31.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    24  1.38.0->1.39.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-weakened']
+    24  1.38.0->1.39.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    24  1.38.0->1.39.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing', 'chain-weakened']
+    24  1.38.0->1.39.0  sdk-backend  NO  backend  1  PASS  True  ['chain-field-missing']
+    26  1.40.0->1.41.0  backend  NO  -  0  PASS  True  ['chain-weakened']
+    26  1.40.0->1.41.0  collector-backend  NO  collector  1  PASS  True  ['chain-weakened']
+
+===== profile full =====
+     854  chains expected broken
+     854  chains reported broken
+      93  decision NO
+       0  edge (pair-relation) breaks
+      93  mss computed
+      82  mss subset maximal per oracle
+      82  mss subset safe per oracle
+      82  post-hoc PASS
+     210  runs
+     210  scenarios: broken set agrees
+     210  scenarios: broken set and rules agree
+
+  ledger (270 identities, 30 steps):
+     135  added: expected
+     135  added: found in ledger
+      43  renamed: expected
+      43  renamed: found in ledger
+     117  withdrawn: expected
+     117  withdrawn: found in ledger
+  unpredicted ledger events by kind: {}
+
+
+  per scenario: step  releases  batch  decision  mss-safe  oracle-best-size  post-hoc  mss-safe-per-oracle  rules
+    01  1.16.0->1.17.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    01  1.16.0->1.17.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    01  1.16.0->1.17.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    01  1.16.0->1.17.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    01  1.16.0->1.17.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    01  1.16.0->1.17.0  collector-backend  NO  collector  0  FAIL  False  ['chain-no-provider']
+    03  1.18.0->1.19.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    03  1.18.0->1.19.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    03  1.18.0->1.19.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    03  1.18.0->1.19.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    03  1.18.0->1.19.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    03  1.18.0->1.19.0  collector-backend  NO  collector  0  FAIL  False  ['chain-no-provider']
+    04  1.19.0->1.20.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    04  1.19.0->1.20.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    04  1.19.0->1.20.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    04  1.19.0->1.20.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    04  1.19.0->1.20.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    04  1.19.0->1.20.0  collector-backend  NO  collector  0  FAIL  False  ['chain-no-provider']
+    05  1.20.0->1.21.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    05  1.20.0->1.21.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    05  1.20.0->1.21.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    05  1.20.0->1.21.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    05  1.20.0->1.21.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    05  1.20.0->1.21.0  collector-backend  NO  collector  0  FAIL  False  ['chain-no-provider']
+    06  1.21.0->1.22.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    06  1.21.0->1.22.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    06  1.21.0->1.22.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    06  1.21.0->1.22.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    06  1.21.0->1.22.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    06  1.21.0->1.22.0  collector-backend  NO  collector  0  FAIL  False  ['chain-no-provider']
+    07  1.22.0->1.23.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    07  1.22.0->1.23.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    07  1.22.0->1.23.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    07  1.22.0->1.23.0  sdk-backend  NO  sdk  0  FAIL  False  ['chain-field-missing']
+    07  1.22.0->1.23.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    09  1.23.1->1.24.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    09  1.23.1->1.24.0  sdk-backend  NO  sdk  1  PASS  True  ['chain-field-missing']
+    09  1.23.1->1.24.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    10  1.24.0->1.25.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    10  1.24.0->1.25.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    10  1.24.0->1.25.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    10  1.24.0->1.25.0  sdk-backend  NO  sdk  0  FAIL  False  ['chain-field-missing']
+    10  1.24.0->1.25.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    11  1.25.0->1.26.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    11  1.25.0->1.26.0  backend  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    11  1.25.0->1.26.0  sdk-collector  NO  collector  1  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    11  1.25.0->1.26.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    11  1.25.0->1.26.0  collector-backend  NO  collector  1  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    12  1.26.0->1.27.0  sdk  NO  -  0  PASS  True  ['chain-field-missing']
+    12  1.26.0->1.27.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    12  1.26.0->1.27.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    12  1.26.0->1.27.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing']
+    12  1.26.0->1.27.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    12  1.26.0->1.27.0  collector-backend  NO  collector  0  FAIL  False  ['chain-no-provider']
+    13  1.27.0->1.28.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    13  1.27.0->1.28.0  sdk-backend  NO  sdk  1  PASS  True  ['chain-field-missing']
+    13  1.27.0->1.28.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    14  1.28.0->1.29.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    14  1.28.0->1.29.0  sdk-backend  NO  sdk  1  PASS  True  ['chain-field-missing']
+    14  1.28.0->1.29.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    15  1.29.0->1.30.0  sdk  NO  -  0  PASS  True  ['chain-field-missing']
+    15  1.29.0->1.30.0  backend  NO  -  0  PASS  True  ['chain-field-missing']
+    15  1.29.0->1.30.0  sdk-collector  NO  collector  1  PASS  True  ['chain-field-missing']
+    15  1.29.0->1.30.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    15  1.29.0->1.30.0  collector-backend  NO  collector  1  PASS  True  ['chain-field-missing']
+    16  1.30.0->1.31.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    16  1.30.0->1.31.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    18  1.32.0->1.33.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    18  1.32.0->1.33.0  sdk-backend  NO  sdk  1  PASS  True  ['chain-field-missing']
+    18  1.32.0->1.33.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    22  1.36.0->1.37.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    22  1.36.0->1.37.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    23  1.37.0->1.38.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    23  1.37.0->1.38.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    23  1.37.0->1.38.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    23  1.37.0->1.38.0  sdk-backend  NO  sdk  0  FAIL  False  ['chain-field-missing']
+    23  1.37.0->1.38.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    24  1.38.0->1.39.0  sdk  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    24  1.38.0->1.39.0  collector  NO  -  0  PASS  True  ['chain-field-missing']
+    24  1.38.0->1.39.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    24  1.38.0->1.39.0  sdk-collector  NO  -  0  PASS  True  ['chain-field-missing', 'chain-no-provider']
+    24  1.38.0->1.39.0  sdk-backend  NO  -  0  PASS  True  ['chain-field-missing']
+    24  1.38.0->1.39.0  collector-backend  NO  collector  0  FAIL  False  ['chain-no-provider']
+    25  1.39.0->1.40.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    25  1.39.0->1.40.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    25  1.39.0->1.40.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    25  1.39.0->1.40.0  sdk-backend  NO  sdk  0  FAIL  False  ['chain-field-missing']
+    25  1.39.0->1.40.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+    26  1.40.0->1.41.0  sdk  NO  -  0  PASS  True  ['chain-no-provider']
+    26  1.40.0->1.41.0  sdk-collector  NO  collector  1  PASS  True  ['chain-no-provider']
+    30  1.43.0->1.44.0  backend  NO  -  0  PASS  True  ['chain-no-provider']
+    30  1.43.0->1.44.0  sdk-backend  NO  sdk  1  PASS  True  ['chain-field-missing']
+    30  1.43.0->1.44.0  collector-backend  NO  collector  1  PASS  True  ['chain-no-provider']
+

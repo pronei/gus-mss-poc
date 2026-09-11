@@ -1,0 +1,1006 @@
+openapi: 3.0.0
+info:
+  title: backend
+  version: 1.23.0
+  description: backend implementing OpenTelemetry semantic conventions 1.23.0 (semantic-conventions@da1dbb567f0f)
+paths:
+  /v1/traces/http.server:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client.address:
+                  type: string
+                  x-requires: http.server/client.address
+                client.port:
+                  type: integer
+                  format: int64
+                  x-requires: http.server/client.port
+                error.type:
+                  type: string
+                  x-requires: http.server/error.type
+                http.request.method:
+                  type: string
+                  x-requires: http.server/http.request.method
+                http.request.method_original:
+                  type: string
+                  x-requires: http.server/http.request.method_original
+                http.response.status_code:
+                  type: integer
+                  format: int64
+                  x-requires: http.server/http.response.status_code
+                http.route:
+                  type: string
+                  x-requires: http.server/http.route
+                network.local.address:
+                  type: string
+                  x-requires: http.server/network.local.address
+                network.local.port:
+                  type: integer
+                  format: int64
+                  x-requires: http.server/network.local.port
+                network.peer.address:
+                  type: string
+                  x-requires: http.server/network.peer.address
+                network.peer.port:
+                  type: integer
+                  format: int64
+                  x-requires: http.server/network.peer.port
+                network.protocol.name:
+                  type: string
+                  x-requires: http.server/network.protocol.name
+                network.protocol.version:
+                  type: string
+                  x-requires: http.server/network.protocol.version
+                network.transport:
+                  type: string
+                  x-requires: http.server/network.transport
+                server.address:
+                  type: string
+                  x-requires: http.server/server.address
+                server.port:
+                  type: integer
+                  format: int64
+                  x-requires: http.server/server.port
+                url.path:
+                  type: string
+                  x-requires: http.server/url.path
+                url.query:
+                  type: string
+                  x-requires: http.server/url.query
+                url.scheme:
+                  type: string
+                  x-requires: http.server/url.scheme
+                user_agent.original:
+                  type: string
+                  x-requires: http.server/user_agent.original
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/traces/http.client:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error.type:
+                  type: string
+                  x-requires: http.client/error.type
+                http.request.method:
+                  type: string
+                  x-requires: http.client/http.request.method
+                http.request.method_original:
+                  type: string
+                  x-requires: http.client/http.request.method_original
+                http.request.resend_count:
+                  type: integer
+                  format: int64
+                  x-requires: http.client/http.request.resend_count
+                http.response.status_code:
+                  type: integer
+                  format: int64
+                  x-requires: http.client/http.response.status_code
+                network.peer.address:
+                  type: string
+                  x-requires: http.client/network.peer.address
+                network.peer.port:
+                  type: integer
+                  format: int64
+                  x-requires: http.client/network.peer.port
+                network.protocol.name:
+                  type: string
+                  x-requires: http.client/network.protocol.name
+                network.protocol.version:
+                  type: string
+                  x-requires: http.client/network.protocol.version
+                network.transport:
+                  type: string
+                  x-requires: http.client/network.transport
+                server.address:
+                  type: string
+                  x-requires: http.client/server.address
+                server.port:
+                  type: integer
+                  format: int64
+                  x-requires: http.client/server.port
+                url.full:
+                  type: string
+                  x-requires: http.client/url.full
+                url.scheme:
+                  type: string
+                  x-requires: http.client/url.scheme
+                user_agent.original:
+                  type: string
+                  x-requires: http.client/user_agent.original
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/traces/db.client:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                db.connection_string:
+                  type: string
+                  x-requires: db.client/db.connection_string
+                db.jdbc.driver_classname:
+                  type: string
+                  x-requires: db.client/db.jdbc.driver_classname
+                db.name:
+                  type: string
+                  x-requires: db.client/db.namespace
+                db.operation:
+                  type: string
+                  x-requires: db.client/db.operation.name
+                db.statement:
+                  type: string
+                  x-requires: db.client/db.query.text
+                db.system:
+                  type: string
+                  x-requires: db.client/db.system.name
+                db.user:
+                  type: string
+                  x-requires: db.client/db.user
+                network.peer.address:
+                  type: string
+                  x-requires: db.client/network.peer.address
+                network.peer.port:
+                  type: integer
+                  format: int64
+                  x-requires: db.client/network.peer.port
+                network.transport:
+                  type: string
+                  x-requires: db.client/network.transport
+                network.type:
+                  type: string
+                  x-requires: db.client/network.type
+                server.address:
+                  type: string
+                  x-requires: db.client/server.address
+                server.port:
+                  type: integer
+                  format: int64
+                  x-requires: db.client/server.port
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/traces/rpc.server:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client.address:
+                  type: string
+                  x-requires: rpc.server/client.address
+                client.port:
+                  type: integer
+                  format: int64
+                  x-requires: rpc.server/client.port
+                network.peer.address:
+                  type: string
+                  x-requires: rpc.server/network.peer.address
+                network.peer.port:
+                  type: integer
+                  format: int64
+                  x-requires: rpc.server/network.peer.port
+                network.transport:
+                  type: string
+                  x-requires: rpc.server/network.transport
+                network.type:
+                  type: string
+                  x-requires: rpc.server/network.type
+                rpc.method:
+                  type: string
+                  x-requires: rpc.server/rpc.method
+                rpc.service:
+                  type: string
+                  x-requires: rpc.server/rpc.service
+                rpc.system:
+                  type: string
+                  x-requires: rpc.server/rpc.system.name
+                server.address:
+                  type: string
+                  x-requires: rpc.server/server.address
+                server.port:
+                  type: integer
+                  format: int64
+                  x-requires: rpc.server/server.port
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/traces/rpc.client:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network.peer.address:
+                  type: string
+                  x-requires: rpc.client/network.peer.address
+                network.peer.port:
+                  type: integer
+                  format: int64
+                  x-requires: rpc.client/network.peer.port
+                network.transport:
+                  type: string
+                  x-requires: rpc.client/network.transport
+                network.type:
+                  type: string
+                  x-requires: rpc.client/network.type
+                rpc.method:
+                  type: string
+                  x-requires: rpc.client/rpc.method
+                rpc.service:
+                  type: string
+                  x-requires: rpc.client/rpc.service
+                rpc.system:
+                  type: string
+                  x-requires: rpc.client/rpc.system.name
+                server.address:
+                  type: string
+                  x-requires: rpc.client/server.address
+                server.port:
+                  type: integer
+                  format: int64
+                  x-requires: rpc.client/server.port
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/traces/graphql.server:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                graphql.document:
+                  type: string
+                  x-requires: graphql.server/graphql.document
+                graphql.operation.name:
+                  type: string
+                  x-requires: graphql.server/graphql.operation.name
+                graphql.operation.type:
+                  type: string
+                  x-requires: graphql.server/graphql.operation.type
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/traces/messaging:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messaging.batch.message_count:
+                  type: integer
+                  format: int64
+                  x-requires: messaging/messaging.batch.message_count
+                messaging.client_id:
+                  type: string
+                  x-requires: messaging/messaging.client.id
+                messaging.destination.anonymous:
+                  type: boolean
+                  x-requires: messaging/messaging.destination.anonymous
+                messaging.destination.name:
+                  type: string
+                  x-requires: messaging/messaging.destination.name
+                messaging.destination.template:
+                  type: string
+                  x-requires: messaging/messaging.destination.template
+                messaging.destination.temporary:
+                  type: boolean
+                  x-requires: messaging/messaging.destination.temporary
+                messaging.message.body.size:
+                  type: integer
+                  format: int64
+                  x-requires: messaging/messaging.message.body.size
+                messaging.message.conversation_id:
+                  type: string
+                  x-requires: messaging/messaging.message.conversation_id
+                messaging.message.envelope.size:
+                  type: integer
+                  format: int64
+                  x-requires: messaging/messaging.message.envelope.size
+                messaging.message.id:
+                  type: string
+                  x-requires: messaging/messaging.message.id
+                messaging.operation:
+                  type: string
+                  x-requires: messaging/messaging.operation.type
+                messaging.system:
+                  type: string
+                  x-requires: messaging/messaging.system
+                network.peer.address:
+                  type: string
+                  x-requires: messaging/network.peer.address
+                network.peer.port:
+                  type: integer
+                  format: int64
+                  x-requires: messaging/network.peer.port
+                network.protocol.name:
+                  type: string
+                  x-requires: messaging/network.protocol.name
+                network.protocol.version:
+                  type: string
+                  x-requires: messaging/network.protocol.version
+                network.transport:
+                  type: string
+                  x-requires: messaging/network.transport
+                network.type:
+                  type: string
+                  x-requires: messaging/network.type
+                server.address:
+                  type: string
+                  x-requires: messaging/server.address
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/traces/faas.server:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                faas.coldstart:
+                  type: boolean
+                  x-requires: faas.server/faas.coldstart
+                faas.trigger:
+                  type: string
+                  x-requires: faas.server/faas.trigger
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/service:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service.name:
+                  type: string
+                  x-requires: service/service.name
+                service.version:
+                  type: string
+                  x-requires: service/service.version
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/host:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                host.arch:
+                  type: string
+                  x-requires: host/host.arch
+                host.id:
+                  type: string
+                  x-requires: host/host.id
+                host.image.id:
+                  type: string
+                  x-requires: host/host.image.id
+                host.image.name:
+                  type: string
+                  x-requires: host/host.image.name
+                host.image.version:
+                  type: string
+                  x-requires: host/host.image.version
+                host.ip:
+                  type: array
+                  items:
+                    type: string
+                  x-requires: host/host.ip
+                host.mac:
+                  type: array
+                  items:
+                    type: string
+                  x-requires: host/host.mac
+                host.name:
+                  type: string
+                  x-requires: host/host.name
+                host.type:
+                  type: string
+                  x-requires: host/host.type
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/container:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                container.command:
+                  type: string
+                  x-requires: container/container.command
+                container.command_args:
+                  type: array
+                  items:
+                    type: string
+                  x-requires: container/container.command_args
+                container.command_line:
+                  type: string
+                  x-requires: container/container.command_line
+                container.id:
+                  type: string
+                  x-requires: container/container.id
+                container.image.id:
+                  type: string
+                  x-requires: container/container.image.id
+                container.image.name:
+                  type: string
+                  x-requires: container/container.image.name
+                container.image.repo_digests:
+                  type: array
+                  items:
+                    type: string
+                  x-requires: container/container.image.repo_digests
+                container.image.tags:
+                  type: array
+                  items:
+                    type: string
+                  x-requires: container/container.image.tags
+                container.name:
+                  type: string
+                  x-requires: container/container.name
+                container.runtime:
+                  type: string
+                  x-requires: container/container.runtime
+                oci.manifest.digest:
+                  type: string
+                  x-requires: container/oci.manifest.digest
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/k8s.pod:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                k8s.pod.name:
+                  type: string
+                  x-requires: k8s.pod/k8s.pod.name
+                k8s.pod.uid:
+                  type: string
+                  x-requires: k8s.pod/k8s.pod.uid
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/k8s.node:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                k8s.node.name:
+                  type: string
+                  x-requires: k8s.node/k8s.node.name
+                k8s.node.uid:
+                  type: string
+                  x-requires: k8s.node/k8s.node.uid
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/k8s.deployment:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                k8s.deployment.name:
+                  type: string
+                  x-requires: k8s.deployment/k8s.deployment.name
+                k8s.deployment.uid:
+                  type: string
+                  x-requires: k8s.deployment/k8s.deployment.uid
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/k8s.namespace:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                k8s.namespace.name:
+                  type: string
+                  x-requires: k8s.namespace/k8s.namespace.name
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/k8s.cluster:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                k8s.cluster.name:
+                  type: string
+                  x-requires: k8s.cluster/k8s.cluster.name
+                k8s.cluster.uid:
+                  type: string
+                  x-requires: k8s.cluster/k8s.cluster.uid
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/cloud:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cloud.account.id:
+                  type: string
+                  x-requires: cloud/cloud.account.id
+                cloud.availability_zone:
+                  type: string
+                  x-requires: cloud/cloud.availability_zone
+                cloud.platform:
+                  type: string
+                  x-requires: cloud/cloud.platform
+                cloud.provider:
+                  type: string
+                  x-requires: cloud/cloud.provider
+                cloud.region:
+                  type: string
+                  x-requires: cloud/cloud.region
+                cloud.resource_id:
+                  type: string
+                  x-requires: cloud/cloud.resource_id
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/process:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                process.command:
+                  type: string
+                  x-requires: process/process.command
+                process.command_args:
+                  type: array
+                  items:
+                    type: string
+                  x-requires: process/process.command_args
+                process.command_line:
+                  type: string
+                  x-requires: process/process.command_line
+                process.executable.name:
+                  type: string
+                  x-requires: process/process.executable.name
+                process.executable.path:
+                  type: string
+                  x-requires: process/process.executable.path
+                process.owner:
+                  type: string
+                  x-requires: process/process.owner
+                process.parent_pid:
+                  type: integer
+                  format: int64
+                  x-requires: process/process.parent_pid
+                process.pid:
+                  type: integer
+                  format: int64
+                  x-requires: process/process.pid
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/os:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                os.build_id:
+                  type: string
+                  x-requires: os/os.build_id
+                os.description:
+                  type: string
+                  x-requires: os/os.description
+                os.name:
+                  type: string
+                  x-requires: os/os.name
+                os.type:
+                  type: string
+                  x-requires: os/os.type
+                os.version:
+                  type: string
+                  x-requires: os/os.version
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/device:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device.id:
+                  type: string
+                  x-requires: device/device.id
+                device.manufacturer:
+                  type: string
+                  x-requires: device/device.manufacturer
+                device.model.identifier:
+                  type: string
+                  x-requires: device/device.model.identifier
+                device.model.name:
+                  type: string
+                  x-requires: device/device.model.name
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/deployment:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deployment.environment:
+                  type: string
+                  x-requires: deployment/deployment.environment.name
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/browser:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                browser.brands:
+                  type: array
+                  items:
+                    type: string
+                  x-requires: browser/browser.brands
+                browser.language:
+                  type: string
+                  x-requires: browser/browser.language
+                browser.mobile:
+                  type: boolean
+                  x-requires: browser/browser.mobile
+                browser.platform:
+                  type: string
+                  x-requires: browser/browser.platform
+                user_agent.original:
+                  type: string
+                  x-requires: browser/user_agent.original
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/faas:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cloud.resource_id:
+                  type: string
+                  x-requires: faas/cloud.resource_id
+                faas.instance:
+                  type: string
+                  x-requires: faas/faas.instance
+                faas.max_memory:
+                  type: integer
+                  format: int64
+                  x-requires: faas/faas.max_memory
+                faas.name:
+                  type: string
+                  x-requires: faas/faas.name
+                faas.version:
+                  type: string
+                  x-requires: faas/faas.version
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/telemetry.sdk:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                telemetry.sdk.language:
+                  type: string
+                  x-requires: telemetry.sdk/telemetry.sdk.language
+                telemetry.sdk.name:
+                  type: string
+                  x-requires: telemetry.sdk/telemetry.sdk.name
+                telemetry.sdk.version:
+                  type: string
+                  x-requires: telemetry.sdk/telemetry.sdk.version
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/otel.scope:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otel.scope.name:
+                  type: string
+                  x-requires: otel.scope/otel.scope.name
+                otel.scope.version:
+                  type: string
+                  x-requires: otel.scope/otel.scope.version
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/resource/webengine:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                webengine.description:
+                  type: string
+                  x-requires: webengine/webengine.description
+                webengine.name:
+                  type: string
+                  x-requires: webengine/webengine.name
+                webengine.version:
+                  type: string
+                  x-requires: webengine/webengine.version
+              additionalProperties: true
+      responses:
+        '200':
+          description: accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true

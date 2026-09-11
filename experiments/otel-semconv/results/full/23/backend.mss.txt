@@ -1,0 +1,65 @@
+=== GUS Check: [T23-backend] 1.37.0 -> 1.38.0: upgrade backend ===
+Decision: NO
+
+Chain process/process.args_count — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "process/process.args_count" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain process/process.creation.time — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "process/process.creation.time" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain process/process.interactive — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "process/process.interactive" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain process/process.title — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "process/process.title" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain process/process.working_directory — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "process/process.working_directory" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/error.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/error.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/network.protocol.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/network.protocol.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/network.protocol.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/network.protocol.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.server/error.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/error.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.server/network.protocol.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/network.protocol.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.server/network.protocol.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/network.protocol.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.37.0→v1.38.0 — breaks data-flow chain "process/process.args_count" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

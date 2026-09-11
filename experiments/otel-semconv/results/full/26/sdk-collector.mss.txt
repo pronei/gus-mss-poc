@@ -1,0 +1,30 @@
+=== GUS Check: [T26-sdk-collector] 1.40.0 -> 1.41.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain process/process.executable.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "process/process.executable.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain process/process.executable.path — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "process/process.executable.path" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/client.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/client.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/client.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/client.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {collector v1.40.0→v1.41.0}
+
+Excluded:
+  sdk v1.40.0→v1.41.0 — breaks data-flow chain "process/process.executable.name" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

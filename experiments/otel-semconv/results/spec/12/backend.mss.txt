@@ -1,0 +1,15 @@
+=== GUS Check: [T12-backend] 1.26.0 -> 1.27.0: upgrade backend ===
+Decision: NO
+
+Chain messaging/messaging.operation.name — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "messaging.operation.name" is optional at source sdk but identity "messaging/messaging.operation.name" must arrive present at sink backend
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.26.0→v1.27.0 — breaks data-flow chain "messaging/messaging.operation.name" (chain-weakened)
+
+Post-hoc verification of the safe subset: PASS

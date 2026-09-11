@@ -1,0 +1,121 @@
+=== GUS Check: [T06-sdk-backend] 1.21.0 -> 1.22.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain container/container.image.repo_digests — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "container.image.repo_digests" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain container/container.image.tags — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "container.image.tags" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain db.client/network.peer.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain db.client/network.peer.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.port" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain host/host.ip — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "host.ip" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/error.type — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "error.type" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/network.peer.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/network.peer.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.port" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/error.type — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "error.type" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/network.local.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.local.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/network.local.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.local.port" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/network.peer.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/network.peer.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.port" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain messaging/messaging.message.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.body.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.envelope.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "messaging.message.envelope.size" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain messaging/network.peer.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain messaging/network.peer.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.port" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain os/os.build_id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "os.build_id" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/network.peer.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/network.peer.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.port" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.server/network.peer.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.server/network.peer.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "network.peer.port" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.21.0→v1.22.0 — breaks data-flow chain "container/container.image.repo_digests" (chain-field-missing)
+  sdk v1.21.0→v1.22.0 — breaks data-flow chain "messaging/messaging.message.body.size" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

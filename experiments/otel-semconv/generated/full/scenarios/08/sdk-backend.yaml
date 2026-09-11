@@ -1,0 +1,10 @@
+id: T08-sdk-backend
+name: '1.23.0 -> 1.23.1: upgrade sdk+backend'
+description: Semantic conventions 1.23.0 -> 1.23.1; sdk, backend move to 1.23.1, the rest stay at 1.23.0.
+baseline:
+  sdk: v1.23.0
+  collector: v1.23.0
+  backend: v1.23.0
+upgrades:
+  sdk: v1.23.1
+  backend: v1.23.1

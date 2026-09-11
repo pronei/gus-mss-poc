@@ -1,0 +1,15 @@
+=== GUS Check: [T01-sdk] 1.16.0 -> 1.17.0: upgrade sdk ===
+Decision: NO
+
+Chain messaging/messaging.destination — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.destination" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  sdk v1.16.0→v1.17.0 — breaks data-flow chain "messaging/messaging.destination" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

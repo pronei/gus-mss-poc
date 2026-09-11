@@ -1,0 +1,30 @@
+=== GUS Check: [T07-collector-backend] 1.22.0 -> 1.23.0: upgrade collector+backend ===
+Decision: NO
+
+Chain container/oci.manifest.digest — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/oci.manifest.digest" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain host/host.mac — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "host/host.mac" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/http.request.resend_count — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/http.request.resend_count" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/url.scheme — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/url.scheme" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.22.0→v1.23.0}
+
+Excluded:
+  backend v1.22.0→v1.23.0 — breaks data-flow chain "container/oci.manifest.digest" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

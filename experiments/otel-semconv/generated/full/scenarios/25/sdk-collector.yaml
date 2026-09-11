@@ -1,0 +1,10 @@
+id: T25-sdk-collector
+name: '1.39.0 -> 1.40.0: upgrade sdk+collector'
+description: Semantic conventions 1.39.0 -> 1.40.0; sdk, collector move to 1.40.0, the rest stay at 1.39.0.
+baseline:
+  sdk: v1.39.0
+  collector: v1.39.0
+  backend: v1.39.0
+upgrades:
+  sdk: v1.40.0
+  collector: v1.40.0

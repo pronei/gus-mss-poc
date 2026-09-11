@@ -1,0 +1,9 @@
+id: T15-sdk
+name: '1.29.0 -> 1.30.0: upgrade sdk'
+description: Semantic conventions 1.29.0 -> 1.30.0; sdk move to 1.30.0, the rest stay at 1.29.0.
+baseline:
+  sdk: v1.29.0
+  collector: v1.29.0
+  backend: v1.29.0
+upgrades:
+  sdk: v1.30.0

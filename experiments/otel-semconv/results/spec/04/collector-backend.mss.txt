@@ -1,0 +1,25 @@
+=== GUS Check: [T04-collector-backend] 1.19.0 -> 1.20.0: upgrade collector+backend ===
+Decision: NO
+
+Chain telemetry.sdk/telemetry.sdk.language — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "telemetry.sdk.language" is optional at source sdk but identity "telemetry.sdk/telemetry.sdk.language" must arrive present at sink backend
+  attributed within the batch to: backend
+
+Chain telemetry.sdk/telemetry.sdk.name — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "telemetry.sdk.name" is optional at source sdk but identity "telemetry.sdk/telemetry.sdk.name" must arrive present at sink backend
+  attributed within the batch to: backend
+
+Chain telemetry.sdk/telemetry.sdk.version — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "telemetry.sdk.version" is optional at source sdk but identity "telemetry.sdk/telemetry.sdk.version" must arrive present at sink backend
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.19.0→v1.20.0}
+
+Excluded:
+  backend v1.19.0→v1.20.0 — breaks data-flow chain "telemetry.sdk/telemetry.sdk.language" (chain-weakened)
+
+Post-hoc verification of the safe subset: PASS

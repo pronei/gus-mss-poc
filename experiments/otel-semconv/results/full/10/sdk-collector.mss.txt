@@ -1,0 +1,50 @@
+=== GUS Check: [T10-sdk-collector] 1.24.0 -> 1.25.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain db.client/db.connection_string — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/db.connection_string" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/db.jdbc.driver_classname — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/db.jdbc.driver_classname" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/network.transport — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/network.transport" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/network.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/network.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/network.protocol.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/network.protocol.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/network.protocol.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/network.protocol.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/network.transport — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/network.transport" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/network.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/network.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {collector v1.24.0→v1.25.0}
+
+Excluded:
+  sdk v1.24.0→v1.25.0 — breaks data-flow chain "db.client/db.connection_string" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

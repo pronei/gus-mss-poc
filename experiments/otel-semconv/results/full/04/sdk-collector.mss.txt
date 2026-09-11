@@ -1,0 +1,51 @@
+=== GUS Check: [T04-sdk-collector] 1.19.0 -> 1.20.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain http.client/http.flavor — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/http.flavor" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/http.flavor — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/http.flavor" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.name" arrives at sink backend as field "net.protocol.name" but the sink reads "net.app.protocol.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.version" arrives at sink backend as field "net.protocol.version" but the sink reads "net.app.protocol.version" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain service/service.instance.id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "service/service.instance.id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain service/service.namespace — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "service/service.namespace" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain service/service.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "service/service.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain telemetry.sdk/telemetry.auto.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "telemetry.sdk/telemetry.auto.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.19.0→v1.20.0 — breaks data-flow chain "messaging/network.protocol.name" (chain-field-missing)
+  sdk v1.19.0→v1.20.0 — breaks data-flow chain "http.client/http.flavor" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

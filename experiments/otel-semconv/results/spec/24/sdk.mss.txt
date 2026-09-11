@@ -1,0 +1,30 @@
+=== GUS Check: [T24-sdk] 1.38.0 -> 1.39.0: upgrade sdk ===
+Decision: NO
+
+Chain rpc.client/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.system.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain rpc.client/server.address — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "server.address" is optional at source sdk but identity "rpc.client/server.address" must arrive present at sink backend
+  attributed within the batch to: sdk
+
+Chain rpc.server/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.system.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain rpc.server/server.address — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "server.address" is optional at source sdk but identity "rpc.server/server.address" must arrive present at sink backend
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  sdk v1.38.0→v1.39.0 — breaks data-flow chain "rpc.client/rpc.system.name" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

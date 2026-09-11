@@ -1,0 +1,35 @@
+=== GUS Check: [T22-sdk] 1.36.0 -> 1.37.0: upgrade sdk ===
+Decision: NO
+
+Chain container/container.image.id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/container.image.id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain container/container.image.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/container.image.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain container/container.image.repo_digests — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/container.image.repo_digests" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain container/container.image.tags — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/container.image.tags" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain container/container.runtime — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/container.runtime" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  sdk v1.36.0→v1.37.0 — breaks data-flow chain "container/container.image.id" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

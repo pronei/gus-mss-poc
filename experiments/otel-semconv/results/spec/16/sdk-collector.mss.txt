@@ -1,0 +1,20 @@
+=== GUS Check: [T16-sdk-collector] 1.30.0 -> 1.31.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain messaging/messaging.operation.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.operation.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.system — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.system" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {collector v1.30.0→v1.31.0}
+
+Excluded:
+  sdk v1.30.0→v1.31.0 — breaks data-flow chain "messaging/messaging.operation.name" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

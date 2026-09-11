@@ -1,0 +1,40 @@
+=== GUS Check: [T01-collector] 1.16.0 -> 1.17.0: upgrade collector ===
+Decision: NO
+
+Chain messaging/messaging.message.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.body.size" arrives at sink backend as field "messaging.message.payload_size_bytes" but the sink reads "messaging.message_payload_size_bytes" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain messaging/messaging.message.conversation_id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.conversation_id" arrives at sink backend as field "messaging.message.conversation_id" but the sink reads "messaging.conversation_id" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain messaging/messaging.message.id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.id" arrives at sink backend as field "messaging.message.id" but the sink reads "messaging.message_id" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain messaging/messaging.message.payload_compressed_size_bytes — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.payload_compressed_size_bytes" arrives at sink backend as field "messaging.message.payload_compressed_size_bytes" but the sink reads "messaging.message_payload_compressed_size_bytes" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain messaging/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.name" arrives at sink backend as field "net.app.protocol.name" but the sink reads "messaging.protocol" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain messaging/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.version" arrives at sink backend as field "net.app.protocol.version" but the sink reads "messaging.protocol_version" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.16.0→v1.17.0 — breaks data-flow chain "messaging/messaging.message.body.size" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

@@ -1,0 +1,20 @@
+=== GUS Check: [T12-collector-backend] 1.26.0 -> 1.27.0: upgrade collector+backend ===
+Decision: NO
+
+Chain messaging/messaging.consumer.group.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.consumer.group.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain messaging/messaging.destination.subscription.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.destination.subscription.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.26.0→v1.27.0}
+
+Excluded:
+  backend v1.26.0→v1.27.0 — breaks data-flow chain "messaging/messaging.consumer.group.name" (chain-no-provider)
+
+Post-hoc verification of the safe subset: FAIL (solver returned an unsafe subset — please report this)

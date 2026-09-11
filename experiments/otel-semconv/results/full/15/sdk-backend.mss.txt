@@ -1,0 +1,16 @@
+=== GUS Check: [T15-sdk-backend] 1.29.0 -> 1.30.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain db.client/db.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "db.system.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk, backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.29.0→v1.30.0 — breaks data-flow chain "db.client/db.system.name" (chain-field-missing)
+  sdk v1.29.0→v1.30.0 — breaks data-flow chain "db.client/db.system.name" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

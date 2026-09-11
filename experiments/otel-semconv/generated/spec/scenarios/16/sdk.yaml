@@ -1,0 +1,9 @@
+id: T16-sdk
+name: '1.30.0 -> 1.31.0: upgrade sdk'
+description: Semantic conventions 1.30.0 -> 1.31.0; sdk move to 1.31.0, the rest stay at 1.30.0.
+baseline:
+  sdk: v1.30.0
+  collector: v1.30.0
+  backend: v1.30.0
+upgrades:
+  sdk: v1.31.0

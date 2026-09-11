@@ -1,0 +1,15 @@
+=== GUS Check: [T07-backend] 1.22.0 -> 1.23.0: upgrade backend ===
+Decision: NO
+
+Chain http.client/server.port — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "server.port" is optional at source sdk but identity "http.client/server.port" must arrive present at sink backend
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.22.0→v1.23.0 — breaks data-flow chain "http.client/server.port" (chain-weakened)
+
+Post-hoc verification of the safe subset: PASS

@@ -1,0 +1,56 @@
+=== GUS Check: [T05-sdk-backend] 1.20.0 -> 1.21.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain http.client/http.request.method — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.request.method" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain http.client/server.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "server.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.client/url.full — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "url.full" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain http.server/http.request.method — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "http.request.method" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain http.server/url.path — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "url.path" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain http.server/url.scheme — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "url.scheme" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain rpc.client/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.system" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/server.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "server.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.server/server.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "server.address" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.20.0→v1.21.0 — breaks data-flow chain "http.client/server.address" (chain-field-missing)
+  sdk v1.20.0→v1.21.0 — breaks data-flow chain "http.client/http.request.method" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

@@ -1,0 +1,51 @@
+=== GUS Check: [T05-sdk-collector] 1.20.0 -> 1.21.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain http.client/http.request.method — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/http.request.method" arrives at sink backend as field "http.request.method" but the sink reads "http.method" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/net.peer.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/net.peer.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/url.full — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/url.full" arrives at sink backend as field "url.full" but the sink reads "http.url" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/http.request.method — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/http.request.method" arrives at sink backend as field "http.request.method" but the sink reads "http.method" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/http.target — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/http.target" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/server.address — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "server.address" is optional at source sdk but identity "http.server/server.address" must arrive present at sink backend
+  attributed within the batch to: sdk, collector
+
+Chain http.server/url.scheme — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/url.scheme" arrives at sink backend as field "url.scheme" but the sink reads "http.scheme" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain rpc.server/net.peer.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/net.peer.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.20.0→v1.21.0 — breaks data-flow chain "http.client/http.request.method" (chain-field-missing)
+  sdk v1.20.0→v1.21.0 — breaks data-flow chain "http.client/http.request.method" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

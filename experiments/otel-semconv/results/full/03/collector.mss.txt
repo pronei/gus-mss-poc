@@ -1,0 +1,30 @@
+=== GUS Check: [T03-collector] 1.18.0 -> 1.19.0: upgrade collector ===
+Decision: NO
+
+Chain browser/user_agent.original — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "browser/user_agent.original" arrives at sink backend as field "user_agent.original" but the sink reads "browser.user_agent" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain faas.server/faas.invocation_id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "faas.server/faas.invocation_id" arrives at sink backend as field "faas.invocation_id" but the sink reads "faas.execution" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain http.client/user_agent.original — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/user_agent.original" arrives at sink backend as field "user_agent.original" but the sink reads "http.user_agent" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain http.server/user_agent.original — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/user_agent.original" arrives at sink backend as field "user_agent.original" but the sink reads "http.user_agent" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.18.0→v1.19.0 — breaks data-flow chain "browser/user_agent.original" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

@@ -1,0 +1,11 @@
+id: T30-collector-backend
+name: '1.43.0 -> 1.44.0: upgrade collector+backend'
+description: Semantic conventions 1.43.0 -> 1.44.0; collector, backend move to 1.44.0, the rest stay at
+  1.43.0.
+baseline:
+  sdk: v1.43.0
+  collector: v1.43.0
+  backend: v1.43.0
+upgrades:
+  collector: v1.44.0
+  backend: v1.44.0

@@ -1,0 +1,15 @@
+=== GUS Check: [T15-backend] 1.29.0 -> 1.30.0: upgrade backend ===
+Decision: NO
+
+Chain db.client/db.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "db.client/db.system.name" arrives at sink backend as field "db.system" but the sink reads "db.system.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.29.0→v1.30.0 — breaks data-flow chain "db.client/db.system.name" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

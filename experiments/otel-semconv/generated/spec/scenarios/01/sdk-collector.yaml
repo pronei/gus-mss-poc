@@ -1,0 +1,10 @@
+id: T01-sdk-collector
+name: '1.16.0 -> 1.17.0: upgrade sdk+collector'
+description: Semantic conventions 1.16.0 -> 1.17.0; sdk, collector move to 1.17.0, the rest stay at 1.16.0.
+baseline:
+  sdk: v1.16.0
+  collector: v1.16.0
+  backend: v1.16.0
+upgrades:
+  sdk: v1.17.0
+  collector: v1.17.0

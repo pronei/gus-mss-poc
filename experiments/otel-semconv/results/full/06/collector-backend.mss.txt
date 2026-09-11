@@ -1,0 +1,115 @@
+=== GUS Check: [T06-collector-backend] 1.21.0 -> 1.22.0: upgrade collector+backend ===
+Decision: NO
+
+Chain container/container.image.repo_digests — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/container.image.repo_digests" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain container/container.image.tags — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "container/container.image.tags" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain db.client/network.peer.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/network.peer.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain db.client/network.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/network.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain host/host.ip — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "host/host.ip" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/error.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/error.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/network.peer.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/network.peer.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/network.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/network.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/error.type — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/error.type" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/network.local.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/network.local.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/network.local.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/network.local.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/network.peer.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/network.peer.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/network.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/network.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain messaging/messaging.message.envelope.size — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.message.envelope.size" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain messaging/network.peer.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/network.peer.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain messaging/network.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/network.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain os/os.build_id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "os/os.build_id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/network.peer.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/network.peer.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/network.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/network.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.server/network.peer.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/network.peer.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.server/network.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/network.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.21.0→v1.22.0}
+
+Excluded:
+  backend v1.21.0→v1.22.0 — breaks data-flow chain "container/container.image.repo_digests" (chain-no-provider)
+
+Post-hoc verification of the safe subset: FAIL (solver returned an unsafe subset — please report this)

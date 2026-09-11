@@ -1,0 +1,9 @@
+id: T18-backend
+name: '1.32.0 -> 1.33.0: upgrade backend'
+description: Semantic conventions 1.32.0 -> 1.33.0; backend move to 1.33.0, the rest stay at 1.32.0.
+baseline:
+  sdk: v1.32.0
+  collector: v1.32.0
+  backend: v1.32.0
+upgrades:
+  backend: v1.33.0

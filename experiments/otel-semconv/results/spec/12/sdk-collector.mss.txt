@@ -1,0 +1,15 @@
+=== GUS Check: [T12-sdk-collector] 1.26.0 -> 1.27.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain messaging/messaging.operation.type — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "messaging.operation.type" is optional at source sdk but identity "messaging/messaging.operation.type" must arrive present at sink backend
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {collector v1.26.0→v1.27.0}
+
+Excluded:
+  sdk v1.26.0→v1.27.0 — breaks data-flow chain "messaging/messaging.operation.type" (chain-weakened)
+
+Post-hoc verification of the safe subset: PASS

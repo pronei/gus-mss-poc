@@ -1,0 +1,10 @@
+id: T28-sdk-backend
+name: '1.41.1 -> 1.42.0: upgrade sdk+backend'
+description: Semantic conventions 1.41.1 -> 1.42.0; sdk, backend move to 1.42.0, the rest stay at 1.41.1.
+baseline:
+  sdk: v1.41.1
+  collector: v1.41.1
+  backend: v1.41.1
+upgrades:
+  sdk: v1.42.0
+  backend: v1.42.0

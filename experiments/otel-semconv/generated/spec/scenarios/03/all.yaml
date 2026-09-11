@@ -1,0 +1,12 @@
+id: T03-all
+name: '1.18.0 -> 1.19.0: upgrade sdk+collector+backend'
+description: Semantic conventions 1.18.0 -> 1.19.0; sdk, collector, backend move to 1.19.0, the rest stay
+  at 1.18.0.
+baseline:
+  sdk: v1.18.0
+  collector: v1.18.0
+  backend: v1.18.0
+upgrades:
+  sdk: v1.19.0
+  collector: v1.19.0
+  backend: v1.19.0

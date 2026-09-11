@@ -1,0 +1,9 @@
+id: T17-backend
+name: '1.31.0 -> 1.32.0: upgrade backend'
+description: Semantic conventions 1.31.0 -> 1.32.0; backend move to 1.32.0, the rest stay at 1.31.0.
+baseline:
+  sdk: v1.31.0
+  collector: v1.31.0
+  backend: v1.31.0
+upgrades:
+  backend: v1.32.0

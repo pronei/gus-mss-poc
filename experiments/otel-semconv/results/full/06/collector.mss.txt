@@ -1,0 +1,15 @@
+=== GUS Check: [T06-collector] 1.21.0 -> 1.22.0: upgrade collector ===
+Decision: NO
+
+Chain messaging/messaging.message.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.body.size" arrives at sink backend as field "messaging.message.body.size" but the sink reads "messaging.message.payload_size_bytes" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.21.0→v1.22.0 — breaks data-flow chain "messaging/messaging.message.body.size" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

@@ -1,0 +1,40 @@
+=== GUS Check: [T25-sdk-collector] 1.39.0 -> 1.40.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain rpc.client/network.protocol.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/network.protocol.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.client/network.protocol.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/network.protocol.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.client/network.transport — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/network.transport" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/network.protocol.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/network.protocol.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/network.protocol.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/network.protocol.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/network.transport — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/network.transport" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {collector v1.39.0→v1.40.0}
+
+Excluded:
+  sdk v1.39.0→v1.40.0 — breaks data-flow chain "rpc.client/network.protocol.name" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

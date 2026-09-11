@@ -1,0 +1,35 @@
+=== GUS Check: [T05-collector-backend] 1.20.0 -> 1.21.0: upgrade collector+backend ===
+Decision: NO
+
+Chain http.client/server.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/server.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/url.path — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/url.path" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/rpc.system.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/rpc.system.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.client/server.address — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.client/server.address" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain rpc.server/server.address — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "net.host.name" is optional at source sdk but identity "rpc.server/server.address" must arrive present at sink backend
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.20.0→v1.21.0}
+
+Excluded:
+  backend v1.20.0→v1.21.0 — breaks data-flow chain "http.client/server.address" (chain-no-provider)
+
+Post-hoc verification of the safe subset: FAIL (solver returned an unsafe subset — please report this)

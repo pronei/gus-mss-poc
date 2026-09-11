@@ -1,0 +1,15 @@
+=== GUS Check: [T12-collector] 1.26.0 -> 1.27.0: upgrade collector ===
+Decision: NO
+
+Chain deployment/deployment.environment.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "deployment/deployment.environment.name" arrives at sink backend as field "deployment.environment.name" but the sink reads "deployment.environment" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.26.0→v1.27.0 — breaks data-flow chain "deployment/deployment.environment.name" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

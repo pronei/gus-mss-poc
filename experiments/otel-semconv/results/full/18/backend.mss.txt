@@ -1,0 +1,15 @@
+=== GUS Check: [T18-backend] 1.32.0 -> 1.33.0: upgrade backend ===
+Decision: NO
+
+Chain db.client/db.stored_procedure.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/db.stored_procedure.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.32.0→v1.33.0 — breaks data-flow chain "db.client/db.stored_procedure.name" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

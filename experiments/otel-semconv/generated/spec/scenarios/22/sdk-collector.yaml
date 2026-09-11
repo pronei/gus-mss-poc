@@ -1,0 +1,10 @@
+id: T22-sdk-collector
+name: '1.36.0 -> 1.37.0: upgrade sdk+collector'
+description: Semantic conventions 1.36.0 -> 1.37.0; sdk, collector move to 1.37.0, the rest stay at 1.36.0.
+baseline:
+  sdk: v1.36.0
+  collector: v1.36.0
+  backend: v1.36.0
+upgrades:
+  sdk: v1.37.0
+  collector: v1.37.0

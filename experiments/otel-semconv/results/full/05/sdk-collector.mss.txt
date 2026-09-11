@@ -1,0 +1,281 @@
+=== GUS Check: [T05-sdk-collector] 1.20.0 -> 1.21.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain db.client/net.peer.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/net.peer.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/net.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/net.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/net.sock.family — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/net.sock.family" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/net.sock.peer.addr — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/net.sock.peer.addr" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/net.sock.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/net.sock.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/net.transport — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "db.client/net.transport" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain db.client/server.socket.domain — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "db.client/server.socket.domain" arrives at sink backend as field "server.socket.domain" but the sink reads "net.sock.peer.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/http.request.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/http.request.body.size" arrives at sink backend as field "http.request.body.size" but the sink reads "http.request_content_length" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/http.request.method — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/http.request.method" arrives at sink backend as field "http.request.method" but the sink reads "http.method" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/http.response.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/http.response.body.size" arrives at sink backend as field "http.response.body.size" but the sink reads "http.response_content_length" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/http.response.status_code — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/http.response.status_code" arrives at sink backend as field "http.response.status_code" but the sink reads "http.status_code" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/net.peer.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/net.peer.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/net.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/net.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/net.sock.family — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/net.sock.family" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/net.sock.peer.addr — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/net.sock.peer.addr" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/net.sock.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/net.sock.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/network.protocol.name" arrives at sink backend as field "network.protocol.name" but the sink reads "net.protocol.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/network.protocol.version" arrives at sink backend as field "network.protocol.version" but the sink reads "net.protocol.version" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/server.socket.domain — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/server.socket.domain" arrives at sink backend as field "server.socket.domain" but the sink reads "net.sock.peer.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.client/url.full — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.client/url.full" arrives at sink backend as field "url.full" but the sink reads "http.url" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/client.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/client.address" arrives at sink backend as field "client.address" but the sink reads "http.client_ip" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/http.request.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/http.request.body.size" arrives at sink backend as field "http.request.body.size" but the sink reads "http.request_content_length" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/http.request.method — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/http.request.method" arrives at sink backend as field "http.request.method" but the sink reads "http.method" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/http.response.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/http.response.body.size" arrives at sink backend as field "http.response.body.size" but the sink reads "http.response_content_length" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/http.response.status_code — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/http.response.status_code" arrives at sink backend as field "http.response.status_code" but the sink reads "http.status_code" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/http.target — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/http.target" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/net.sock.family — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/net.sock.family" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/net.sock.peer.addr — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/net.sock.peer.addr" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/net.sock.peer.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/net.sock.peer.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/net.sock.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/net.sock.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.server/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/network.protocol.name" arrives at sink backend as field "network.protocol.name" but the sink reads "net.protocol.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/network.protocol.version" arrives at sink backend as field "network.protocol.version" but the sink reads "net.protocol.version" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/server.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/server.address" arrives at sink backend as field "server.address" but the sink reads "net.host.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/server.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/server.port" arrives at sink backend as field "server.port" but the sink reads "net.host.port" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/server.socket.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/server.socket.address" arrives at sink backend as field "server.socket.address" but the sink reads "net.sock.host.addr" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/server.socket.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/server.socket.port" arrives at sink backend as field "server.socket.port" but the sink reads "net.sock.host.port" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain http.server/url.scheme — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "http.server/url.scheme" arrives at sink backend as field "url.scheme" but the sink reads "http.scheme" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/net.peer.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/net.peer.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/net.sock.family — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/net.sock.family" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/net.sock.peer.addr — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/net.sock.peer.addr" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/net.sock.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/net.sock.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.name" arrives at sink backend as field "network.protocol.name" but the sink reads "net.protocol.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.version" arrives at sink backend as field "network.protocol.version" but the sink reads "net.protocol.version" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/server.socket.domain — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/server.socket.domain" arrives at sink backend as field "server.socket.domain" but the sink reads "net.sock.peer.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain rpc.server/net.peer.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/net.peer.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/net.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/net.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/net.sock.family — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/net.sock.family" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/net.sock.peer.addr — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/net.sock.peer.addr" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/net.sock.peer.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/net.sock.peer.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/net.sock.peer.port — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/net.sock.peer.port" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/net.transport — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "rpc.server/net.transport" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain rpc.server/server.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "rpc.server/server.address" arrives at sink backend as field "server.address" but the sink reads "net.host.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain rpc.server/server.socket.address — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "rpc.server/server.socket.address" arrives at sink backend as field "server.socket.address" but the sink reads "net.sock.host.addr" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain rpc.server/server.socket.port — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "rpc.server/server.socket.port" arrives at sink backend as field "server.socket.port" but the sink reads "net.sock.host.port" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.20.0→v1.21.0 — breaks data-flow chain "db.client/server.socket.domain" (chain-field-missing)
+  sdk v1.20.0→v1.21.0 — breaks data-flow chain "db.client/net.peer.name" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

@@ -1,0 +1,61 @@
+=== GUS Check: [T01-sdk-collector] 1.16.0 -> 1.17.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain messaging/messaging.destination — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.destination" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.destination_kind — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.destination_kind" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.message.body.size — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.body.size" arrives at sink backend as field "messaging.message.payload_size_bytes" but the sink reads "messaging.message_payload_size_bytes" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/messaging.message.conversation_id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.conversation_id" arrives at sink backend as field "messaging.message.conversation_id" but the sink reads "messaging.conversation_id" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/messaging.message.id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.id" arrives at sink backend as field "messaging.message.id" but the sink reads "messaging.message_id" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/messaging.message.payload_compressed_size_bytes — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/messaging.message.payload_compressed_size_bytes" arrives at sink backend as field "messaging.message.payload_compressed_size_bytes" but the sink reads "messaging.message_payload_compressed_size_bytes" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/messaging.temp_destination — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.temp_destination" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/messaging.url — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "messaging/messaging.url" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain messaging/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.name" arrives at sink backend as field "net.app.protocol.name" but the sink reads "messaging.protocol" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain messaging/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.version" arrives at sink backend as field "net.app.protocol.version" but the sink reads "messaging.protocol_version" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.16.0→v1.17.0 — breaks data-flow chain "messaging/messaging.message.body.size" (chain-field-missing)
+  sdk v1.16.0→v1.17.0 — breaks data-flow chain "messaging/messaging.destination" (chain-no-provider)
+
+Post-hoc verification of the safe subset: PASS

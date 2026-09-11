@@ -1,0 +1,11 @@
+id: T10-collector-backend
+name: '1.24.0 -> 1.25.0: upgrade collector+backend'
+description: Semantic conventions 1.24.0 -> 1.25.0; collector, backend move to 1.25.0, the rest stay at
+  1.24.0.
+baseline:
+  sdk: v1.24.0
+  collector: v1.24.0
+  backend: v1.24.0
+upgrades:
+  collector: v1.25.0
+  backend: v1.25.0

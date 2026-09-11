@@ -1,0 +1,56 @@
+=== GUS Check: [T24-sdk-backend] 1.38.0 -> 1.39.0: upgrade sdk+backend ===
+Decision: NO
+
+Chain k8s.pod/k8s.pod.hostname — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "k8s.pod.hostname" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain k8s.pod/k8s.pod.ip — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "k8s.pod.ip" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain k8s.pod/k8s.pod.start_time — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "k8s.pod.start_time" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/rpc.method_original — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.method_original" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/rpc.response.status_code — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.response.status_code" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.client/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.system.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain rpc.server/rpc.method_original — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.method_original" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.server/rpc.response.status_code — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.response.status_code" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: backend
+
+Chain rpc.server/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "rpc.system.name" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  backend v1.38.0→v1.39.0 — breaks data-flow chain "k8s.pod/k8s.pod.hostname" (chain-field-missing)
+  sdk v1.38.0→v1.39.0 — breaks data-flow chain "rpc.client/rpc.system.name" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

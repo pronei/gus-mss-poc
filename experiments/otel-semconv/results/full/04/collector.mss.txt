@@ -1,0 +1,20 @@
+=== GUS Check: [T04-collector] 1.19.0 -> 1.20.0: upgrade collector ===
+Decision: NO
+
+Chain messaging/network.protocol.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.name" arrives at sink backend as field "net.protocol.name" but the sink reads "net.app.protocol.name" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+Chain messaging/network.protocol.version — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "messaging/network.protocol.version" arrives at sink backend as field "net.protocol.version" but the sink reads "net.app.protocol.version" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: collector
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.19.0→v1.20.0 — breaks data-flow chain "messaging/network.protocol.name" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

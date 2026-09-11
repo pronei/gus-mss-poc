@@ -1,0 +1,30 @@
+=== GUS Check: [T04-collector-backend] 1.19.0 -> 1.20.0: upgrade collector+backend ===
+Decision: NO
+
+Chain http.client/network.protocol.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/network.protocol.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.client/network.protocol.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.client/network.protocol.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/network.protocol.name — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/network.protocol.name" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+Chain http.server/network.protocol.version — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "http.server/network.protocol.version" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: backend
+
+--- MSS Result ---
+Safe subset: {collector v1.19.0→v1.20.0}
+
+Excluded:
+  backend v1.19.0→v1.20.0 — breaks data-flow chain "http.client/network.protocol.name" (chain-no-provider)
+
+Post-hoc verification of the safe subset: FAIL (solver returned an unsafe subset — please report this)

@@ -1,0 +1,35 @@
+=== GUS Check: [T03-sdk] 1.18.0 -> 1.19.0: upgrade sdk ===
+Decision: NO
+
+Chain browser/user_agent.original — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "user_agent.original" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain faas.server/faas.invocation_id — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "faas.invocation_id" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain faas/faas.id — BREAK (chain-no-provider):
+  (no provider) -> backend
+  nothing in the mesh provides identity "faas/faas.id" required by backend (declare x-provides at its source, or the field was withdrawn)
+  attributed within the batch to: sdk
+
+Chain http.client/user_agent.original — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "user_agent.original" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+Chain http.server/user_agent.original — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  field "user_agent.original" not found at intermediate collector (chain broken — declare x-alias at the renaming hop)
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  sdk v1.18.0→v1.19.0 — breaks data-flow chain "browser/user_agent.original" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

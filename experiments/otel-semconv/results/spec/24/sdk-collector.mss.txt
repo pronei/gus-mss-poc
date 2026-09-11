@@ -1,0 +1,31 @@
+=== GUS Check: [T24-sdk-collector] 1.38.0 -> 1.39.0: upgrade sdk+collector ===
+Decision: NO
+
+Chain rpc.client/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "rpc.client/rpc.system.name" arrives at sink backend as field "rpc.system.name" but the sink reads "rpc.system" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain rpc.client/server.address — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "server.address" is optional at source sdk but identity "rpc.client/server.address" must arrive present at sink backend
+  attributed within the batch to: sdk
+
+Chain rpc.server/rpc.system.name — BREAK (chain-field-missing):
+  sdk -> backend via sdk -> collector -> backend
+  identity "rpc.server/rpc.system.name" arrives at sink backend as field "rpc.system.name" but the sink reads "rpc.system" (chain broken — declare x-alias at the sink or rename consistently)
+  attributed within the batch to: sdk, collector
+
+Chain rpc.server/server.address — BREAK (chain-weakened):
+  sdk -> backend via sdk -> collector -> backend
+  providing field "server.address" is optional at source sdk but identity "rpc.server/server.address" must arrive present at sink backend
+  attributed within the batch to: sdk
+
+--- MSS Result ---
+Safe subset: {} (empty — no upgrades can deploy safely)
+
+Excluded:
+  collector v1.38.0→v1.39.0 — breaks data-flow chain "rpc.client/rpc.system.name" (chain-field-missing)
+  sdk v1.38.0→v1.39.0 — breaks data-flow chain "rpc.client/rpc.system.name" (chain-field-missing)
+
+Post-hoc verification of the safe subset: PASS

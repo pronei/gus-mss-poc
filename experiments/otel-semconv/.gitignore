@@ -1,0 +1,6 @@
+# derived from the two upstream repositories (fetch.sh + extract.py); 9 MB
+extracted/
+# per-scenario machine output is regenerable with run.sh; the human-readable
+# verdicts (*.mss.txt), the ledgers and the comparison are committed
+results/*/*/*.check.json
+results/*/*/*.err
