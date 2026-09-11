@@ -401,8 +401,14 @@ func executeGUS(loader *specLoader, g *graph.Graph, sc *graph.ScenarioDef, upgra
 		}
 		var onPathUp []string
 		candidates := append([]string(nil), cr.ChainPath...)
-		if len(candidates) == 0 { // no path (or no provider): the endpoints are the only suspects
-			candidates = append(candidates, cr.Provider.Service, cr.Requirer.Service)
+		if len(candidates) == 0 {
+			// No path, or no provider at all: any upgrade may have withdrawn
+			// the minting field or raised the demand, so every upgrading
+			// service is a suspect and the revert test below decides.
+			for svc := range upgrades {
+				candidates = append(candidates, svc)
+			}
+			sort.Strings(candidates)
 		}
 		seenCand := map[string]bool{}
 		for _, svc := range candidates {
@@ -504,6 +510,37 @@ func materialize(versions map[string]string, g *graph.Graph) map[string]string {
 // chain at the given deployment state.
 func evaluateChains(loader *specLoader, g *graph.Graph, versions map[string]string) ([]chain.ChainResult, error) {
 	full := materialize(versions, g)
+	// The culprit search re-evaluates the same reverted state once per broken
+	// chain; the result depends only on the state, so it is memoized.
+	stateKey := stateKeyOf(full)
+	if cached, ok := loader.chainCache[stateKey]; ok {
+		return cached, nil
+	}
+	results, err := evaluateChainsUncached(loader, g, full)
+	if err != nil {
+		return nil, err
+	}
+	if loader.chainCache == nil {
+		loader.chainCache = map[string][]chain.ChainResult{}
+	}
+	loader.chainCache[stateKey] = results
+	return results, nil
+}
+
+func stateKeyOf(full map[string]string) string {
+	svcs := make([]string, 0, len(full))
+	for svc := range full {
+		svcs = append(svcs, svc)
+	}
+	sort.Strings(svcs)
+	var sb strings.Builder
+	for _, svc := range svcs {
+		sb.WriteString(svc + "=" + full[svc] + ";")
+	}
+	return sb.String()
+}
+
+func evaluateChainsUncached(loader *specLoader, g *graph.Graph, full map[string]string) ([]chain.ChainResult, error) {
 
 	specs, annotations, err := scanMesh(loader, g, full)
 	if err != nil {
@@ -988,7 +1025,8 @@ func validateScenarioRefs(g *graph.Graph, sc *graph.ScenarioDef) error {
 // specLoader memoizes parsed specs by path (a provider spec referenced by k
 // edges is parsed once, not 2k times).
 type specLoader struct {
-	cache map[string]*schema.Spec
+	cache      map[string]*schema.Spec
+	chainCache map[string][]chain.ChainResult // chain results per fully materialized deployment state
 }
 
 func newSpecLoader() *specLoader {
