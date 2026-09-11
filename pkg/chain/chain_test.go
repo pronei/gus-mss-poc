@@ -19,7 +19,7 @@ type meshDB map[string]hop
 // lookup mimics the resolver tiers of cmd/gus: exact name, case-normalized
 // name, then a field declaring x-alias: <fieldName>.
 func (db meshDB) lookup() FieldLookup {
-	return func(svc, next, field string) *FieldInfo {
+	return func(svc, next, field, viaPath string) *FieldInfo {
 		h, ok := db[svc]
 		if !ok {
 			return nil
@@ -192,13 +192,15 @@ func TestChainAllPathsValidated(t *testing.T) {
 	}
 }
 
-func TestChainOnlyProviderOrRequirerYieldsNothing(t *testing.T) {
+// A provider nobody demands is fine; a demand nobody provides is a break.
+func TestChainOnlyProviderYieldsNothingOnlyRequirerBreaks(t *testing.T) {
 	db := meshDB{"A": {fields: map[string]FieldInfo{"k": req("k")}}}
 	if res := CheckChains([]Annotation{provides("A", "k", "K", true)}, nil, db.lookup()); len(res) != 0 {
 		t.Errorf("provider-only should yield no chains, got %d", len(res))
 	}
-	if res := CheckChains([]Annotation{requires("A", "k", "K")}, nil, db.lookup()); len(res) != 0 {
-		t.Errorf("requirer-only should yield no chains, got %d", len(res))
+	res := CheckChains([]Annotation{requires("A", "k", "K")}, nil, db.lookup())
+	if len(res) != 1 || res[0].OK || res[0].Rule != "chain-no-provider" {
+		t.Errorf("requirer-only should yield one chain-no-provider break, got %+v", res)
 	}
 }
 
@@ -271,8 +273,10 @@ func TestChainDottedPropertyName(t *testing.T) {
 	}
 	prov := provides("A", "http.request.method", "K", true)
 	prov.Leaf = "http.request.method"
+	sink := requires("C", "http.request.method", "K")
+	sink.Leaf = "http.request.method"
 	r := only(t, CheckChains(
-		[]Annotation{prov, requires("C", "http.request.method", "K")},
+		[]Annotation{prov, sink},
 		linearEdges("A", "B", "C"), db.lookup()))
 	if !r.OK {
 		t.Fatalf("dotted property name must resolve at the hop, got %s: %s", r.Rule, r.Message)
@@ -299,5 +303,60 @@ func TestScanAnnotationsRecordsLeaf(t *testing.T) {
 	}
 	if a := byKey["trace"]; a.Field != "meta.trace.id" || a.Leaf != "trace.id" {
 		t.Errorf("nested dotted field: Leaf=%q Field=%q", a.Leaf, a.Field)
+	}
+}
+
+// The sink must read the name the last hop sends: a rename at the last hop
+// that the sink does not know about breaks the chain, and an x-alias at the
+// sink bridges it.
+func TestChainSinkMustReadDeliveredName(t *testing.T) {
+	db := meshDB{
+		"A": {fields: map[string]FieldInfo{"old": req("old")}},
+		"B": {fields: map[string]FieldInfo{"new": req("new")}, alias: map[string]string{"new": "old"}},
+	}
+	r := only(t, CheckChains(
+		[]Annotation{provides("A", "old", "K", true), requires("C", "old", "K")},
+		linearEdges("A", "B", "C"), db.lookup()))
+	if r.OK || r.Rule != "chain-field-missing" {
+		t.Fatalf("sink reading the old name after a last-hop rename must break, got OK=%v rule=%s", r.OK, r.Rule)
+	}
+	sink := requires("C", "new", "K")
+	sink.Alias = "old"
+	if r := only(t, CheckChains([]Annotation{provides("A", "old", "K", true), sink},
+		linearEdges("A", "B", "C"), db.lookup())); !r.OK {
+		t.Errorf("sink reading the delivered name must pass, got %s: %s", r.Rule, r.Message)
+	}
+	sinkAliased := requires("C", "old", "K")
+	sinkAliased.Alias = "new"
+	if r := only(t, CheckChains([]Annotation{provides("A", "old", "K", true), sinkAliased},
+		linearEdges("A", "B", "C"), db.lookup())); !r.OK {
+		t.Errorf("sink x-alias for the delivered name must bridge, got %s: %s", r.Rule, r.Message)
+	}
+}
+
+// A demand nothing in the mesh provides is a broken chain, not silence.
+func TestChainRequirerWithoutProvider(t *testing.T) {
+	r := only(t, CheckChains([]Annotation{requires("C", "k", "K")}, linearEdges("A", "B", "C"), meshDB{}.lookup()))
+	if r.OK || r.Rule != "chain-no-provider" || r.Requirer.Service != "C" || r.Provider.Service != "" {
+		t.Errorf("unprovided demand must break as chain-no-provider, got %+v", r)
+	}
+}
+
+// With several outbound contracts toward the next hop, the lookup is told
+// the path the identity arrived on so the implementation can prefer it.
+func TestChainLookupReceivesArrivalPath(t *testing.T) {
+	var seen []string
+	lookup := func(svc, next, field, viaPath string) *FieldInfo {
+		seen = append(seen, svc+":"+viaPath)
+		return &FieldInfo{Name: field, Required: true, Path: "/hop/" + svc}
+	}
+	prov := provides("A", "k", "K", true)
+	prov.Endpoint = "POST /_calls/B/v1/export"
+	r := only(t, CheckChains([]Annotation{prov, requires("D", "k", "K")}, linearEdges("A", "B", "C", "D"), lookup))
+	if !r.OK {
+		t.Fatalf("unexpected break: %s", r.Message)
+	}
+	if got := strings.Join(seen, ","); got != "B:/v1/export,C:/hop/B" {
+		t.Errorf("arrival paths seen by the lookup = %q, want B:/v1/export,C:/hop/B", got)
 	}
 }

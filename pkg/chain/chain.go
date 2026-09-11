@@ -36,11 +36,29 @@ type Annotation struct {
 	Endpoint string // "METHOD /path" the annotation was found under
 	Field    string // dot-separated field path, e.g. "order.order_id"
 	Leaf     string // the annotated field's own name; a property name may itself contain dots ("http.request.method"), so Field cannot be split to recover it
+	Alias    string // x-alias declared on the annotated field (the previous name it accepts)
 	Key      string // the identity key, e.g. "order-identity"
 	Kind     string // "provides" or "requires"
 	Required bool
 	Nullable bool
 	Schema   *types.Node // declared type of the annotated field
+}
+
+// Path returns the request path of the endpoint the annotation sits under
+// ("METHOD /path" → "/path"), with the /_calls/<provider> prefix of a
+// declared outbound contract removed so it names the provider's own path.
+func (a Annotation) Path() string {
+	p := a.Endpoint
+	if i := strings.Index(p, " "); i >= 0 {
+		p = p[i+1:]
+	}
+	if strings.HasPrefix(p, "/_calls/") {
+		rest := strings.TrimPrefix(p, "/_calls/")
+		if i := strings.Index(rest, "/"); i >= 0 {
+			p = rest[i:]
+		}
+	}
+	return p
 }
 
 // LeafName returns the annotated field's own name: Leaf when the scanner
@@ -57,6 +75,7 @@ func (a Annotation) LeafName() string {
 // FieldInfo is the resolved carrier of an identity at one service.
 type FieldInfo struct {
 	Name     string // actual field name at this service (after alias resolution)
+	Path     string // request path of the outbound contract that carries it (empty if unknown)
 	Required bool
 	Nullable bool
 	Schema   *types.Node
@@ -93,10 +112,14 @@ type EdgeInfo struct {
 // FieldLookup resolves the carrier of an identity at an intermediate hop:
 // the field named fieldName in what `service` SENDS toward `next` (its
 // outbound request schema for that edge), applying the resolver tiers
-// (exact, case-normalized, x-alias). Implementations may fall back to
+// (exact, case-normalized, x-alias). viaPath is the request path the
+// identity arrived on; when the service declares several outbound contracts
+// toward `next`, the one on the same path is preferred (a pipeline or proxy
+// forwards a payload on the path it received it), and only when none
+// matches are all of them searched. Implementations may fall back to
 // searching all of the service's schemas when no outbound contract is
 // declared. Nil means not found.
-type FieldLookup func(service, next, fieldName string) *FieldInfo
+type FieldLookup func(service, next, fieldName, viaPath string) *FieldInfo
 
 // CheckChains discovers and validates all x-provides/x-requires chains.
 func CheckChains(annotations []Annotation, edges []EdgeInfo, lookup FieldLookup) []ChainResult {
@@ -111,19 +134,29 @@ func CheckChains(annotations []Annotation, edges []EdgeInfo, lookup FieldLookup)
 		}
 	}
 
-	keys := make([]string, 0, len(providers))
-	for key := range providers {
+	keys := make([]string, 0, len(requirers))
+	for key := range requirers {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
 	var results []ChainResult
 	for _, key := range keys {
-		reqs, ok := requirers[key]
+		reqs := requirers[key]
+		provs, ok := providers[key]
 		if !ok {
+			// A demand nothing satisfies: the sink relies on an identity no
+			// service in the mesh mints (or the minting field was withdrawn).
+			for _, req := range reqs {
+				results = append(results, ChainResult{
+					Key: key, Requirer: req, Rule: "chain-no-provider",
+					Message: fmt.Sprintf("nothing in the mesh provides identity %q required by %s (declare x-provides at its source, or the field was withdrawn)",
+						key, req.Service),
+				})
+			}
 			continue
 		}
-		for _, prov := range providers[key] {
+		for _, prov := range provs {
 			for _, req := range reqs {
 				results = append(results, checkChain(key, prov, req, edges, lookup))
 			}
@@ -187,6 +220,7 @@ func CheckChainOnPath(key string, provider, requirer Annotation, path []string, 
 	// weakening (that tolerance is exactly what lets every per-edge check
 	// pass while the chain still fails).
 	currentField := provider.LeafName()
+	currentPath := provider.Path()
 
 	// Source hop: judged by the annotation, not by name lookup (the same
 	// field name may appear in several of the source's schemas).
@@ -207,7 +241,7 @@ func CheckChainOnPath(key string, provider, requirer Annotation, path []string, 
 
 	for i := 1; i < len(path)-1; i++ {
 		svc, next := path[i], path[i+1]
-		fi := lookup(svc, next, currentField)
+		fi := lookup(svc, next, currentField, currentPath)
 		if fi == nil {
 			result.Rule = "chain-field-missing"
 			result.Message = fmt.Sprintf(
@@ -230,6 +264,21 @@ func CheckChainOnPath(key string, provider, requirer Annotation, path []string, 
 			return result
 		}
 		currentField = fi.Name
+		if fi.Path != "" {
+			currentPath = fi.Path
+		}
+	}
+
+	// Sink: the identity arrives under the name the last hop sends; the sink
+	// must read that name — exactly, case-insensitively, or through an
+	// x-alias of its own. A rename at the last hop that the sink does not
+	// know about is otherwise invisible to every per-edge check.
+	if sink := requirer.LeafName(); sink != "" && !sameName(currentField, sink) && requirer.Alias != currentField {
+		result.Rule = "chain-field-missing"
+		result.Message = fmt.Sprintf(
+			"identity %q arrives at sink %s as field %q but the sink reads %q (chain broken — declare x-alias at the sink or rename consistently)",
+			key, requirer.Service, currentField, sink)
+		return result
 	}
 
 	// Identity typing: the provider's declared type must be admitted by the
@@ -316,7 +365,7 @@ func scanNode(node *types.Node, service, version, endpoint, fieldPath string, ou
 			if f.XProvides != "" {
 				*out = append(*out, Annotation{
 					Service: service, Version: version, Endpoint: endpoint,
-					Field: fp, Leaf: name, Key: f.XProvides, Kind: "provides",
+					Field: fp, Leaf: name, Alias: f.XAlias, Key: f.XProvides, Kind: "provides",
 					Required: f.Required, Nullable: isNullable(f.Schema),
 					Schema: unwrap(f.Schema),
 				})
@@ -324,7 +373,7 @@ func scanNode(node *types.Node, service, version, endpoint, fieldPath string, ou
 			if f.XRequires != "" {
 				*out = append(*out, Annotation{
 					Service: service, Version: version, Endpoint: endpoint,
-					Field: fp, Leaf: name, Key: f.XRequires, Kind: "requires",
+					Field: fp, Leaf: name, Alias: f.XAlias, Key: f.XRequires, Kind: "requires",
 					Required: f.Required, Nullable: isNullable(f.Schema),
 					Schema: unwrap(f.Schema),
 				})
@@ -337,6 +386,8 @@ func scanNode(node *types.Node, service, version, endpoint, fieldPath string, ou
 		scanNode(node.Inner, service, version, endpoint, fieldPath, out)
 	}
 }
+
+func sameName(a, b string) bool { return a == b || strings.EqualFold(a, b) }
 
 func isNullable(n *types.Node) bool {
 	return n != nil && n.Kind == types.KindNullable
