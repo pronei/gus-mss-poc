@@ -35,11 +35,23 @@ type Annotation struct {
 	Version  string
 	Endpoint string // "METHOD /path" the annotation was found under
 	Field    string // dot-separated field path, e.g. "order.order_id"
+	Leaf     string // the annotated field's own name; a property name may itself contain dots ("http.request.method"), so Field cannot be split to recover it
 	Key      string // the identity key, e.g. "order-identity"
 	Kind     string // "provides" or "requires"
 	Required bool
 	Nullable bool
 	Schema   *types.Node // declared type of the annotated field
+}
+
+// LeafName returns the annotated field's own name: Leaf when the scanner
+// recorded it, otherwise the last dot-separated segment of Field (the
+// pre-Leaf convention, still used by hand-built annotations).
+func (a Annotation) LeafName() string {
+	if a.Leaf != "" {
+		return a.Leaf
+	}
+	parts := strings.Split(a.Field, ".")
+	return parts[len(parts)-1]
 }
 
 // FieldInfo is the resolved carrier of an identity at one service.
@@ -174,8 +186,7 @@ func CheckChainOnPath(key string, provider, requirer Annotation, path []string, 
 	// tolerates — the sink's own schema-optionality is deliberately NOT a
 	// weakening (that tolerance is exactly what lets every per-edge check
 	// pass while the chain still fails).
-	parts := strings.Split(provider.Field, ".")
-	currentField := parts[len(parts)-1]
+	currentField := provider.LeafName()
 
 	// Source hop: judged by the annotation, not by name lookup (the same
 	// field name may appear in several of the source's schemas).
@@ -305,7 +316,7 @@ func scanNode(node *types.Node, service, version, endpoint, fieldPath string, ou
 			if f.XProvides != "" {
 				*out = append(*out, Annotation{
 					Service: service, Version: version, Endpoint: endpoint,
-					Field: fp, Key: f.XProvides, Kind: "provides",
+					Field: fp, Leaf: name, Key: f.XProvides, Kind: "provides",
 					Required: f.Required, Nullable: isNullable(f.Schema),
 					Schema: unwrap(f.Schema),
 				})
@@ -313,7 +324,7 @@ func scanNode(node *types.Node, service, version, endpoint, fieldPath string, ou
 			if f.XRequires != "" {
 				*out = append(*out, Annotation{
 					Service: service, Version: version, Endpoint: endpoint,
-					Field: fp, Key: f.XRequires, Kind: "requires",
+					Field: fp, Leaf: name, Key: f.XRequires, Kind: "requires",
 					Required: f.Required, Nullable: isNullable(f.Schema),
 					Schema: unwrap(f.Schema),
 				})

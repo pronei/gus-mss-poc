@@ -260,3 +260,44 @@ func TestScanAnnotations(t *testing.T) {
 		t.Errorf("nullable field annotation should be marked nullable with the inner schema: %+v", a)
 	}
 }
+
+// Property names may themselves contain dots (OpenTelemetry attributes such
+// as "http.request.method"); the walk must look the field up by its own
+// name, not by the last dot-separated segment of the annotation path.
+func TestChainDottedPropertyName(t *testing.T) {
+	db := meshDB{
+		"A": {fields: map[string]FieldInfo{"http.request.method": req("http.request.method")}},
+		"B": {fields: map[string]FieldInfo{"http.request.method": req("http.request.method")}},
+	}
+	prov := provides("A", "http.request.method", "K", true)
+	prov.Leaf = "http.request.method"
+	r := only(t, CheckChains(
+		[]Annotation{prov, requires("C", "http.request.method", "K")},
+		linearEdges("A", "B", "C"), db.lookup()))
+	if !r.OK {
+		t.Fatalf("dotted property name must resolve at the hop, got %s: %s", r.Rule, r.Message)
+	}
+	// A hand-built annotation without Leaf keeps the old convention.
+	if got := provides("A", "order.order_id", "K", true).LeafName(); got != "order_id" {
+		t.Errorf("LeafName fallback = %q, want order_id", got)
+	}
+}
+
+func TestScanAnnotationsRecordsLeaf(t *testing.T) {
+	node := types.Object(map[string]*types.Field{
+		"http.request.method": {Schema: types.Prim("string", ""), Required: true, XProvides: "http.server/http.request.method"},
+		"meta": {Schema: types.Object(map[string]*types.Field{
+			"trace.id": {Schema: types.Prim("string", ""), XRequires: "trace"},
+		}, true)},
+	}, true)
+	byKey := map[string]Annotation{}
+	for _, a := range ScanAnnotations(node, "svc", "v1", "POST /x") {
+		byKey[a.Key] = a
+	}
+	if a := byKey["http.server/http.request.method"]; a.Leaf != "http.request.method" || a.LeafName() != "http.request.method" {
+		t.Errorf("top-level dotted field: Leaf=%q Field=%q", a.Leaf, a.Field)
+	}
+	if a := byKey["trace"]; a.Field != "meta.trace.id" || a.Leaf != "trace.id" {
+		t.Errorf("nested dotted field: Leaf=%q Field=%q", a.Leaf, a.Field)
+	}
+}
