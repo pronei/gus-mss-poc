@@ -2,7 +2,7 @@
 
 Status: plan only. Nothing here has been run. Every statement about
 Spinnaker's internals below is a hypothesis for the scouts to confirm or
-refute; the decisions in §4 are defaults to be revised by the referee.
+refute; the decisions in §4 are defaults to be revised by the review pass.
 
 ## 1. Why this corpus, and what it would test
 
@@ -229,7 +229,7 @@ edges excluded from precision figures.
 * Artifacts for old versions unavailable → range shrinks or reflection route
   dies (S3 answers within hours).
 * Untyped share (D5) above 50% of the edges → NO-GO for the pair-relation
-  claims. Decided threshold: the referee computes the share over S1's
+  claims. Decided threshold: the review pass computes the share over S1's
   resolved edges after S2's census, counting an edge as untyped when its
   request body or its response is `Map`, `Object`, `List<Map>` or a raw
   type on either side; at or below 50% the plan proceeds with the untyped
