@@ -1,0 +1,140 @@
+{
+ "as_written": {
+  "edges": 524,
+  "edge_untyped_share_owner_ruling": 0.0115,
+  "edges_untyped": 6,
+  "edges_with_no_live_leg": 313,
+  "edges_with_at_least_one_live_leg": 211,
+  "edges_with_both_legs_live": 24,
+  "legs": {
+   "request:contentless": 375,
+   "response:vacuous": 173,
+   "response:live": 177,
+   "request:live": 58,
+   "response:contentless": 91,
+   "response:untyped": 52,
+   "request:vacuous": 31,
+   "response:contentless-one-side": 31,
+   "request:untyped": 39,
+   "request:contentless-one-side": 21
+  },
+  "live_leg_share_of_all_legs": 0.2242,
+  "vacuous_leg_share_of_all_legs": 0.1947,
+  "per_provider": {
+   "clouddriver": {
+    "edges": 142,
+    "untyped_edges": 0,
+    "live_leg_share": 0.173
+   },
+   "echo": {
+    "edges": 14,
+    "untyped_edges": 0,
+    "live_leg_share": 0.214
+   },
+   "fiat": {
+    "edges": 64,
+    "untyped_edges": 0,
+    "live_leg_share": 0.391
+   },
+   "front50": {
+    "edges": 142,
+    "untyped_edges": 0,
+    "live_leg_share": 0.211
+   },
+   "igor": {
+    "edges": 57,
+    "untyped_edges": 0,
+    "live_leg_share": 0.342
+   },
+   "kayenta": {
+    "edges": 18,
+    "untyped_edges": 0,
+    "live_leg_share": 0.083
+   },
+   "keel": {
+    "edges": 36,
+    "untyped_edges": 0,
+    "live_leg_share": 0.194
+   },
+   "orca": {
+    "edges": 42,
+    "untyped_edges": 6,
+    "live_leg_share": 0.083
+   },
+   "rosco": {
+    "edges": 9,
+    "untyped_edges": 0,
+    "live_leg_share": 0.389
+   }
+  }
+ },
+ "in_force_typed_maps_typed": {
+  "edges": 524,
+  "edge_untyped_share_owner_ruling": 0.0076,
+  "edges_untyped": 4,
+  "edges_with_no_live_leg": 299,
+  "edges_with_at_least_one_live_leg": 225,
+  "edges_with_both_legs_live": 34,
+  "legs": {
+   "request:contentless": 375,
+   "response:vacuous": 168,
+   "response:live": 189,
+   "request:live": 70,
+   "response:contentless": 91,
+   "response:untyped": 45,
+   "request:vacuous": 30,
+   "response:contentless-one-side": 31,
+   "request:untyped": 28,
+   "request:contentless-one-side": 21
+  },
+  "live_leg_share_of_all_legs": 0.2471,
+  "vacuous_leg_share_of_all_legs": 0.1889,
+  "per_provider": {
+   "clouddriver": {
+    "edges": 142,
+    "untyped_edges": 0,
+    "live_leg_share": 0.176
+   },
+   "echo": {
+    "edges": 14,
+    "untyped_edges": 0,
+    "live_leg_share": 0.25
+   },
+   "fiat": {
+    "edges": 64,
+    "untyped_edges": 0,
+    "live_leg_share": 0.391
+   },
+   "front50": {
+    "edges": 142,
+    "untyped_edges": 0,
+    "live_leg_share": 0.282
+   },
+   "igor": {
+    "edges": 57,
+    "untyped_edges": 0,
+    "live_leg_share": 0.342
+   },
+   "kayenta": {
+    "edges": 18,
+    "untyped_edges": 0,
+    "live_leg_share": 0.083
+   },
+   "keel": {
+    "edges": 36,
+    "untyped_edges": 0,
+    "live_leg_share": 0.194
+   },
+   "orca": {
+    "edges": 42,
+    "untyped_edges": 4,
+    "live_leg_share": 0.107
+   },
+   "rosco": {
+    "edges": 9,
+    "untyped_edges": 0,
+    "live_leg_share": 0.389
+   }
+  }
+ }
+}

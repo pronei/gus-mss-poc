@@ -1,16 +1,16 @@
 {
- "edges": 534,
- "resolved": 533,
+ "edges": 564,
+ "resolved": 563,
  "unresolved": 1,
- "matched": 470,
- "unmatched": 63,
- "matched_share_of_resolved": 0.8818,
+ "matched": 524,
+ "unmatched": 39,
+ "matched_share_of_resolved": 0.9307,
  "ambiguous_matches": 4,
  "unmatched_by_category": {
-  "no-provider-mapping": 49,
+  "no-provider-mapping": 25,
   "actuator": 14
  },
- "matched_share_excluding_actuator": 0.9056,
+ "matched_share_excluding_actuator": 0.9545,
  "per_provider": {
   "clouddriver": {
    "resolved": 152,
@@ -43,24 +43,24 @@
    "untyped_share_refined": 0.109
   },
   "front50": {
-   "resolved": 120,
-   "matched": 112,
-   "untyped_strict": 67,
+   "resolved": 150,
+   "matched": 142,
+   "untyped_strict": 77,
    "untyped_refined": 67,
-   "both_sides_strict": 5,
-   "matched_share": 0.933,
-   "untyped_share_as_written": 0.598,
-   "untyped_share_refined": 0.598
+   "both_sides_strict": 15,
+   "matched_share": 0.947,
+   "untyped_share_as_written": 0.542,
+   "untyped_share_refined": 0.472
   },
   "igor": {
    "resolved": 63,
-   "matched": 33,
-   "untyped_strict": 8,
-   "untyped_refined": 8,
+   "matched": 57,
+   "untyped_strict": 20,
+   "untyped_refined": 20,
    "both_sides_strict": 0,
-   "matched_share": 0.524,
-   "untyped_share_as_written": 0.242,
-   "untyped_share_refined": 0.242
+   "matched_share": 0.905,
+   "untyped_share_as_written": 0.351,
+   "untyped_share_refined": 0.351
   },
   "kayenta": {
    "resolved": 18,
@@ -104,21 +104,21 @@
   }
  },
  "untyped_share_as_written": {
-  "untyped": 240,
-  "of": 470,
-  "share": 0.5106,
-  "both_sides_untyped": 23
+  "untyped": 262,
+  "of": 524,
+  "share": 0.5,
+  "both_sides_untyped": 33
  },
  "untyped_share_s5_refined": {
-  "untyped": 238,
-  "of": 470,
-  "share": 0.5064,
+  "untyped": 250,
+  "of": 524,
+  "share": 0.4771,
   "both_sides_untyped": 21
  },
  "sensitivity_as_written_plus_opaque_caller_return_counted_untyped": {
-  "untyped": 328,
-  "share": 0.6979,
-  "edges_with_opaque_caller_return": 122
+  "untyped": 352,
+  "share": 0.6718,
+  "edges_with_opaque_caller_return": 124
  },
  "s2_typing_column_crosscheck_mismatches": 0,
  "s2_typing_column_crosscheck_examples": [],

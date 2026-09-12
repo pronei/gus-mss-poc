@@ -391,4 +391,7 @@ motivated them. Filled by the review pass of 2026-09-11 (`scout/review.md`).
 | 2026-09-11 | D11 | triage: projection, normalization, real | kept; adds the categories dispatch slot and census defect | R1(a) |
 | 2026-09-11 | D12 | no prevalence, no presence-under-none, no chains, untyped excluded | adds: no Keel claim, no CalVer claim, and the §5 scoping to caller-drift on the typed remainder | R1(b) |
 | 2026-09-11 | D5 (owner) | untyped when any side of any leg is untyped; §5 gate on that reading | untyped only when both sides of both legs are untyped; one-sided legs are vacuous, excluded from evidence, and every figure is reported over live legs per component; measured at most 4.9 % (both legs untyped on at least one side; 50.6 % either-side) → §5 scoping lifted, R4 to be re-evaluated after the S1/S2 redos | R1(b); owner's ruling |
+| 2026-09-12 | R4 | SCOPED-GO (reconciled 88.2 %, untyped 50.6 % either-side) | GO after the S1/S2 redos: reconciled 93.1 %, untyped 0.8 % under the D5 ruling; live legs 24.7 % reported as the quality number; given-ups unchanged | review pass 2; S1-028; S2-030/037 |
+| 2026-09-12 | D3 | — | self-edges (caller = provider) dropped from the graph by G3 | S1-030 |
+| 2026-09-12 | D5 | — | G1 marks untyped sides (`x-untyped: true`); figures reported over live legs | review pass 2 R1(b) |
 

@@ -26,21 +26,8 @@
  },
  "igor": {
   "controller_files_in_source": 17,
-  "files_in_s2": 15,
-  "missing_files": [
-   {
-    "file": "igor-web/src/main/groovy/com/netflix/spinnaker/igor/build/BuildController.groovy",
-    "method_mappings": 12,
-    "controller_annotation_at_char": 2710,
-    "line": 59
-   },
-   {
-    "file": "igor-web/src/main/groovy/com/netflix/spinnaker/igor/build/InfoController.groovy",
-    "method_mappings": 4,
-    "controller_annotation_at_char": 1846,
-    "line": 43
-   }
-  ]
+  "files_in_s2": 17,
+  "missing_files": []
  },
  "fiat": {
   "controller_files_in_source": 2,
@@ -62,5 +49,5 @@
   "files_in_s2": 15,
   "missing_files": []
  },
- "_total_missing_method_mappings": 16
+ "_total_missing_method_mappings": 0
 }

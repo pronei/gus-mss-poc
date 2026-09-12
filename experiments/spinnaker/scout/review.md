@@ -395,3 +395,61 @@ failure has a triage entry; `compare.py` maps each S4 row to the version-ordered
 pair (`1.N.x → 1.M.0` is the pair (last 1.N patch, 1.M.0)), treats unlabelled
 pairs as unlabelled, and keeps S4-019 out. The README states the lossy steps
 first: the §5 scoping, Keel, CalVer, presence, and the stale declarations.
+
+
+## Review pass 2 (2026-09-12) — after the S1 and S2 redos
+
+Scope: the two bounded redos of 2026-09-11. The other four reports are
+unchanged and were not re-sampled. Scripts re-run in place; new script
+`r1b_legs.py` computes the D5 ruling of 2026-09-11 (untyped only when both
+sides of both legs are untyped) and its consequences.
+
+**R0.** Both redos pass. S1 appends CLAIM-S1-021…033 under "## Redo" and keeps
+"What I could not verify" last (with a subsection on what the redo left open);
+`edges.tsv` grows from 534 to 564 rows — the kork-plugins `Front50Service` (3
+methods × 10 callers, `resolved_by` carrying the enabling condition), a pure
+addition. S2 appends CLAIM-S2-026…037; `endpoints.tsv` grows from 732 to 748
+rows — Igor's 16 — with the extraction scripts now beside the report and a
+pruning audit (CLAIM-S2-028: no other name-based prune cost a row at these tags).
+
+**R1.** (a) 564 edges, 563 resolved, **524 matched = 93.1 %** (95.5 % excluding
+the 14 actuator rows). The 39 unmatched are the 14 actuator routes, 7 provider
+dispatch slots, 1 framework route and the 17 stale caller declarations; the
+census-gap class is gone. `r2_s2_coverage.py`: 0 missing controllers, 0 missing
+mappings. Per provider: clouddriver 142/152, echo 14/17, fiat 64/65, front50
+142/150, igor 57/63, kayenta 18/18, keel 36/44, orca 42/44, rosco 9/10.
+(b) Under the owner's ruling, with typed maps typed: **4 of 524 edges (0.8 %)**
+are untyped (6, 1.1 %, under the original classifier). Legs: **259 of 1048
+live (24.7 %)**, 198 vacuous (18.9 %), the rest contentless on at least one
+side; 299 edges (57 %) have no live leg, 225 have at least one, and the
+edge-level either-side reference is now 50.0 % as written / 47.7 % refined.
+(c), (d), (f) unchanged. (e) chains 3, 4, 5 pass; 1, 2 and the alternate fail
+where they did.
+
+**R2.** Seven re-derivations of redo claims, all confirmed (table in
+`review.json` → `pass2.R2`): the kork interface and its three methods at
+v7.254.0; no shipped profile sets `spinnaker.extensibility`; the 30-row
+addition; the three self-edge rows; Igor's controller lines; the 748/51 counts;
+the coverage result. No refutation, nothing sent back.
+
+**R3.** D3 gains one rule: self-edges (caller = provider; the three
+`front50 → front50` plugin rows) are dropped from `graph.yaml` by G3 — both
+sides move in one commit, so they cannot carry cross-version drift. D5's
+numbers under the ruling are recorded above; G1 must mark every untyped side
+(`x-untyped: true`) so that G3 can classify legs without re-deriving Java
+types. D12: the §5 scoping is lifted; every figure is reported over live legs
+with the vacuous share beside it. Three decisions are the owner's, not the
+review's: whether the 30 operator-enabled kork rows and the 36 indirect Fiat
+rows enter the graph, and whether the near-empty *declared* presence profile
+is kept as a control or dropped.
+
+**R4. Verdict: GO.** All six conditions are met: reflection route confirmed;
+49 pairs; 93.1 % reconciled; 0.8 % untyped under the ruling in force; 14
+breaking rows; every checker-change row costed. Still given up, unchanged from
+pass 1: Keel, CalVer pairs, chains in the first run (second run: 3, 4, 5), the
+17 stale declarations (findings, not checks), the declared presence profile as
+a distinct result, and releases 1.24.0–1.29.7. The quality statement the
+README must lead with: pair-relation evidence exists on a quarter of the legs
+at 1.38.0, and 57 % of edges have no live leg at all. The first tasks for
+G1–G3 above stand; the handoff documents under `handoff/` carry them with
+these updates.

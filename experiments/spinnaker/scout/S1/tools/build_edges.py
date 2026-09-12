@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """Join the hand-verified interface->provider map (mesh.tsv) with the parsed
-Retrofit declarations to produce edges.tsv."""
+Retrofit declarations to produce edges.tsv.
+
+Run from a directory holding the ten clones of CLAIM-S1-001 plus a clone of
+kork at v7.254.0 in `kork/` (CLAIM-S1-021).  mesh.tsv uses three tokens in
+place of a repo-relative path, for the three interfaces that are declared in
+one repository and compiled into others: FIATAPI (fiat-api's FiatService),
+HEALTH:<provider> (Gate's HealthCheckableService, one row per provider) and
+KORK (kork-plugins' Front50Service, CLAIM-S1-022)."""
 import os
 import sys
 import subprocess
@@ -14,9 +21,14 @@ TAGS = {
     "front50": "v2.41.0", "echo": "v2.47.2", "igor": "v4.22.0",
     "fiat": "v1.57.0", "rosco": "v1.26.0", "kayenta": "v2.46.0",
     "keel": "v1.4.1",
+    # kork is not one of the ten; it is the shared library whose korkVersion
+    # every 1.38.0 service pins (CLAIM-S1-021).  Its clone sits beside them.
+    "kork": "v7.254.0",
 }
 
 FIAT_API = "fiat-api/src/main/java/com/netflix/spinnaker/fiat/shared/FiatService.java"
+KORK_FRONT50 = ("kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/"
+                "update/internal/Front50Service.kt")
 HEALTH = ("gate-web/src/main/groovy/com/netflix/spinnaker/gate/services/internal/"
           "HealthCheckableService.groovy")
 
@@ -40,6 +52,8 @@ def main():
     for caller, rel, provider, resolved_by in mesh:
         if rel == "FIATAPI":
             src_repo, src_rel = "fiat", FIAT_API
+        elif rel == "KORK":
+            src_repo, src_rel = "kork", KORK_FRONT50
         elif rel.startswith("HEALTH:"):
             src_repo, src_rel = "gate", HEALTH
         else:

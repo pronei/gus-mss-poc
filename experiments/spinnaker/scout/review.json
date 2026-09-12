@@ -793,5 +793,143 @@
    "S1 kork-plugins addendum"
   ],
   "G1_G2_may_start": true
+ },
+ "pass2": {
+  "review_date": "2026-09-12",
+  "scope": "S1 and S2 redos (2026-09-11) re-reviewed; other reports unchanged",
+  "R0": {
+   "S1": "pass \u2014 Redo section with CLAIM-S1-021\u2026033, memo ends with 'What I could not verify'; edges.tsv 564 rows (+30 kork Front50Service rows, 0 removed, 0 changed), tools/mesh.tsv +10 KORK rows",
+   "S2": "pass \u2014 Redo section with CLAIM-S2-026\u2026037, memo ends with 'What I could not verify'; endpoints.tsv 748 rows (+16 Igor, 0 removed, 0 changed); extraction scripts now in scout/S2"
+  },
+  "R1a": {
+   "edges": 564,
+   "resolved": 563,
+   "matched": 524,
+   "unmatched": 39,
+   "matched_share_of_resolved": 0.9307,
+   "matched_share_excluding_actuator": 0.9545,
+   "unmatched_classes": {
+    "actuator": 14,
+    "provider_dispatch_slot": 7,
+    "framework_route": 1,
+    "stale_caller_declaration": 17,
+    "s2_census_gap": 0
+   },
+   "coverage_script_missing_method_mappings": 0
+  },
+  "R1b_owner_ruling_both_sides_both_legs": {
+   "definition": "a leg is untyped only when both of its declarations are untyped; an edge only when both legs are; one-sided legs are vacuous; both-sides-typed legs are live",
+   "in_force_typed_maps_typed": {
+    "edges": 524,
+    "edges_untyped": 4,
+    "edge_untyped_share_owner_ruling": 0.0076,
+    "edges_with_no_live_leg": 299,
+    "edges_with_at_least_one_live_leg": 225,
+    "edges_with_both_legs_live": 34,
+    "live_leg_share_of_all_legs": 0.2471,
+    "vacuous_leg_share_of_all_legs": 0.1889,
+    "legs": {
+     "request:contentless": 375,
+     "response:vacuous": 168,
+     "response:live": 189,
+     "request:live": 70,
+     "response:contentless": 91,
+     "response:untyped": 45,
+     "request:vacuous": 30,
+     "response:contentless-one-side": 31,
+     "request:untyped": 28,
+     "request:contentless-one-side": 21
+    }
+   },
+   "as_originally_written": {
+    "edges_untyped": 6,
+    "edge_untyped_share_owner_ruling": 0.0115,
+    "live_leg_share_of_all_legs": 0.2242,
+    "vacuous_leg_share_of_all_legs": 0.1947
+   },
+   "either_side_reference": {
+    "as_written": 0.5,
+    "s5_refined": 0.4771
+   }
+  },
+  "R1e": {
+   "passes": [
+    "3 clientRequestId Orca->Clouddriver",
+    "4 artifactAccount Orca/Rosco->Clouddriver",
+    "5 source.executionId Orca->Echo"
+   ],
+   "fails": [
+    "1 correlationId Keel->Orca (sink: Orca POST /ops Map body)",
+    "2 application Gate->Orca->Front50 (mint and hop-in untyped)",
+    "alt Echo->Orca->Kayenta (hop-in untyped)"
+   ]
+  },
+  "R2": [
+   [
+    "CLAIM-S1-022",
+    "kork@v7.254.0 Front50Service.kt:35,41,49",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S1-025",
+    "grep spinnaker.extensibility over shipped yml/yaml/properties, ten clones",
+    "confirmed (no hits outside tests)"
+   ],
+   [
+    "CLAIM-S1-028",
+    "edges.tsv diff 534\u2192564: +30 kork rows",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S1-030",
+    "3 front50->front50 rows",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-029",
+    "igor@v4.22.0 BuildController.groovy:59,101,111,121,137,150; InfoController.groovy:43,56,69,80,116",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-030",
+    "endpoints.tsv 748 rows, igor 51",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-037",
+    "r2_s2_coverage.py: 0 missing controller files, 0 missing method mappings",
+    "confirmed"
+   ]
+  ],
+  "R3": {
+   "D3": "self-edges (caller == provider; 3 front50 rows) are dropped from graph.yaml by G3 \u2014 they cannot carry cross-version drift",
+   "D5": "numbers under the owner's ruling recorded; x-untyped marking required from G1 so G3 can classify legs",
+   "D12": "the \u00a75 scoping is lifted (edge share under the ruling 0.8 %); every figure is reported over live legs (24.7 % of legs at 1.38.0) with the vacuous share (18.9 %) beside it",
+   "pending_owner": [
+    "the 30 kork Front50Service rows: in the graph as an operator-enabled client, or out (no shipped profile enables it)",
+    "the 36 indirect FiatService rows (FiatPermissionEvaluator inside fiat-api) \u2014 same question",
+    "the second presence profile: keep 'declared' as a near-empty control, or drop it and report 'none' only"
+   ]
+  },
+  "R4": {
+   "verdict": "GO",
+   "conditions": {
+    "reflection_route_per_service": "met",
+    "range_ge_8_pairs": "met (49)",
+    "reconciled_ge_90pct": "met (0.931; 0.955 excl. actuator)",
+    "untyped_le_50pct_owner_ruling": "met (0.008)",
+    "breaking_row_survives": "met (14)",
+    "gaps_cost": "met"
+   },
+   "still_given_up": [
+    "Keel (no BOM pins it)",
+    "CalVer pairs",
+    "chains in the first run (second run: 3, 4, 5)",
+    "17 stale caller declarations reported, not checked",
+    "declared presence \u2248 none on the nine-service mesh",
+    "releases 1.24.0\u20131.29.7"
+   ],
+   "quality_statement": "pair-relation evidence exists on 24.7 % of legs (259 of 1048) at 1.38.0; 57 % of edges have no live leg; the README leads with this"
+  }
  }
 }

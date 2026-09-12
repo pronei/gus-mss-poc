@@ -11,6 +11,11 @@ Kayenta, Keel). Interfaces pointing at third-party systems (Jenkins, Slack,
 Cloud Foundry, Atlas, …) or at Spinnaker services outside the ten (Swabbie,
 Mine, Flex) are listed under "out of mesh" and are **not** in `edges.tsv`.
 
+An in-mesh interface need not be *declared* in one of the ten: two are declared
+in shared libraries and compiled into consumers — `fiat-api`'s `FiatService`
+(see Fiat below) and `kork-plugins`' `Front50Service` (see kork below). Both are
+in `edges.tsv`, once per calling service.
+
 Retrofit generation: Orca, Front50 and Kayenta still declare `retrofit.http.*`
 (Retrofit 1); Gate, Clouddriver, Echo, Igor, Fiat, Rosco and Keel declare
 `retrofit2.http.*`. Both dialects use the same annotation names, so the row
@@ -41,6 +46,7 @@ which looks the service up in `ServiceConfiguration` and takes
 | `KayentaService` | `gate-web/src/main/groovy/…/internal/KayentaService.groovy` | kayenta | `services.kayenta.baseUrl` — `GateConfig.kayentaService` |
 | `FiatService` (from `fiat-api`) | `fiat@v1.57.0 fiat-api/src/main/java/com/netflix/spinnaker/fiat/shared/FiatService.java` | fiat | `services.fiat.baseUrl` — `GateConfig.fiatService` (`@Primary`, overrides fiat-api's own bean) |
 | `HealthCheckableService` | `gate-web/src/main/groovy/…/internal/HealthCheckableService.groovy` | orca, clouddriver, echo, igor, front50, keel | `DownstreamServicesHealthIndicator` instantiates it once per enabled entry of `serviceConfiguration.healthCheckableServices` at `services.<name>.baseUrl` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
 
 Notes:
 
@@ -98,6 +104,7 @@ artifacts through Gate's own `Front50Service`, which is already counted.
 | `KayentaService` | `orca-kayenta/…/kayenta/KayentaService.kt` | kayenta | `kayenta.base-url` — `KayentaConfiguration.kayentaEndpoint` |
 | `BakeryService` | `orca-bakery/…/bakery/api/BakeryService.groovy` | rosco | `bakery.base-url` — `BakeryConfiguration.bakery`, plus `BakerySelector` |
 | `FiatService` (from `fiat-api`) | see Fiat below | fiat | `services.fiat.baseUrl` — fiat-api's own bean, enabled by `@EnableFiatAutoConfig` on `orca-web/…/web/config/WebConfiguration.groovy` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
 
 Notes:
 
@@ -128,6 +135,7 @@ quip agent at `http://<host>:5050`, built ad hoc in
 |---|---|---|---|
 | `Front50Service` | `clouddriver-core/src/main/groovy/…/core/services/Front50Service.groovy` | front50 | `services.front50.baseUrl` — `RetrofitConfig.front50Service` (`Front50ConfigurationProperties`, prefix `services.front50`), gated on `services.front50.enabled` (default true) |
 | `FiatService` (from `fiat-api`) | see Fiat below | fiat | `services.fiat.baseUrl` — `@EnableFiatAutoConfig` on `clouddriver-security/…/security/config/SecurityConfig.groovy` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
 
 Out of mesh: the Cloud Foundry client package (13 interfaces), Consul (3),
 Docker registry (2), Eureka (2), Edda, and the App Engine GCP metadata
@@ -139,6 +147,7 @@ interface — all third-party.
 |---|---|---|---|
 | `EchoService` | `front50-core/src/main/java/…/front50/echo/EchoService.java` | echo | `services.echo.base-url` — `EchoConfiguration.echoService`, gated on `services.echo.enabled` |
 | `FiatService` (from `fiat-api`) | see Fiat below | fiat | `services.fiat.baseUrl` — `@EnableFiatAutoConfig` on `front50-web/…/config/Front50WebConfig.java` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
 
 ## Echo — `echo@v2.47.2`
 
@@ -149,6 +158,7 @@ interface — all third-party.
 | `OrcaService` | `echo-pipelinetriggers/…/pipelinetriggers/orca/OrcaService.java` | orca | `orca.base-url` — `PipelineTriggerConfiguration.orca` |
 | `KeelService` | `echo-artifacts/src/main/java/…/echo/services/KeelService.java` | keel | `keel.base-url` — `echo-artifacts/…/config/KeelConfig.java` |
 | `FiatService` (from `fiat-api`) | see Fiat below | fiat | `services.fiat.baseUrl` — `@EnableFiatAutoConfig` on `echo-web/…/config/ComponentConfig.java` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
 
 Note: `DryRunConfig` builds a **second** `OrcaService` instance bound to
 `dryrun.baseUrl` (gated on `dryrun.enabled`). It is the same interface and the
@@ -168,6 +178,7 @@ webhook sink) and `TelemetryService`.
 | `Front50Service` | `igor-monitor-plugins/src/main/java/…/igor/plugins/front50/Front50Service.java` | front50 | `services.front50.baseUrl` — `PluginMonitorConfig.pluginReleaseService` |
 | `ClouddriverService` | `igor-web/src/main/groovy/…/igor/docker/service/ClouddriverService.groovy` | clouddriver | `services.clouddriver.baseUrl` — `DockerRegistryConfig.dockerRegistryProxyService` |
 | `HelmAccountsService` | `igor-web/src/main/java/…/igor/helm/accounts/HelmAccountsService.java` | clouddriver | `services.clouddriver.baseUrl` — `HelmConfig.helmAccountsService`, gated on `helm.enabled` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
 | `FiatService` (from `fiat-api`) | see Fiat below | fiat | `services.fiat.baseUrl` — `@EnableFiatAutoConfig` on `igor-web/…/config/IgorConfig.java` |
 
 Note the key inconsistency: Igor's Echo, Front50 and Clouddriver clients read
@@ -193,6 +204,7 @@ Two distinct roles.
 | `ClouddriverApi` | `fiat-roles/…/providers/internal/ClouddriverApi.java` | clouddriver | `services.clouddriver.base-url` — `ResourcesConfig.clouddriverApi` |
 | `Front50Api` | `fiat-roles/…/providers/internal/Front50Api.java` | front50 | `services.front50.base-url` — `ResourcesConfig.front50Api` |
 | `IgorApi` | `fiat-roles/…/providers/internal/IgorApi.java` | igor | `services.igor.base-url` — `ResourcesConfig.igorApi`, gated on `services.igor.enabled` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
 
 **(b) `fiat-api` as the shared client library.** `FiatService`
 (`fiat-api/src/main/java/com/netflix/spinnaker/fiat/shared/FiatService.java`,
@@ -224,20 +236,91 @@ Out of mesh: `fiat-github/…/GitHubClient.java`.
 | Interface | Path | Provider | Bound by |
 |---|---|---|---|
 | `ClouddriverService` | `rosco-core/src/main/groovy/…/rosco/services/ClouddriverService.java` | clouddriver | `services.clouddriver.base-url` (default `http://localhost:7002`) — `ServiceConfig.clouddriverService` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
 
 Rosco's only in-mesh client, two methods.
 
 ## Kayenta — `kayenta@v2.46.0`
 
-**No in-mesh Retrofit clients.** All twelve Retrofit interfaces are metric
-stores or object stores (Atlas, Datadog, Graphite, InfluxDB, New Relic,
-Prometheus, SignalFx, Wavefront, ConfigBin, remote judge), built by
+| Interface | Path | Provider | Bound by |
+|---|---|---|---|
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork below) |
+
+**No in-mesh Retrofit client of its own.** All twelve Retrofit interfaces
+*declared in kayenta* are metric stores or object stores (Atlas, Datadog,
+Graphite, InfluxDB, New Relic, Prometheus, SignalFx, Wavefront, ConfigBin,
+remote judge), built by
 `kayenta-core/…/retrofit/config/RetrofitClientFactory.createClient` from a
 `RemoteService.getBaseUrl()` supplied per configured account. Kayenta depends on
 Orca artifacts (`orca-core`, `orca-queue`, `orca-retrofit`, `keiko-spring`) but
 none of the Orca modules that declare Retrofit interfaces, and no Kayenta file
-references any Spinnaker service base URL. Kayenta appears in `edges.tsv` only
-as a provider (of Gate and Orca).
+references any Spinnaker service base URL. Its only in-mesh caller rows are the
+three it inherits from `kork-plugins`; otherwise it appears in `edges.tsv` as a
+provider (of Gate and Orca).
+
+## kork — `kork@v7.254.0` (shared library, not one of the ten)
+
+`kork-plugins` declares **one** Retrofit interface, and it targets Front50:
+
+| Interface | Path | Provider | Bound by |
+|---|---|---|---|
+| `Front50Service` | `kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` |
+
+Three methods, all retrofit2: `GET /pluginInfo/{id}` → `Call<SpinnakerPluginInfo>`,
+`GET /pluginInfo` → `Call<Collection<SpinnakerPluginInfo>>`, and
+`PUT /pluginVersions/{serverGroupName}` with body `Map<String,String>` →
+`Call<PinnedVersions>`, where
+`typealias PinnedVersions = Map<String, SpinnakerPluginInfo.SpinnakerPluginRelease>`.
+All three exist on Front50 at v2.41.0 (`PluginInfoController`,
+`PluginVersionController`), so all thirty rows reconcile.
+
+**Why all ten callers.** Each of the ten declares `io.spinnaker.kork:kork-plugins`
+on a non-test configuration and `@Import`s `PluginsAutoConfiguration`, which
+carries `@Import({Front50PluginsConfiguration.class, RemotePluginsConfiguration.class})`:
+
+| caller | kork-plugins declared at | `@Import(PluginsAutoConfiguration)` at |
+|---|---|---|
+| gate | `gate-web/gate-web.gradle:27` (also gate-core:23, gate-plugins:28) | `gate-web/…/gate/config/GateConfig.groovy:74` |
+| orca | `orca-core/orca-core.gradle:29` (`api`), `orca-web:62` | `orca-core/…/orca/config/OrcaConfiguration.java:93` |
+| clouddriver | `clouddriver-core/clouddriver-core.gradle:3` (`api`), `clouddriver-web:31` | `clouddriver-core/…/clouddriver/config/CloudDriverConfig.java:137` |
+| front50 | `front50-core/front50-core.gradle:34` (`api`) | `front50-web/…/front50/config/Front50WebConfig.java:61` |
+| echo | `echo-core/echo-core.gradle:21` (`api`) | `echo-web/…/echo/config/EchoCoreConfig.java:42` |
+| igor | `igor-web/igor-web.gradle:64` | `igor-web/…/igor/config/IgorConfig.java:51` |
+| fiat | `fiat-web/fiat-web.gradle:17` | `fiat-web/…/fiat/config/FiatConfig.java:46` |
+| rosco | `rosco-core/rosco-core.gradle:3` (`api`) | `rosco-core/…/rosco/config/RoscoConfiguration.groovy:43` |
+| kayenta | `kayenta-web/kayenta-web.gradle:37` | `kayenta-web/…/kayenta/config/ApplicationConfiguration.java:15` |
+| keel | `keel-core/keel-core.gradle:23`, `keel-web:48` | `keel-web/…/keel/Main.kt:47` |
+
+**Two caveats a consumer of these thirty rows needs.**
+
+1. **Off by default.** `@ConditionalOnProperty` here has no `matchIfMissing`,
+   and no non-test config file in any of the ten repositories mentions
+   `spinnaker.extensibility` at all, so in a stock deployment the bean is never
+   created. The rows are kept — the declaration is on the classpath and the
+   binding is a literal config key, the same standard `FiatService` and
+   `HealthCheckableService` are held to — and the condition travels with them in
+   `resolved_by`. A projection that wants only edges live in a default install
+   should drop them.
+2. **Three of them are the self-edge `front50 → front50`.** Front50 imports
+   `PluginsAutoConfiguration` like the other nine, so its own plugin framework
+   resolves `services.front50.base-url` back to itself. A self-edge cannot carry
+   cross-service drift — both sides move in one commit — so G3 should drop
+   `caller == provider` before building `graph.yaml`.
+
+**Version.** Eight of the ten pin `korkVersion=7.254.0`; keel pins `7.220.0`
+and kayenta inherits 7.254.0 through `orca-bom:8.64.0`. No repository carries a
+dependency lock file. `Front50Service.kt` and `Front50PluginsConfiguration.java`
+are byte-identical at 7.220.0 and 7.254.0, so the split pin changes nothing
+here. `edges.tsv` sources all thirty rows to kork@v7.254.0.
+
+Nothing else in kork contributes an edge: an exhaustive grep for Retrofit
+annotations over every `*.java`, `*.kt` and `*.groovy` under `*/src/main/*` in
+the clone returns this one file. kork's other contribution to the mesh is the
+client *factory* (`ServiceClientProvider.getService`, used by Gate, Clouddriver
+and Front50), which carries no contract of its own — every call site passes a
+locally declared interface.
+
+---
 
 ## Keel — `keel@v1.4.1`
 
@@ -254,6 +337,7 @@ All Kotlin, all `suspend fun`, all built with a plain `Retrofit.Builder` in
 | `ScmService` | `keel-igor/…/keel/igor/ScmService.kt` | igor | `igor.base-url` — `IgorConfiguration.scmService` |
 | `BuildService` | `keel-igor/…/keel/igor/BuildService.kt` | igor | `igor.base-url` — `IgorConfiguration.buildService` |
 | `FiatService` (from `fiat-api`) | see Fiat above | fiat | `services.fiat.baseUrl` — `@EnableFiatAutoConfig` on `keel-web/…/config/SecurityConfiguration.kt` |
+| `Front50Service` (from `kork-plugins`) | `kork@v7.254.0 kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt` | front50 | `spinnaker.extensibility.repositories.front50.url` → `front50.base-url` → `services.front50.base-url` — `Front50PluginsConfiguration.pluginFront50Service`, conditional on `spinnaker.extensibility.repositories.front50.enabled` (see kork above) |
 
 The three Igor interfaces share one `igorEndpoint` bean via an inlined
 `buildService<T>` helper.
@@ -310,9 +394,9 @@ either a `@Bean` definition with a literal config key, or an out-of-mesh target.
    provider's return type. `Unit` means the Kotlin method declares no return.
 2. **`body_type` is `-` when the method has no `@Body`.**
 3. **`path_template` is verbatim**, which means two things the D3 normalization
-   must handle: (a) 100 of 534 rows have **no leading slash** (Retrofit 2
+   must handle: (a) 101 of 564 rows have **no leading slash** (Retrofit 2
    relative paths — all of `FiatService`, Echo's Front50/Igor/Keel/Orca clients),
-   433 have one; (b) some templates carry a **baked-in query string**, e.g.
+   463 have one; (b) some templates carry a **baked-in query string**, e.g.
    `/v2/applications?restricted=false` and
    `/pipelines/triggeredBy/{pipelineId}/{status}?restricted=false`. Both must be
    stripped before matching a Spring mapping.
@@ -321,4 +405,8 @@ either a `@Bean` definition with a literal config key, or an out-of-mesh target.
    `FiatService.sync` appears twice on `roles/sync`. These are distinct rows by
    `method_name`, and they collapse to one endpoint after normalization.
 5. **`claim` names the file that *declares* the method**, which for the 63
-   `FiatService` rows is the fiat repo, not the caller's repo.
+   `FiatService` rows is the fiat repo and for the 30 kork `Front50Service` rows
+   is the kork repo, not the caller's repo. Two interface *names* now repeat
+   across rows with different declarations: `Front50Service` is declared six
+   times in the ten plus once in kork, `EchoService` five times. Join on
+   `claim`, not on `interface`.

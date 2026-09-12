@@ -209,6 +209,238 @@ defined over S2's census reconciled by R1, and the two will not agree. It is
 flagged here only because 65% sits above the 50% line and the review should
 expect to have to compute it properly rather than assume headroom.
 
+## Redo (2026-09-11)
+
+Bounded redo after the review pass. R2 refuted CLAIM-S1-017 and found two
+counts off by one; the original claims above are left as written and corrected
+here as new numbered claims. Only `edges.tsv`, `tools/mesh.tsv`,
+`tools/build_edges.py` and `clients.md` changed; `tools/extract.py` needed no
+change (it parsed the kork interface unmodified). Regenerating `edges.tsv` now
+needs an eleventh clone beside the ten — kork at v7.254.0, in `kork/` —
+`python3 tools/build_edges.py` is otherwise unchanged.
+
+**CLAIM-S1-021**: the ten services at the tags of CLAIM-S1-001 resolve kork at
+two versions, not one. Eight declare `korkVersion=7.254.0` in
+`gradle.properties` (gate, orca, clouddriver, front50, echo, igor, fiat,
+rosco); keel declares `korkVersion=7.220.0`; kayenta declares none and inherits
+kork through `enforcedPlatform("io.spinnaker.orca:orca-bom:$orcaVersion")` at
+`build.gradle:82` with `orcaVersion=8.64.0`, i.e. orca's 7.254.0. No repository
+in the corpus carries a dependency lock file (`find` for `*.lockfile`,
+`gradle.lockfile`, `dependencies.lock` is empty in all ten). source:
+`gradle.properties` of each repo at the tags of CLAIM-S1-001;
+kayenta@v2.46.0 build.gradle:82.
+
+**CLAIM-S1-022**: **CLAIM-S1-017 is false.** kork declares exactly one Retrofit
+interface in its main sources, and it targets a Spinnaker service:
+`kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt`,
+a retrofit2 interface with three methods — `@GET("/pluginInfo/{id}") getById`
+→ `Call<SpinnakerPluginInfo>` (:35), `@GET("/pluginInfo") listAll` →
+`Call<Collection<SpinnakerPluginInfo>>` (:41), and
+`@PUT("/pluginVersions/{serverGroupName}") pinVersions` with body
+`Map<String,String>` → `Call<PinnedVersions>` (:49, where
+`typealias PinnedVersions = Map<String, SpinnakerPluginInfo.SpinnakerPluginRelease>`
+at :58). The negative evidence behind CLAIM-S1-017 was sound as far as it went
+— every `serviceClientProvider.getService` call site in the ten does pass a
+locally declared interface — but this client is not built through
+`ServiceClientProvider`, so that search could not have found it. What made the
+claim false is the scope it asserted, not the evidence it cited. source:
+kork@v7.254.0 (commit a7b6fdea15ec2e98c80093947f194afb0ee552f3)
+kork-plugins/src/main/kotlin/com/netflix/spinnaker/kork/plugins/update/internal/Front50Service.kt:30-58;
+exhaustiveness from `grep -rlE '@(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|HTTP|Url|Body|Path|Query|QueryMap|Header|Headers|FormUrlEncoded|Multipart|Streaming)\b'`
+over every `*.java`, `*.kt`, `*.groovy` under `*/src/main/*` in the clone —
+one hit, this file. (kork main sources are 400 java, 141 kt, 7 groovy; the
+other eight files in kork that import `retrofit*.http.*` are all under
+`src/test/`.)
+
+**CLAIM-S1-023**: it is bound to Front50 by
+`kork-plugins/src/main/java/com/netflix/spinnaker/config/Front50PluginsConfiguration.java`,
+whose `@Bean pluginFront50Service` (:89) builds it with
+`Retrofit.Builder().baseUrl(front50Url)` (:107-112). The class carries
+`@ConditionalOnProperty("spinnaker.extensibility.repositories.front50.enabled")`
+(:55), and `getFront50Url` (:159-176) resolves the URL in three steps, as its
+own javadoc states: `spinnaker.extensibility.repositories.front50.url`
+(`PluginRepositoryProperties.getUrl()`, :104 of `PluginsConfigurationProperties`,
+under `CONFIG_NAMESPACE = "spinnaker.extensibility"` :35 and
+`FRONT5O_REPOSITORY = "front50"` :37), then `front50.base-url` (:169), then
+`services.front50.base-url` (:173). source: kork@v7.254.0
+kork-plugins/src/main/java/com/netflix/spinnaker/config/Front50PluginsConfiguration.java:55,89,107-112,149-176
+and .../config/PluginsConfigurationProperties.java:35,37,78-107.
+
+**CLAIM-S1-024**: all ten services compile the interface in and can instantiate
+it. Each declares `io.spinnaker.kork:kork-plugins` on a non-test configuration
+(gate-web/-core/-plugins, orca-core `api` + orca-web, clouddriver-core `api` +
+clouddriver-web, front50-core `api`, echo-core `api`, igor-web, fiat-web,
+rosco-core `api`, kayenta-web, keel-core + keel-web), and each `@Import`s
+`PluginsAutoConfiguration`, which carries
+`@Import({Front50PluginsConfiguration.class, RemotePluginsConfiguration.class})`
+at :80. source: kork@v7.254.0
+kork-plugins/src/main/java/com/netflix/spinnaker/config/PluginsAutoConfiguration.java:80;
+gate@v6.69.0 gate-web/…/gate/config/GateConfig.groovy:74;
+orca@v8.64.0 orca-core/…/orca/config/OrcaConfiguration.java:93;
+clouddriver@v5.95.0 clouddriver-core/…/clouddriver/config/CloudDriverConfig.java:137;
+front50@v2.41.0 front50-web/…/front50/config/Front50WebConfig.java:61;
+echo@v2.47.2 echo-web/…/echo/config/EchoCoreConfig.java:42;
+igor@v4.22.0 igor-web/…/igor/config/IgorConfig.java:51;
+fiat@v1.57.0 fiat-web/…/fiat/config/FiatConfig.java:46;
+rosco@v1.26.0 rosco-core/…/rosco/config/RoscoConfiguration.groovy:43;
+kayenta@v2.46.0 kayenta-web/…/kayenta/config/ApplicationConfiguration.java:15;
+keel@v1.4.1 keel-web/…/keel/Main.kt:47.
+
+**CLAIM-S1-025**: the enabling property is operator-supplied, so the client is
+off in a stock deployment. `@ConditionalOnProperty` here has no
+`matchIfMissing`, and no non-test `*.yml`, `*.yaml` or `*.properties` file in
+any of the ten repositories mentions `spinnaker.extensibility` at all. source:
+`grep -rn extensibility` over `--include='*.yml' --include='*.yaml'
+--include='*.properties'` in the ten clones, excluding test trees — no hits;
+kork@v7.254.0 Front50PluginsConfiguration.java:55.
+
+**CLAIM-S1-026**: keel's older kork pin makes no difference to any of this. At
+kork@v7.220.0 (commit e823562f7dd449b980708c1562b718c1e9da70e1) both
+`Front50Service.kt` and `Front50PluginsConfiguration.java` are byte-identical
+to v7.254.0, and v7.220.0 likewise declares exactly one Retrofit interface in
+main sources. source: `diff` of the two files across the two clones (empty);
+the same exhaustive grep of CLAIM-S1-022 run over the v7.220.0 clone.
+
+**CLAIM-S1-027**: all three methods hit endpoints Front50 actually exposes at
+the pinned tag, so none of the new rows enlarges the unmatched residue.
+`PluginInfoController` is `@RequestMapping("/pluginInfo")` with
+`GET ""` (:48) and `GET "/{id}"` (:55); `PluginVersionController` is
+`@RequestMapping("/pluginVersions")` with `@PutMapping("/{serverGroupName}")`
+(:40). All three appear in S2's `endpoints.tsv` (`PluginInfoController.list`,
+`PluginInfoController.get`, `PluginVersionController.pinVersions`). source:
+front50@v2.41.0
+front50-web/src/main/java/com/netflix/spinnaker/front50/controllers/PluginInfoController.java:37,48,55
+and .../PluginVersionController.java:30,40.
+
+**CLAIM-S1-028**: the interface is **in scope and in `edges.tsv`**, on the same
+rule that put `FiatService` there (CLAIM-S1-008/009): a Retrofit interface
+declared in one artifact, compiled into consumers, and bound to an in-mesh
+provider by a config key. It contributes 3 methods × 10 callers = **30 rows**,
+carrying the full condition in `resolved_by`
+(`spinnaker.extensibility.repositories.front50.url -> front50.base-url ->
+services.front50.base-url (kork Front50PluginsConfiguration.pluginFront50Service,
+@ConditionalOnProperty spinnaker.extensibility.repositories.front50.enabled)`)
+and a `claim` pointing at the kork source. `edges.tsv` goes from 534 rows to
+**564**, 563 resolved and 1 unresolved; the regeneration is a pure addition
+(`diff` old→new: 30 added, 0 removed, 0 changed). source: `tools/mesh.tsv`
+(ten new `KORK` rows) + `python3 tools/build_edges.py`.
+
+**CLAIM-S1-029**: **CLAIM-S1-011's headline is now false**, as a consequence of
+CLAIM-S1-024. Kayenta *does* call another of the ten: it compiles
+`kork-plugins` in at `kayenta-web/kayenta-web.gradle:37` and `@Import`s
+`PluginsAutoConfiguration` at `ApplicationConfiguration.java:15`, so it carries
+the three kork rows against Front50 and is no longer a caller-of-nothing. The
+rest of CLAIM-S1-011 stands unchanged: all twelve Retrofit interfaces *declared
+in kayenta* are metric or object stores, and no Kayenta file names a Spinnaker
+service base URL. Kayenta was the only caller with no rows at all before this
+redo; after it every one of the ten is a caller. source: kayenta@v2.46.0
+kayenta-web/kayenta-web.gradle:37 and
+kayenta-web/src/main/java/com/netflix/kayenta/config/ApplicationConfiguration.java:15.
+
+**CLAIM-S1-030**: three of the thirty rows are the **self-edge
+front50 → front50**. Front50 imports `PluginsAutoConfiguration` like the other
+nine (`Front50WebConfig.java:61`), so its own plugin framework resolves
+`services.front50.base-url` back to itself. The rows are kept because the
+declaration and the binding are real and identical to the other nine, but a
+self-edge cannot carry cross-service drift — both sides move in one commit — so
+G3 should drop `caller == provider` from `graph.yaml`, as it already must drop
+the 17 stale declarations of R1(a). This is a projection decision, flagged, not
+resolved here. source: front50@v2.41.0
+front50-web/src/main/java/com/netflix/spinnaker/front50/config/Front50WebConfig.java:61;
+`awk -F'\t' '$1==$2' edges.tsv` → 3 rows, all `Front50Service`.
+
+**CLAIM-S1-031**: **CLAIM-S1-019's count was wrong by one**: 101 of the 534
+rows lacked a leading slash, not 100. The same error appears in `clients.md`
+§Conventions 3, whose own sentence contradicted it ("100 … 433 have one" over a
+534-row file); 101 + 433 = 534 is the consistent reading. The thirty new rows
+all carry a leading slash, so the count is unchanged at **101 of 564** (463
+with one). The 17 baked-in query strings are also unchanged. source:
+`awk -F'\t' 'NR>1 && substr($4,1,1)!="/"' edges.tsv | wc -l` over both the
+534-row and the 564-row file.
+
+**CLAIM-S1-032**: **the verb tally in §Counts was wrong by one**: POST was 118,
+not 117 — 341 + 117 + 38 + 32 + 5 = 533, one short of the 534 rows the same
+section reports. Over the 564-row file the tally is **GET 361, POST 118,
+PUT 48, DELETE 32, PATCH 5** (sum 564). source:
+`awk -F'\t' 'NR>1{c[$3]++} END{for(v in c) print v, c[v]}' edges.tsv` over both
+files.
+
+**CLAIM-S1-033**: the counts of §Counts, restated over the 564-row file. 44
+distinct resolved caller→provider pairs (was 41; the three new ones are
+front50 → front50, kayenta → front50 and rosco → front50 — the other seven
+callers already had a Front50 edge), over 48 distinct interface declaration
+files (was 47 — kork's is the one added). Gate is still never a provider.
+
+| caller | rows | resolved | unresolved |
+|---|---|---|---|
+| gate | 250 | 250 | 0 |
+| orca | 142 | 142 | 0 |
+| keel | 57 | 57 | 0 |
+| echo | 35 | 34 | 1 |
+| clouddriver | 28 | 28 | 0 |
+| igor | 20 | 20 | 0 |
+| front50 | 14 | 14 | 0 |
+| fiat | 10 | 10 | 0 |
+| rosco | 5 | 5 | 0 |
+| kayenta | 3 | 3 | 0 |
+
+As provider: clouddriver 152, **front50 150** (was 120), fiat 65, igor 63,
+keel 44, orca 44, kayenta 18, echo 17, rosco 10, unresolved 1. source: `edges.tsv`.
+
+**CLAIM-S1-034**: re-running the review's `scout/review/r1ab_reconcile.py`
+unmodified over the new `edges.tsv` **raises the matched share and adds nothing
+to the unmatched residue**. All 30 new rows match; the unmatched set stays the
+same rows, byte-identical on `caller/provider/method/caller_path/normalized_path`.
+S2 re-delivered `endpoints.tsv` at 23:09 while this redo was running (748 rows,
+Igor 51 — CLAIM-S2-003's fix), so both bases are reported: the pre-redo file is
+the one the review's published figures were computed on, the re-delivered file
+is the current state of the tree.
+
+| | edges | matched | unmatched | share of resolved | excl. 14 actuator |
+|---|---|---|---|---|---|
+| ten services, S2 pre-redo (732 rows) — **review's baseline** | 534 | 470 | 63 | 88.18 % | 90.56 % |
+| ten services, S2 pre-redo, **with kork** | 564 | **500** | **63** | **88.81 %** | **91.07 %** |
+| ten services, S2 re-delivered (748 rows) | 534 | 494 | 39 | 92.68 % | 95.18 % |
+| ten services, S2 re-delivered, **with kork** | 564 | **524** | **39** | **93.07 %** | **95.45 %** |
+| nine-service mesh (D2), S2 re-delivered | 435 | 407 | 28 | 93.56 % | 96.22 % |
+| nine-service mesh (D2), S2 re-delivered, **with kork** | 462 | **434** | **28** | **93.94 %** | **96.44 %** |
+
+Front50 as a provider goes from 112/120 (93.3 %) to 142/150 (**94.7 %**);
+ambiguous matches stay at 4; the unmatched split is 25 `no-provider-mapping` +
+14 `actuator` on the re-delivered file (49 + 14 before S2's redo), and the 30
+kork rows and S2's 24 recovered rows are disjoint. R4's "reconciled edges at or
+above 90 % of resolved edges" is met on both populations without the actuator
+exclusion. source: `scout/review/r1ab_reconcile.py` and
+`r1_nine_service_mesh.py`, both run unmodified against mirrors of the tree in
+the scratchpad so that nothing under `scout/review/` was written; run first
+against the pre-redo `edges.tsv` with the pre-redo `endpoints.tsv`, where they
+reproduced the review's published `r1ab.json` and `r1_nine_service_mesh.json`
+exactly, and then in the three other combinations.
+
+**CLAIM-S1-035**: the addition moves R1(b)'s untyped share, but not across the
+50 % line on the population D2 puts in force. The numerator is unchanged under
+S5's refinement — all 30 new rows are typed under it — so the share falls purely
+by dilution.
+
+| population / basis | as written | S5 refinement |
+|---|---|---|
+| ten services, S2 pre-redo | 51.06 % → **50.00 %** | 50.64 % → **47.60 %** |
+| ten services, S2 re-delivered | 51.01 % → **50.00 %** | 50.61 % → **47.71 %** |
+| nine-service mesh, S2 pre-redo | 57.44 % → **55.85 %** | 56.92 % → **53.17 %** |
+| nine-service mesh, S2 re-delivered | 57.00 % → **55.53 %** | 56.51 % → **53.00 %** |
+
+Under the definition *as written* ten of the thirty rows do count as untyped
+(the ten-service figure lands exactly on 50.00 % — 250 of 500 pre-redo, 262 of
+524 re-delivered), because `pinVersions` carries `Map<String,String>` over
+`Map<String, PluginInfo.Release>` and a strict reading counts every `Map`;
+both-sides-untyped rises 21 → 30 on the nine-service mesh for the same reason.
+The nine-service mesh — the population the first run actually uses — stays above
+50 % under every reading, so R3's D5 ruling and §5's scoping are unaffected. The
+ten-service figure now sits below the threshold; it is not the population the
+run uses, and which figure the gate is read against is the plan owner's call,
+not mine. source: `r1ab_reconcile.py` and `r1_nine_service_mesh.py`, run
+unmodified, all four combinations.
+
 ## What I could not verify
 
 * **Runtime provider identity.** Every binding above is read from source. I ran
@@ -252,3 +484,35 @@ expect to have to compute it properly rather than assume headroom.
   return only, per the schema. `@Query`, `@Path` and `@Header` parameters were
   parsed (they were needed to find `@Body`) but are not in the output, so D6's
   parameter folding cannot be driven from this file alone.
+
+### Redo (2026-09-11) — what the redo resolved, and what it did not
+
+**Resolved.** The sixth bullet above ("kork's own contents. I did not clone
+kork.") is closed: kork is cloned at v7.254.0 and v7.220.0 and read
+exhaustively (CLAIM-S1-022, CLAIM-S1-026). It was right to flag, and the risk
+it named is exactly what happened — kork ships one Retrofit interface that a
+service picks up by `@Import` without naming it.
+
+Still open, and now with a kork-shaped addition:
+
+* **Whether any deployment turns the kork client on.** CLAIM-S1-025 shows no
+  shipped profile in the ten sets `spinnaker.extensibility.*`, so the thirty
+  rows describe a client that a stock install never instantiates. Halyard and
+  the operator-supplied profiles that would set it are outside the ten and I
+  did not inspect them. Whether these rows belong in `graph.yaml` is the same
+  projection decision as the four indirect fiat callers, and I have not made it.
+* **Whether the pinned kork version is stable across the BOM range.** kork is
+  pinned per service in `gradle.properties`, and the ten already disagree at
+  1.38.0 (7.254.0 vs keel's 7.220.0). I checked those two tags only. A range of
+  releases will move `korkVersion` independently of the service versions, so
+  G2 must resolve kork per service per BOM rather than assuming one kork per
+  release — and `edges.tsv`'s kork rows are sourced to one tag, not to a range.
+* **Other shared libraries.** I read kork because R2 named it. `keiko`,
+  `spinnaker-gradle-project` and the several `*-api` artifacts each service
+  publishes are unread; the same failure mode — an interface declared in a
+  library and compiled into consumers — could hide in any of them. The two I
+  know of (`fiat-api`, `kork-plugins`) were both found only after someone went
+  looking for them by name.
+* **The self-edge.** I have not established what Front50 pointing this client
+  at itself does at runtime, only that the binding resolves that way
+  (CLAIM-S1-030). It may be dead in practice.

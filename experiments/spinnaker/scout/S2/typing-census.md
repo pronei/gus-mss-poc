@@ -1,12 +1,17 @@
 # S2 typing census — Spinnaker provider surface
 
 Ten services at their latest release tag (see `memo.md` CLAIM-S2-001 for tags and
-commits). 732 endpoint rows in `endpoints.tsv`, extracted by parsing Java, Groovy
-and Kotlin source in the 228 files that carry `@RestController` or `@Controller`.
+commits). 748 endpoint rows in `endpoints.tsv`, extracted by parsing Java, Groovy
+and Kotlin source in the 230 files that carry `@RestController` or `@Controller`.
+
+Revised 2026-09-11 by the redo of `memo.md` §Redo: the first delivery pruned every
+directory named `build` and so missed Igor's `com.netflix.spinnaker.igor.build`
+package (16 endpoints). Every number below is recomputed over the 748 rows; the
+numbers that moved are listed as claims CLAIM-S2-026…038.
 
 An *endpoint row* is one (HTTP method, resolved path template) pair. A mapping
 annotation that declares several paths or several methods contributes one row per
-combination, which is how Spring registers them; 732 rows come from 726
+combination, which is how Spring registers them; 748 rows come from 742
 method-level mapping annotation sites.
 
 ## 1. Counts behind the `typing` column
@@ -40,21 +45,21 @@ is closed and one endpoint gets one value):
 | clouddriver | 130 | 92 | 6 | 26 | 1 | 0 | 5 | 25% | 5 |
 | front50 | 90 | 71 | 7 | 8 | 4 | 0 | 0 | 21% | 0 |
 | echo | 14 | 11 | 1 | 1 | 0 | 0 | 1 | 14% | 1 |
-| igor | 35 | 26 | 1 | 5 | 0 | 3 | 0 | 26% | 0 |
+| igor | 51 | 37 | 1 | 10 | 0 | 3 | 0 | 27% | 0 |
 | fiat | 16 | 15 | 1 | 0 | 0 | 0 | 0 | 6% | 0 |
 | rosco | 14 | 9 | 1 | 4 | 0 | 0 | 0 | 36% | 0 |
 | kayenta | 48 | 18 | 2 | 16 | 1 | 0 | 11 | 40% | 12 |
 | keel | 59 | 40 | 0 | 5 | 0 | 0 | 14 | 8% | 15 |
-| **all ten** | **732** | **394** | **32** | **201** | **39** | **33** | **33** | **41.7%** | **35** |
+| **all ten** | **748** | **405** | **32** | **206** | **39** | **33** | **33** | **41.4%** | **35** |
 
 *Untyped share* = (`untyped-body` + `untyped-return` + `untyped-both` +
-`raw-generic`) / endpoints = 305/732 = **41.7%**, i.e. below the plan's 50%
+`raw-generic`) / endpoints = 310/748 = **41.4%**, i.e. below the plan's 50%
 threshold — but note the plan's §5 threshold is computed over S1's *resolved
-edges*, not over endpoints, and Gate alone contributes 195 of the 305.
+edges*, not over endpoints, and Gate alone contributes 195 of the 310.
 
 ### 1.2 What makes a side untyped
 
-Return side (157 untyped returns in Gate, 240 across the mesh; top entries):
+Return side (157 untyped returns in Gate, 245 across the mesh; top entries):
 
 | service | dominant untyped return types |
 |---|---|
@@ -63,7 +68,7 @@ Return side (157 untyped returns in Gate, 240 across the mesh; top entries):
 | front50 | `PipelineTemplate` ×4, `List<PipelineTemplate>` ×2, `Notification` ×2, `Map<String,List<PipelineTemplate>>` ×1, `Collection<Notification>` ×1, `Map<String,PluginInfo.Release>` ×1, `Map<String,Object>` ×1 |
 | kayenta | `Map` ×10, `List<Map<String,Object>>` ×4, raw `ResponseEntity` ×1, `Map<String,String>` ×1, `List<Map>` ×1 |
 | orca | `Map<String,Object>` ×5, `Map` ×3, `Map<String,String>` ×2, `List<Map<String,Object>>` ×2 |
-| igor | `Map<String,Object>` ×2, `List<Map<String,Object>>` ×2, `Map` ×1 |
+| igor | `Map<String,Object>` ×4, `Object` ×2, `List<Map<String,Object>>` ×2, `List<Object>` ×1, `Map` ×1 |
 | keel | `Map<String,Any>` ×2, `Map<String,Map<String,String>>` ×2, `Map<String,Any?>` ×1 |
 | rosco | `Map` ×2, `Map<String,Object>` ×2 |
 | echo | `Map<String,Object>` ×1 |
@@ -92,14 +97,14 @@ signature names a class.
 | clouddriver | 58 | 28 | 28 | 2 | 3 | 2 | 3 | 119 | 5 | 5 |
 | front50 | 17 | 17 | 0 | 0 | 0 | 28 | 27 | 54 | 8 | 13 |
 | echo | 7 | 6 | 1 | 0 | 0 | 0 | 2 | 8 | 4 | 1 |
-| igor | 15 | 11 | 4 | 0 | 0 | 0 | 3 | 29 | 2 | 6 |
+| igor | 17 | 11 | 6 | 0 | 0 | 0 | 4 | 43 | 3 | 6 |
 | fiat | 2 | 2 | 0 | 0 | 0 | 0 | 5 | 12 | 0 | 0 |
 | rosco | 3 | 1 | 2 | 0 | 0 | 9 | 1 | 10 | 0 | 2 |
 | kayenta | 20 | 20 | 0 | 0 | 0 | 0 | 7 | 34 | 7 | 11 |
 | keel | 15 | 0 | 0 | 15 | 0 | 0 | 28 | 45 | 9 | 40 |
-| **all** | **221** | **116** | **81** | **24** | **15** | **76** | **130** | **565** | **64** | **104** |
+| **all** | **223** | **116** | **83** | **24** | **15** | **76** | **131** | **579** | **65** | **104** |
 
-(221 controller *files* carry at least one method-level mapping; 228 files carry
+(223 controller *files* carry at least one method-level mapping; 230 files carry
 `@RestController`/`@Controller`, the difference being controllers with no mapping
 annotation of their own.)
 
@@ -113,21 +118,26 @@ Rosco `/api/v1` ×8, `/api/v2` ×1; Clouddriver `/v1` ×2; Orca `/v2` ×2. Gate'
 versioned pair; Gate's `/v3/builds/*` sits beside a `/v2/builds/*` set in the same
 controller.
 
-Response codes are declared on 64 of 732 endpoints (9%): `202` ×28, `200` ×18,
-`204` ×13, `400` ×6, `201` ×4, `404` ×3, `410` ×2, `500` ×1, `401` ×1. The rest
-return Spring's default 200 with no annotation. Content types are declared on 104
-of 732 (14%); everything else relies on the global Jackson converter.
+Response codes are declared on 65 of 748 endpoints (9%): `202` ×29, `200` ×18,
+`204` ×13, `400` ×6, `201` ×4, `404` ×3, `410` ×2, `500` ×1, `401` ×1 (a row may
+declare more than one). The rest return Spring's default 200 with no annotation.
+Content types are declared on 104 of 748 (14%); everything else relies on the
+global Jackson converter.
 
 Header parameters: `X-RateLimit-App` (optional) on 45 Gate endpoints,
 `X-SPINNAKER-USER` (required) on 17 Keel endpoints, a whole-`HttpHeaders` bind on
 3 Echo webhook endpoints, and three one-offs in Gate (`Accept`, `X-Hub-Signature`,
 `X-Event-Key`).
 
-Query parameters appear on 261 of 732 endpoints. 22 of those bind a *catch-all*
-`Map<String,String>`/`MultiValueMap` rather than named parameters (Gate's proxy
-and extension controllers, both `cloudMetrics` controllers, Gate's managed
-reports, Gate's `/v1/data/static/{id}`) — those cannot be projected as named
-parameters.
+Query parameters appear on 267 of 748 endpoints. 23 of those bind a *catch-all*
+`Map<String,String>`/`MultiValueMap` rather than named parameters — Gate 10
+(`ProxyController` ×4, `ApiExtensionController`, both `cloudMetrics` endpoints,
+the two managed reports, `/v1/data/static/{id}`), Clouddriver 5 (both
+`cloudMetrics`, `/v1/data/static/{id}`, both reservation reports), Front50 2
+(`/v2/projects`, `/v2/applications`), Igor 6 (the five `compareCommits` and
+`PUT /masters/{name}/jobs/**`) — those cannot be projected as named parameters.
+Gate's and Clouddriver's `GET /tags` bind `Map<String,Object> allParameters`, the
+same construct with a wider value type, and are not counted in the 23.
 
 ## 3. How the model types are written
 
@@ -143,7 +153,7 @@ excluded), and resolving each name to its declaring file inside its own service
 | clouddriver | 64 | 63 | 50 | 11 | 2 | 0 | 0 |
 | front50 | 14 | 14 | 14 | 0 | 0 | 0 | 2 |
 | echo | 12 | 11 | 9 | 2 | 0 | 0 | 0 |
-| igor | 5 | 3 | 3 | 0 | 0 | 0 | 0 |
+| igor | 7 | 6 | 6 | 0 | 0 | 0 | 0 |
 | fiat | 8 | 8 | 8 | 0 | 0 | 0 | 0 |
 | rosco | 7 | 7 | 2 | 5 | 0 | 0 | 0 |
 | kayenta | 19 | 18 | 18 | 0 | 0 | 0 | 0 |
@@ -153,7 +163,7 @@ Styles observed, in order of frequency:
 
 * **Java bean, Lombok-generated accessors** — the default everywhere except Keel.
   Lombok (`@Data`, `@Value`, `@Builder`, `@Getter`, `@Setter`,
-  `@AllArgsConstructor`, `@NoArgsConstructor`) appears on 79 of the 182 resolved
+  `@AllArgsConstructor`, `@NoArgsConstructor`) appears on 81 of the 185 resolved
   model classes. Field presence is therefore invisible in the accessor set and has
   to be read off the field declarations.
 * **Kotlin data class** — Keel only: 15 of its 25 model types, the remaining 10
@@ -186,7 +196,7 @@ the class body; a class is counted once per annotation kind):
 | clouddriver | 0 | 2 | 0 | 5 | 1 | 23 | 0/5 |
 | front50 | 1 | 0 | 0 | 0 | 3 | 6 | — |
 | echo | 1 | 0 | 0 | 0 | 1 | 7 | — |
-| igor | 0 | 1 | 0 | 0 | 0 | 3 | — |
+| igor | 0 | 2 | 0 | 0 | 0 | 5 | — |
 | fiat | 0 | 0 | 0 | 0 | 1 | 6 | — |
 | rosco | 0 | 1 | 0 | 1 | 1 | 2 | — |
 | kayenta | 14 | 1 | 0 | 1 | 2 | 17 | — |
@@ -209,7 +219,7 @@ Three findings matter for D4 (the *declared* presence profile):
    30 (24%) are nullable (`T?`); the other 95 are non-null Kotlin types, i.e.
    required at construction unless they carry a default. Orca's two Kotlin model
    types add 6 more properties, 2 nullable. Java `@Nullable` appears on 13 of the
-   182 model classes and `@NonNull`/`@Nonnull` on 13; Lombok's `@NonNull` accounts
+   185 model classes and `@NonNull`/`@Nonnull` on 13; Lombok's `@NonNull` accounts
    for most of the latter and is a constructor check, not a serialization
    constraint.
 
