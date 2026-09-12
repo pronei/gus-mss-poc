@@ -1,0 +1,296 @@
+{
+ "1 correlationId Keel->Orca": {
+  "hops": [
+   {
+    "hop": "mint",
+    "side": "caller",
+    "method": "POST",
+    "path": "/ops",
+    "field": "trigger.correlationId",
+    "kind": "body",
+    "s1_rows": 1,
+    "s1_body_types": [
+     "OrchestrationRequest"
+    ],
+    "result": "OK: declared type OrchestrationRequest (field verified in source)"
+   },
+   {
+    "hop": "sink-1",
+    "side": "provider",
+    "method": "POST",
+    "path": "/ops",
+    "field": "trigger.correlationId",
+    "kind": "body",
+    "s2_rows": 2,
+    "s2_body_types": [
+     "List<Map>",
+     "Map"
+    ],
+    "result": "FAIL: provider body is Map/absent, field not declared"
+   },
+   {
+    "hop": "sink-2",
+    "side": "provider",
+    "method": "GET",
+    "path": "/executions/correlated/{correlationId}",
+    "field": "correlationId",
+    "kind": "path",
+    "s2_rows": 1,
+    "result": "OK: path param in endpoints.tsv"
+   },
+   {
+    "hop": "reader",
+    "side": "caller",
+    "method": "GET",
+    "path": "/executions/correlated/{correlationId}",
+    "field": "correlationId",
+    "kind": "path",
+    "s1_rows": 1,
+    "result": "OK: path variable present in caller template"
+   }
+  ],
+  "fails": [
+   "sink-1"
+  ],
+  "verdict": "fails at sink-1"
+ },
+ "2 application Gate->Orca->Front50": {
+  "hops": [
+   {
+    "hop": "mint",
+    "side": "caller",
+    "method": "POST",
+    "path": "/ops",
+    "field": "application",
+    "kind": "body",
+    "s1_rows": 1,
+    "s1_body_types": [
+     "Map<String,Object>"
+    ],
+    "result": "FAIL: caller body is Map/absent, field not declared"
+   },
+   {
+    "hop": "hop-in",
+    "side": "provider",
+    "method": "POST",
+    "path": "/ops",
+    "field": "application",
+    "kind": "body",
+    "s2_rows": 2,
+    "s2_body_types": [
+     "List<Map>",
+     "Map"
+    ],
+    "result": "FAIL: provider body is Map/absent, field not declared"
+   },
+   {
+    "hop": "hop-out",
+    "side": "caller",
+    "method": "PATCH",
+    "path": "/v2/applications/{applicationName}",
+    "field": "name",
+    "kind": "body",
+    "s1_rows": 1,
+    "s1_body_types": [
+     "Application"
+    ],
+    "result": "OK: declared type Application (field verified in source)"
+   },
+   {
+    "hop": "hop-out-path",
+    "side": "caller",
+    "method": "PATCH",
+    "path": "/v2/applications/{applicationName}",
+    "field": "applicationName",
+    "kind": "path",
+    "s1_rows": 1,
+    "result": "OK: path variable present in caller template"
+   },
+   {
+    "hop": "sink",
+    "side": "provider",
+    "method": "PATCH",
+    "path": "/v2/applications/{applicationName}",
+    "field": "name",
+    "kind": "body",
+    "s2_rows": 1,
+    "s2_body_types": [
+     "Application"
+    ],
+    "result": "OK: declared type Application (field verified in source)"
+   },
+   {
+    "hop": "sink-path",
+    "side": "provider",
+    "method": "PATCH",
+    "path": "/v2/applications/{applicationName}",
+    "field": "applicationName",
+    "kind": "path",
+    "s2_rows": 1,
+    "result": "OK: path param in endpoints.tsv"
+   }
+  ],
+  "fails": [
+   "mint",
+   "hop-in"
+  ],
+  "verdict": "fails at mint, hop-in"
+ },
+ "3 clientRequestId Orca->Clouddriver": {
+  "hops": [
+   {
+    "hop": "mint",
+    "side": "caller",
+    "method": "POST",
+    "path": "/{cloudProvider}/ops",
+    "field": "clientRequestId",
+    "kind": "query",
+    "s1_rows": 1,
+    "result": "OK (source-only: edges.tsv has no parameter columns)"
+   },
+   {
+    "hop": "sink",
+    "side": "provider",
+    "method": "POST",
+    "path": "/{cloudProvider}/ops",
+    "field": "clientRequestId",
+    "kind": "query",
+    "s2_rows": 1,
+    "result": "OK: query param in endpoints.tsv"
+   }
+  ],
+  "fails": [],
+  "verdict": "passes"
+ },
+ "4 artifactAccount Orca/Rosco->Clouddriver": {
+  "hops": [
+   {
+    "hop": "mint-A",
+    "side": "caller",
+    "method": "PUT",
+    "path": "/artifacts/fetch/",
+    "field": "artifactAccount",
+    "kind": "body",
+    "s1_rows": 1,
+    "s1_body_types": [
+     "Artifact"
+    ],
+    "result": "OK: declared type Artifact (field verified in source)"
+   },
+   {
+    "hop": "mint-B",
+    "side": "caller",
+    "method": "PUT",
+    "path": "/artifacts/fetch/",
+    "field": "artifactAccount",
+    "kind": "body",
+    "s1_rows": 1,
+    "s1_body_types": [
+     "Artifact"
+    ],
+    "result": "OK: declared type Artifact (field verified in source)"
+   },
+   {
+    "hop": "sink",
+    "side": "provider",
+    "method": "PUT",
+    "path": "/artifacts/fetch",
+    "field": "artifactAccount,type",
+    "kind": "body",
+    "s2_rows": 1,
+    "s2_body_types": [
+     "Artifact"
+    ],
+    "result": "OK: declared type Artifact (field verified in source)"
+   }
+  ],
+  "fails": [],
+  "verdict": "passes"
+ },
+ "5 source.executionId Orca->Echo": {
+  "hops": [
+   {
+    "hop": "mint",
+    "side": "caller",
+    "method": "POST",
+    "path": "/notifications",
+    "field": "source.executionId",
+    "kind": "body",
+    "s1_rows": 1,
+    "s1_body_types": [
+     "Notification"
+    ],
+    "result": "OK: declared type Notification (field verified in source)"
+   },
+   {
+    "hop": "sink",
+    "side": "provider",
+    "method": "POST",
+    "path": "/notifications",
+    "field": "source.executionId",
+    "kind": "body",
+    "s2_rows": 1,
+    "s2_body_types": [
+     "Notification"
+    ],
+    "result": "OK: declared type Notification (field verified in source)"
+   }
+  ],
+  "fails": [],
+  "verdict": "passes"
+ },
+ "alt application+parentPipelineExecutionId Echo->Orca->Kayenta": {
+  "hops": [
+   {
+    "hop": "mint",
+    "side": "caller",
+    "method": "POST",
+    "path": "orchestrate",
+    "field": "application",
+    "kind": "body",
+    "s1_rows": 1,
+    "s1_body_types": [
+     "Pipeline"
+    ],
+    "result": "OK: declared type Pipeline (field verified in source)"
+   },
+   {
+    "hop": "hop-in",
+    "side": "provider",
+    "method": "POST",
+    "path": "/orchestrate",
+    "field": "application",
+    "kind": "body",
+    "s2_rows": 1,
+    "s2_body_types": [
+     "Map"
+    ],
+    "result": "FAIL: provider body is Map/absent, field not declared"
+   },
+   {
+    "hop": "hop-out",
+    "side": "caller",
+    "method": "POST",
+    "path": "/canary/{canaryConfigId}",
+    "field": "application,parentPipelineExecutionId",
+    "kind": "query",
+    "s1_rows": 1,
+    "result": "OK (source-only: edges.tsv has no parameter columns)"
+   },
+   {
+    "hop": "sink",
+    "side": "provider",
+    "method": "POST",
+    "path": "/canary/{canaryConfigId}",
+    "field": "application,parentPipelineExecutionId",
+    "kind": "query",
+    "s2_rows": 1,
+    "result": "OK: query param in endpoints.tsv"
+   }
+  ],
+  "fails": [
+   "hop-in"
+  ],
+  "verdict": "fails at hop-in"
+ }
+}

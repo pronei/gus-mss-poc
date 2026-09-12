@@ -1,0 +1,36 @@
+{
+ "rows": 62,
+ "checker_change_rows": [
+  {
+   "construct": "Jackson inheritance **without** `@JsonTypeInfo` (`class X extends Y`)",
+   "projection_empty": false,
+   "cost": "2h projection / ~12h checker",
+   "has_cost": true,
+   "claim": "CLAIM-S5-004"
+  },
+  {
+   "construct": "`@JsonAlias`",
+   "projection_empty": false,
+   "cost": "0h chains / 6h pair relation",
+   "has_cost": true,
+   "claim": "CLAIM-S5-039"
+  },
+  {
+   "construct": "Map-subclass model (`X extends HashMap<String,Object>`)",
+   "projection_empty": false,
+   "cost": "1h projection / ~8h checker",
+   "has_cost": true,
+   "claim": "CLAIM-S5-023"
+  },
+  {
+   "construct": "caller declares an endpoint the provider does not expose",
+   "projection_empty": false,
+   "cost": "0.5h projection / 4h checker",
+   "has_cost": true,
+   "claim": "CLAIM-S5-006"
+  }
+ ],
+ "violations": [],
+ "rows_missing_cost_any": [],
+ "rows_missing_claim": []
+}

@@ -1,0 +1,222 @@
+{
+ "types_named": [
+  "ApplicationEvent",
+  "ApplicationSummary",
+  "ArtifactMetadata",
+  "BaseServerGroup",
+  "ConstraintState",
+  "DefaultResourceDiff",
+  "DeliveryArtifact",
+  "DeliveryConfig",
+  "EchoArtifactEvent",
+  "EnvironmentArtifactPin",
+  "EnvironmentArtifactVeto",
+  "EnvironmentView",
+  "ExecutionSummary",
+  "ExportResult",
+  "GateRawConfig",
+  "ReferencePayload",
+  "ReferenceVerificationPayload",
+  "Resource",
+  "ResourceHistoryEvent",
+  "ResourceStatus",
+  "RetryVerificationRequest",
+  "RootSchema",
+  "SubmittedDeliveryConfig",
+  "SubmittedResource",
+  "UpdateVerificationStatusRequest",
+  "UpdatedConstraintStatus"
+ ],
+ "resolved": {
+  "ApplicationEvent": {
+   "kind": "class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/events/ApplicationEvent.kt",
+   "ctor_props": 1,
+   "nullable": 1,
+   "candidates": 1
+  },
+  "ApplicationSummary": {
+   "kind": "data class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/core/api/ApplicationSummary.kt",
+   "ctor_props": 7,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "ArtifactMetadata": {
+   "kind": "data class",
+   "file": "keel-api/src/main/kotlin/com/netflix/spinnaker/keel/api/artifacts/ArtifactMetadata.kt",
+   "ctor_props": 2,
+   "nullable": 2,
+   "candidates": 1
+  },
+  "BaseServerGroup": {
+   "kind": "interface",
+   "file": "keel-clouddriver/src/main/kotlin/com/netflix/spinnaker/keel/clouddriver/model/ActiveServerGroup.kt",
+   "ctor_props": 0,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "ConstraintState": {
+   "kind": "data class",
+   "file": "keel-api/src/main/kotlin/com/netflix/spinnaker/keel/api/constraints/ConstraintState.kt",
+   "ctor_props": 12,
+   "nullable": 5,
+   "candidates": 1
+  },
+  "DefaultResourceDiff": {
+   "kind": "data class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/diff/DefaultResourceDiff.kt",
+   "ctor_props": 2,
+   "nullable": 1,
+   "candidates": 1
+  },
+  "DeliveryArtifact": {
+   "kind": "class",
+   "file": "keel-api/src/main/kotlin/com/netflix/spinnaker/keel/api/artifacts/DeliveryArtifact.kt",
+   "ctor_props": 0,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "DeliveryConfig": {
+   "kind": "data class",
+   "file": "keel-api/src/main/kotlin/com/netflix/spinnaker/keel/api/DeliveryConfig.kt",
+   "ctor_props": 7,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "EchoArtifactEvent": {
+   "kind": "data class",
+   "file": "keel-web/src/main/kotlin/com/netflix/spinnaker/keel/rest/ArtifactController.kt",
+   "ctor_props": 2,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "EnvironmentArtifactPin": {
+   "kind": "data class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/core/api/EnvironmentArtifactPin.kt",
+   "ctor_props": 5,
+   "nullable": 2,
+   "candidates": 1
+  },
+  "EnvironmentArtifactVeto": {
+   "kind": "data class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/core/api/EnvironmentArtifactVeto.kt",
+   "ctor_props": 5,
+   "nullable": 2,
+   "candidates": 1
+  },
+  "EnvironmentView": {
+   "kind": "data class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/services/EnvironmentService.kt",
+   "ctor_props": 3,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "ExecutionSummary": {
+   "kind": "data class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/actuation/ExecutionSummaryService.kt",
+   "ctor_props": 6,
+   "nullable": 1,
+   "candidates": 1
+  },
+  "ExportResult": {
+   "kind": "interface",
+   "file": "keel-web/src/main/kotlin/com/netflix/spinnaker/keel/export/ExportService.kt",
+   "ctor_props": 0,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "GateRawConfig": {
+   "kind": "data class",
+   "file": "keel-web/src/main/kotlin/com/netflix/spinnaker/keel/rest/DeliveryConfigController.kt",
+   "ctor_props": 1,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "ReferencePayload": {
+   "kind": "data class",
+   "file": "keel-web/src/main/kotlin/com/netflix/spinnaker/keel/rest/AdminController.kt",
+   "ctor_props": 1,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "ReferenceVerificationPayload": {
+   "kind": "data class",
+   "file": "keel-web/src/main/kotlin/com/netflix/spinnaker/keel/rest/AdminController.kt",
+   "ctor_props": 2,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "Resource": {
+   "kind": "data class",
+   "file": "keel-api/src/main/kotlin/com/netflix/spinnaker/keel/api/Resource.kt",
+   "ctor_props": 2,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "ResourceHistoryEvent": {
+   "kind": "interface",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/events/PersistentEvent.kt",
+   "ctor_props": 0,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "ResourceStatus": {
+   "kind": "enum class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/persistence/ResourceRepository.kt",
+   "ctor_props": 0,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "RetryVerificationRequest": {
+   "kind": "data class",
+   "file": "keel-web/src/main/kotlin/com/netflix/spinnaker/keel/rest/VerificationController.kt",
+   "ctor_props": 3,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "RootSchema": {
+   "kind": "data class",
+   "file": "keel-schema-generator/src/main/kotlin/com/netflix/spinnaker/keel/schema/Schema.kt",
+   "ctor_props": 6,
+   "nullable": 4,
+   "candidates": 1
+  },
+  "SubmittedDeliveryConfig": {
+   "kind": "data class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/core/api/SubmittedDeliveryConfig.kt",
+   "ctor_props": 8,
+   "nullable": 4,
+   "candidates": 1
+  },
+  "SubmittedResource": {
+   "kind": "data class",
+   "file": "keel-core/src/main/kotlin/com/netflix/spinnaker/keel/core/api/SubmittedResource.kt",
+   "ctor_props": 3,
+   "nullable": 0,
+   "candidates": 1
+  },
+  "UpdateVerificationStatusRequest": {
+   "kind": "data class",
+   "file": "keel-web/src/main/kotlin/com/netflix/spinnaker/keel/rest/VerificationController.kt",
+   "ctor_props": 5,
+   "nullable": 1,
+   "candidates": 1
+  },
+  "UpdatedConstraintStatus": {
+   "kind": "data class",
+   "file": "keel-api/src/main/kotlin/com/netflix/spinnaker/keel/api/constraints/UpdatedConstraintStatus.kt",
+   "ctor_props": 5,
+   "nullable": 2,
+   "candidates": 1
+  }
+ },
+ "unresolved": [],
+ "summary": {
+  "types_named": 26,
+  "resolved": 26,
+  "data_classes": 20,
+  "ctor_props_total": 88,
+  "nullable_total": 25
+ }
+}

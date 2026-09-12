@@ -1,0 +1,797 @@
+{
+ "review_date": "2026-09-11",
+ "checker": "gus@main 99e3c8c",
+ "scout_tags_equal_bom": "1.38.0 (nine BOM-pinned services); keel v1.4.1 unpinned",
+ "R0": {
+  "S1": {
+   "pass": true,
+   "missing_files": [],
+   "problems": [],
+   "header_exact": true,
+   "memo_ends_with_could_not_verify": true,
+   "memo_claims_defined": 20,
+   "claims_without_literal_source_label": []
+  },
+  "S2": {
+   "pass": true,
+   "missing_files": [],
+   "problems": [],
+   "header_exact": true,
+   "memo_ends_with_could_not_verify": true,
+   "memo_claims_defined": 25,
+   "claims_without_literal_source_label": []
+  },
+  "S3": {
+   "pass": true,
+   "missing_files": [],
+   "problems": [],
+   "header_exact": true,
+   "memo_ends_with_could_not_verify": true,
+   "memo_claims_defined": 28,
+   "claims_without_literal_source_label": [
+    3,
+    10,
+    12,
+    13,
+    16,
+    20,
+    21,
+    24,
+    25,
+    26,
+    27
+   ]
+  },
+  "S4": {
+   "pass": true,
+   "missing_files": [],
+   "problems": [],
+   "header_exact": true,
+   "memo_ends_with_could_not_verify": true,
+   "memo_claims_defined": 15,
+   "claims_without_literal_source_label": []
+  },
+  "S5": {
+   "pass": true,
+   "missing_files": [],
+   "problems": [],
+   "header_exact": true,
+   "memo_ends_with_could_not_verify": true,
+   "memo_claims_defined": 59,
+   "claims_without_literal_source_label": [
+    49,
+    50,
+    51,
+    52,
+    53
+   ]
+  },
+  "S6": {
+   "pass": true,
+   "missing_files": [],
+   "problems": [],
+   "header_exact": null,
+   "memo_ends_with_could_not_verify": true,
+   "memo_claims_defined": 78,
+   "claims_without_literal_source_label": []
+  }
+ },
+ "R1a": {
+  "edges": 534,
+  "resolved": 533,
+  "unresolved": 1,
+  "matched": 470,
+  "unmatched": 63,
+  "matched_share_of_resolved": 0.8818,
+  "matched_share_excluding_actuator": 0.9056,
+  "unmatched_classes": {
+   "actuator": 14,
+   "s2_census_gap_igor_build_package": 24,
+   "provider_dispatch_slot": 7,
+   "framework_route": 1,
+   "stale_caller_declaration": 17
+  },
+  "per_provider": {
+   "clouddriver": {
+    "resolved": 152,
+    "matched": 142,
+    "matched_share": 0.934
+   },
+   "echo": {
+    "resolved": 17,
+    "matched": 14,
+    "matched_share": 0.824
+   },
+   "fiat": {
+    "resolved": 65,
+    "matched": 64,
+    "matched_share": 0.985
+   },
+   "front50": {
+    "resolved": 120,
+    "matched": 112,
+    "matched_share": 0.933
+   },
+   "igor": {
+    "resolved": 63,
+    "matched": 33,
+    "matched_share": 0.524
+   },
+   "kayenta": {
+    "resolved": 18,
+    "matched": 18,
+    "matched_share": 1.0
+   },
+   "keel": {
+    "resolved": 44,
+    "matched": 36,
+    "matched_share": 0.818
+   },
+   "orca": {
+    "resolved": 44,
+    "matched": 42,
+    "matched_share": 0.955
+   },
+   "rosco": {
+    "resolved": 10,
+    "matched": 9,
+    "matched_share": 0.9
+   }
+  },
+  "ambiguous_matches": 4,
+  "normalization": {
+   "prefix_rules": {},
+   "rules": [
+    "strip ?query",
+    "\".\"/\"\" -> /",
+    "add leading /",
+    "{name[:regex]} -> {}",
+    "collapse //",
+    "strip trailing /",
+    "provider ** matches any suffix",
+    "provider {} matches a caller literal or {}",
+    "provider ANY matches every method"
+   ]
+  },
+  "with_igor_gap_estimate": {
+   "matched": 494,
+   "share": 0.9268,
+   "share_excluding_actuator": 0.9518
+  },
+  "nine_service_mesh": {
+   "edges": 436,
+   "resolved": 435,
+   "matched": 383,
+   "unmatched": 52,
+   "unmatched_actuator": 12,
+   "matched_share": 0.8805,
+   "matched_share_excluding_actuator": 0.9054
+  },
+  "nine_service_mesh_with_igor_gap_estimate": {
+   "matched": 407,
+   "matched_share": 0.9356,
+   "matched_share_excluding_actuator": 0.9622
+  }
+ },
+ "R1b": {
+  "definition_as_written": {
+   "untyped": 240,
+   "of": 470,
+   "share": 0.5106,
+   "both_sides_untyped": 23
+  },
+  "definition_s5_refined": {
+   "untyped": 238,
+   "of": 470,
+   "share": 0.5064,
+   "both_sides_untyped": 21
+  },
+  "sensitivity_opaque_caller_return_counted_untyped": {
+   "untyped": 328,
+   "share": 0.6979,
+   "edges_with_opaque_caller_return": 122
+  },
+  "per_provider_as_written": {
+   "clouddriver": 0.627,
+   "echo": 0.571,
+   "fiat": 0.109,
+   "front50": 0.598,
+   "igor": 0.242,
+   "kayenta": 0.833,
+   "keel": 0.333,
+   "orca": 0.714,
+   "rosco": 0.444
+  },
+  "per_provider_refined": {
+   "clouddriver": 0.62,
+   "echo": 0.5,
+   "fiat": 0.109,
+   "front50": 0.598,
+   "igor": 0.242,
+   "kayenta": 0.833,
+   "keel": 0.333,
+   "orca": 0.714,
+   "rosco": 0.444
+  },
+  "with_igor_gap_estimate": {
+   "as_written": {
+    "untyped": 252,
+    "of": 494,
+    "share": 0.5101
+   },
+   "refined": {
+    "untyped": 250,
+    "of": 494,
+    "share": 0.5061
+   }
+  },
+  "nine_service_mesh": {
+   "untyped_share_as_written": 0.5744,
+   "untyped_share_refined": 0.5692,
+   "both_sides_untyped": 21,
+   "both_sides_share": 0.0548
+  },
+  "nine_service_mesh_with_igor_gap_estimate": {
+   "untyped_share_as_written": 0.57,
+   "untyped_share_refined": 0.5651
+  },
+  "s2_typing_column_crosscheck_mismatches": 0,
+  "threshold": 0.5,
+  "definition_in_force_after_R3": "s5_refined",
+  "above_threshold": true
+ },
+ "R1c": {
+  "services_never_pinned": [
+   "keel"
+  ],
+  "kayenta_first_pinned": "1.7.0",
+  "kayenta_absent_releases": 21,
+  "longest_runs_images_only": [
+   {
+    "from": "1.0.0",
+    "to": "1.23.7",
+    "releases": 202,
+    "pairs": 201
+   },
+   {
+    "from": "1.30.0",
+    "to": "2026.3.0",
+    "releases": 94,
+    "pairs": 93
+   }
+  ],
+  "longest_runs_images_plus_maven": [
+   {
+    "from": "1.0.0",
+    "to": "1.23.7",
+    "releases": 202,
+    "pairs": 201
+   },
+   {
+    "from": "1.27.0",
+    "to": "2026.3.0",
+    "releases": 120,
+    "pairs": 119
+   }
+  ],
+  "minor_heads_images_only": [
+   {
+    "from": "1.0.0",
+    "to": "1.23.0",
+    "releases": 24,
+    "pairs": 23
+   },
+   {
+    "from": "1.30.0",
+    "to": "2026.3.0",
+    "releases": 18,
+    "pairs": 17
+   }
+  ],
+  "unretrievable_images_only": {
+   "count": 50,
+   "first": "1.24.0",
+   "last": "1.29.7"
+  },
+  "no_artifact_anywhere": {
+   "count": 24,
+   "first": "1.24.0",
+   "last": "1.26.7"
+  },
+  "recommended_range": {
+   "releases": 50,
+   "pairs": 49,
+   "all-images-ok": true,
+   "kayenta-pinned-throughout": true,
+   "minor-heads": [
+    "1.30.0",
+    "1.31.0",
+    "1.32.0",
+    "1.33.0",
+    "1.34.0",
+    "1.35.0",
+    "1.36.0",
+    "1.37.0",
+    "1.38.0"
+   ]
+  },
+  "s3_runs_confirmed": true
+ },
+ "R1d": {
+  "rows": 38,
+  "kept_mechanically": 38,
+  "dropped": [],
+  "survivors_per_kind": {
+   "compat-note": 21,
+   "breaking": 14,
+   "upgrade-order": 1,
+   "deprecation-removed": 2
+  },
+  "flagged_closed_unmerged_pr": [
+   "CLAIM-S4-019"
+  ],
+  "ruling_on_CLAIM-S4-019": "does not count",
+  "survivors_per_kind_after_ruling": {
+   "compat-note": 20,
+   "breaking": 14,
+   "upgrade-order": 1,
+   "deprecation-removed": 2
+  },
+  "breaking_rows": [
+   [
+    "CLAIM-S4-008",
+    "1.29.x -> 1.30.0",
+    "https://spinnaker.io/changelogs/1.30.0-changelog/#changes-to-the-way-artifact-constraints-on-triggers-work"
+   ],
+   [
+    "CLAIM-S4-011",
+    "1.30.x -> 1.31.0",
+    "https://spinnaker.io/changelogs/1.31.0-changelog/#clouddriver"
+   ],
+   [
+    "CLAIM-S4-014",
+    "1.33.x -> 1.34.0",
+    "https://spinnaker.io/changelogs/1.34.0-changelog/#breaking-change-springfox-300"
+   ],
+   [
+    "CLAIM-S4-016",
+    "1.34.3 -> 1.35.1",
+    "https://github.com/spinnaker/spinnaker/issues/6970"
+   ],
+   [
+    "CLAIM-S4-021",
+    "1.36.0 -> 1.37.6",
+    "https://github.com/spinnaker/spinnaker/issues/7021"
+   ],
+   [
+    "CLAIM-S4-023",
+    "1.37.10 -> 1.38.0",
+    "https://github.com/spinnaker/spinnaker/issues/7054"
+   ],
+   [
+    "CLAIM-S4-024",
+    "2025.0.2 -> 2025.0.3",
+    "https://github.com/spinnaker/spinnaker/pull/7060"
+   ],
+   [
+    "CLAIM-S4-030",
+    "2025.0.8 -> 2025.1.0",
+    "https://github.com/spinnaker/spinnaker/issues/7226"
+   ],
+   [
+    "CLAIM-S4-032",
+    "2025.1.1 -> 2025.1.2",
+    "https://github.com/spinnaker/spinnaker/pull/7201"
+   ],
+   [
+    "CLAIM-S4-033",
+    "2025.1.x -> 2025.2.0",
+    "https://spinnaker.io/changelogs/2025.2.0-changelog/#spring-security-5-oauth2-migration"
+   ],
+   [
+    "CLAIM-S4-035",
+    "1.34.3 -> 2025.2.2",
+    "https://github.com/spinnaker/spinnaker/issues/7316"
+   ],
+   [
+    "CLAIM-S4-036",
+    "2026.1.x -> 2026.2.0",
+    "https://spinnaker.io/changelogs/2026.2.0-changelog/#url-handling"
+   ],
+   [
+    "CLAIM-S4-037",
+    "2026.1.x -> 2026.2.0",
+    "https://spinnaker.io/changelogs/2026.2.0-changelog/#ecs-and-image-selection"
+   ],
+   [
+    "CLAIM-S4-039",
+    "2026.2.x -> 2026.3.0",
+    "https://spinnaker.io/changelogs/2026.3.0-changelog/#remove-autohealingpolicymaxunavailable"
+   ]
+  ],
+  "rows_in_1.30.0..1.38.0": [
+   [
+    "CLAIM-S4-007",
+    "1.29.x -> 1.30.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-008",
+    "1.29.x -> 1.30.0",
+    "breaking"
+   ],
+   [
+    "CLAIM-S4-009",
+    "1.30.x -> 1.31.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-010",
+    "1.30.x -> 1.31.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-011",
+    "1.30.x -> 1.31.0",
+    "breaking"
+   ],
+   [
+    "CLAIM-S4-012",
+    "1.31.x -> 1.32.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-013",
+    "1.31.x -> 1.32.0",
+    "upgrade-order"
+   ],
+   [
+    "CLAIM-S4-014",
+    "1.33.x -> 1.34.0",
+    "breaking"
+   ],
+   [
+    "CLAIM-S4-015",
+    "1.34.x -> 1.35.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-016",
+    "1.34.3 -> 1.35.1",
+    "breaking"
+   ],
+   [
+    "CLAIM-S4-017",
+    "1.35.x -> 1.36.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-018",
+    "1.35.x -> 1.36.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-019",
+    "1.35.x -> 1.36.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-020",
+    "1.36.x -> 1.37.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-021",
+    "1.36.0 -> 1.37.6",
+    "breaking"
+   ],
+   [
+    "CLAIM-S4-022",
+    "1.37.11 -> 1.38.0",
+    "compat-note"
+   ],
+   [
+    "CLAIM-S4-023",
+    "1.37.10 -> 1.38.0",
+    "breaking"
+   ]
+  ],
+  "two_labelers_required": true
+ },
+ "R1e": {
+  "1 correlationId Keel->Orca": {
+   "verdict": "fails at sink-1",
+   "fails": [
+    "sink-1"
+   ]
+  },
+  "2 application Gate->Orca->Front50": {
+   "verdict": "fails at mint, hop-in",
+   "fails": [
+    "mint",
+    "hop-in"
+   ]
+  },
+  "3 clientRequestId Orca->Clouddriver": {
+   "verdict": "passes",
+   "fails": []
+  },
+  "4 artifactAccount Orca/Rosco->Clouddriver": {
+   "verdict": "passes",
+   "fails": []
+  },
+  "5 source.executionId Orca->Echo": {
+   "verdict": "passes",
+   "fails": []
+  },
+  "alt application+parentPipelineExecutionId Echo->Orca->Kayenta": {
+   "verdict": "fails at hop-in",
+   "fails": [
+    "hop-in"
+   ]
+  }
+ },
+ "R1f": {
+  "rows": 62,
+  "checker_change_rows": [
+   "Jackson inheritance **without** `@JsonTypeInfo` (`class X extends Y`)",
+   "`@JsonAlias`",
+   "Map-subclass model (`X extends HashMap<String,Object>`)",
+   "caller declares an endpoint the provider does not expose"
+  ],
+  "violations": []
+ },
+ "R2": {
+  "log": [
+   [
+    "CLAIM-S1-002",
+    "gate@v6.69.0 GateConfig.groovy:254; ServiceConfiguration.java:76",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S1-005",
+    "gate@v6.69.0 DownstreamServicesHealthIndicator.groovy:59; ServiceConfiguration.java:52",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S1-008",
+    "fiat@v1.57.0 FiatAuthenticationConfig.java:65; FiatClientConfigurationProperties.java:26",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S1-011",
+    "kayenta@v2.46.0 RetrofitClientFactory.java:99",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S1-014",
+    "orca.yml:16-21; CloudDriverConfigurationProperties.java:95-99; rosco ServiceConfig.java:32; keel ClouddriverConfiguration.kt:43",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S1-017",
+    "rg over the ten repositories",
+    "refuted"
+   ],
+   [
+    "CLAIM-S1-020",
+    "gate ClouddriverService.java:394; per-interface counts",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-002",
+    "front50@v2.41.0 PipelineController.java:109",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-005",
+    "front50@v2.41.0 PipelineTemplate.java:29",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-008",
+    "keel@v1.4.1 KeelApiModule.kt:104",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-003",
+    "endpoints.tsv vs the trees",
+    "refuted"
+   ],
+   [
+    "CLAIM-S2-011",
+    "front50 PipelineMixins.java:32,35; S3StorageService.java:68",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-014",
+    "typing-census.md \u00a74",
+    "confirmed in substance; counts method-dependent"
+   ],
+   [
+    "CLAIM-S2-017",
+    "gate ManagedController.java:370; keel AdminController.kt:59; gate ClusterController.groovy:63",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S2-020",
+    "endpoints.tsv header_params",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S3-002",
+    "GCS bucket listing + 346 GETs",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S3-005",
+    "manifest GETs on gcr.io and us-docker.pkg.dev",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S3-008",
+    "tags/list on gcr.io, us-docker.pkg.dev, ghcr.io",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S3-024",
+    "ten Maven -web jars + three unpacked images (constant-pool scan)",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S4-002",
+    "https://spinnaker.io/changelogs/2025.0.0-changelog/",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S4-005",
+    "https://spinnaker.io/changelogs/1.29.0-changelog/#orca",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S4-008",
+    "https://spinnaker.io/changelogs/1.30.0-changelog/",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S5-002",
+    "gus@main pkg/schema/loader.go:138",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S5-005",
+    "gus@main pkg/schema/loader.go:531",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S5-008",
+    "gus@main pkg/schema/loader.go:498-507",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S6-002",
+    "orca@v8.64.0 KatoService.java:121-128",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S6-005",
+    "clouddriver@v5.95.0 OperationsController.groovy:238",
+    "confirmed"
+   ],
+   [
+    "CLAIM-S6-008",
+    "orca@v8.64.0 KatoService.java:45-49",
+    "confirmed"
+   ]
+  ],
+  "tally": {
+   "S1": {
+    "confirmed": 6,
+    "refuted": 1,
+    "sample_extended": true,
+    "rejected": false
+   },
+   "S2": {
+    "confirmed": 6,
+    "confirmed_in_substance": 1,
+    "refuted": 1,
+    "sample_extended": true,
+    "rejected": false
+   },
+   "S3": {
+    "confirmed": 4,
+    "refuted": 0,
+    "rejected": false
+   },
+   "S4": {
+    "confirmed": 3,
+    "refuted": 0,
+    "rejected": false
+   },
+   "S5": {
+    "confirmed": 3,
+    "refuted": 0,
+    "rejected": false
+   },
+   "S6": {
+    "confirmed": 3,
+    "refuted": 0,
+    "rejected": false
+   }
+  },
+  "s2_coverage_gap": {
+   "missing_files": [
+    {
+     "file": "igor-web/src/main/groovy/com/netflix/spinnaker/igor/build/BuildController.groovy",
+     "method_mappings": 12,
+     "controller_annotation_at_char": 2710,
+     "line": 59
+    },
+    {
+     "file": "igor-web/src/main/groovy/com/netflix/spinnaker/igor/build/InfoController.groovy",
+     "method_mappings": 4,
+     "controller_annotation_at_char": 1846,
+     "line": 43
+    }
+   ],
+   "total_missing_method_mappings": 16,
+   "cause": "extract.py:949 prunes directories named build"
+  },
+  "redo_requested": {
+   "S1": "add kork-plugins Front50Service edges (conditional) or list as out of scope; correct CLAIM-S1-017; fix counts 101/118",
+   "S2": "re-deliver endpoints.tsv with the 16 igor build-package rows; correct CLAIM-S2-003/004 and typing-census counts"
+  }
+ },
+ "R3": {
+  "kept": [
+   "D1",
+   "D9",
+   "D10",
+   "D11"
+  ],
+  "revised": [
+   "D2",
+   "D3",
+   "D4",
+   "D5",
+   "D6",
+   "D7",
+   "D8",
+   "D12"
+  ],
+  "text_changed_but_kept": [
+   "D1 (three extractor constraints added)",
+   "D9 (survivors named)",
+   "D10 (S4-019 ruling)",
+   "D11 (triage categories)"
+  ],
+  "threshold_unchanged": 0.5,
+  "eight_pair_minimum_unchanged": true
+ },
+ "R4": {
+  "verdict": "SCOPED-GO",
+  "conditions": {
+   "reflection_route_per_service": "met",
+   "range_ge_8_pairs": "met (49)",
+   "reconciled_ge_90pct": "not met on delivered census (0.882; 0.906 excl. actuator; 0.927 est. after S2 repair)",
+   "untyped_le_50pct": "not met (0.506 ten services / 0.569 nine services, S5-refined definition)",
+   "breaking_row_survives": "met (14)",
+   "gaps_cost": "met"
+  },
+  "given_up": [
+   "pair-relation claims on untyped edges: scoped to caller-drift (C2, C4, TGT) on the typed remainder per \u00a75",
+   "Keel (98 edge rows)",
+   "CalVer pairs",
+   "chains (second run: 3, 4, 5 and reduced Orca->Front50)",
+   "17 stale caller declarations reported as findings, not checked",
+   "declared presence profile as a distinct result",
+   "1.24.0..1.29.7"
+  ],
+  "first_run_range": "1.30.0..1.38.0 (49 pairs, version order)",
+  "preconditions": [
+   "S2 re-delivered endpoints.tsv (igor build package)",
+   "S1 kork-plugins addendum"
+  ],
+  "G1_G2_may_start": true
+ }
+}

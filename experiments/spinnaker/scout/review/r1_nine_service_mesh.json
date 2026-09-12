@@ -1,0 +1,26 @@
+{
+ "nine_service_mesh": {
+  "edges": 436,
+  "resolved": 435,
+  "matched": 383,
+  "unmatched": 52,
+  "unmatched_actuator": 12,
+  "matched_share": 0.8805,
+  "matched_share_excluding_actuator": 0.9054,
+  "untyped_share_as_written": 0.5744,
+  "untyped_share_refined": 0.5692,
+  "both_sides_untyped": 21,
+  "both_sides_share": 0.0548
+ },
+ "nine_service_mesh_with_igor_gap_estimate": {
+  "matched": 407,
+  "matched_share": 0.9356,
+  "matched_share_excluding_actuator": 0.9622,
+  "untyped_share_as_written": 0.57,
+  "untyped_share_refined": 0.5651
+ },
+ "keel_rows_dropped": {
+  "as_caller": 54,
+  "as_provider": 44
+ }
+}

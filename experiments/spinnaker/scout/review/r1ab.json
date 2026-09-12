@@ -1,0 +1,139 @@
+{
+ "edges": 534,
+ "resolved": 533,
+ "unresolved": 1,
+ "matched": 470,
+ "unmatched": 63,
+ "matched_share_of_resolved": 0.8818,
+ "ambiguous_matches": 4,
+ "unmatched_by_category": {
+  "no-provider-mapping": 49,
+  "actuator": 14
+ },
+ "matched_share_excluding_actuator": 0.9056,
+ "per_provider": {
+  "clouddriver": {
+   "resolved": 152,
+   "matched": 142,
+   "untyped_strict": 89,
+   "untyped_refined": 88,
+   "both_sides_strict": 1,
+   "matched_share": 0.934,
+   "untyped_share_as_written": 0.627,
+   "untyped_share_refined": 0.62
+  },
+  "echo": {
+   "resolved": 17,
+   "matched": 14,
+   "untyped_strict": 8,
+   "untyped_refined": 7,
+   "both_sides_strict": 2,
+   "matched_share": 0.824,
+   "untyped_share_as_written": 0.571,
+   "untyped_share_refined": 0.5
+  },
+  "fiat": {
+   "resolved": 65,
+   "matched": 64,
+   "untyped_strict": 7,
+   "untyped_refined": 7,
+   "both_sides_strict": 0,
+   "matched_share": 0.985,
+   "untyped_share_as_written": 0.109,
+   "untyped_share_refined": 0.109
+  },
+  "front50": {
+   "resolved": 120,
+   "matched": 112,
+   "untyped_strict": 67,
+   "untyped_refined": 67,
+   "both_sides_strict": 5,
+   "matched_share": 0.933,
+   "untyped_share_as_written": 0.598,
+   "untyped_share_refined": 0.598
+  },
+  "igor": {
+   "resolved": 63,
+   "matched": 33,
+   "untyped_strict": 8,
+   "untyped_refined": 8,
+   "both_sides_strict": 0,
+   "matched_share": 0.524,
+   "untyped_share_as_written": 0.242,
+   "untyped_share_refined": 0.242
+  },
+  "kayenta": {
+   "resolved": 18,
+   "matched": 18,
+   "untyped_strict": 15,
+   "untyped_refined": 15,
+   "both_sides_strict": 4,
+   "matched_share": 1.0,
+   "untyped_share_as_written": 0.833,
+   "untyped_share_refined": 0.833
+  },
+  "keel": {
+   "resolved": 44,
+   "matched": 36,
+   "untyped_strict": 12,
+   "untyped_refined": 12,
+   "both_sides_strict": 0,
+   "matched_share": 0.818,
+   "untyped_share_as_written": 0.333,
+   "untyped_share_refined": 0.333
+  },
+  "orca": {
+   "resolved": 44,
+   "matched": 42,
+   "untyped_strict": 30,
+   "untyped_refined": 30,
+   "both_sides_strict": 11,
+   "matched_share": 0.955,
+   "untyped_share_as_written": 0.714,
+   "untyped_share_refined": 0.714
+  },
+  "rosco": {
+   "resolved": 10,
+   "matched": 9,
+   "untyped_strict": 4,
+   "untyped_refined": 4,
+   "both_sides_strict": 0,
+   "matched_share": 0.9,
+   "untyped_share_as_written": 0.444,
+   "untyped_share_refined": 0.444
+  }
+ },
+ "untyped_share_as_written": {
+  "untyped": 240,
+  "of": 470,
+  "share": 0.5106,
+  "both_sides_untyped": 23
+ },
+ "untyped_share_s5_refined": {
+  "untyped": 238,
+  "of": 470,
+  "share": 0.5064,
+  "both_sides_untyped": 21
+ },
+ "sensitivity_as_written_plus_opaque_caller_return_counted_untyped": {
+  "untyped": 328,
+  "share": 0.6979,
+  "edges_with_opaque_caller_return": 122
+ },
+ "s2_typing_column_crosscheck_mismatches": 0,
+ "s2_typing_column_crosscheck_examples": [],
+ "normalization": {
+  "prefix_rules": {},
+  "rules": [
+   "strip ?query",
+   "\".\"/\"\" -> /",
+   "add leading /",
+   "{name[:regex]} -> {}",
+   "collapse //",
+   "strip trailing /",
+   "provider ** matches any suffix",
+   "provider {} matches a caller literal or {}",
+   "provider ANY matches every method"
+  ]
+ }
+}

@@ -1,0 +1,66 @@
+{
+ "gate": {
+  "controller_files_in_source": 73,
+  "files_in_s2": 73,
+  "missing_files": []
+ },
+ "orca": {
+  "controller_files_in_source": 11,
+  "files_in_s2": 11,
+  "missing_files": []
+ },
+ "clouddriver": {
+  "controller_files_in_source": 59,
+  "files_in_s2": 58,
+  "missing_files": []
+ },
+ "front50": {
+  "controller_files_in_source": 17,
+  "files_in_s2": 17,
+  "missing_files": []
+ },
+ "echo": {
+  "controller_files_in_source": 7,
+  "files_in_s2": 7,
+  "missing_files": []
+ },
+ "igor": {
+  "controller_files_in_source": 17,
+  "files_in_s2": 15,
+  "missing_files": [
+   {
+    "file": "igor-web/src/main/groovy/com/netflix/spinnaker/igor/build/BuildController.groovy",
+    "method_mappings": 12,
+    "controller_annotation_at_char": 2710,
+    "line": 59
+   },
+   {
+    "file": "igor-web/src/main/groovy/com/netflix/spinnaker/igor/build/InfoController.groovy",
+    "method_mappings": 4,
+    "controller_annotation_at_char": 1846,
+    "line": 43
+   }
+  ]
+ },
+ "fiat": {
+  "controller_files_in_source": 2,
+  "files_in_s2": 2,
+  "missing_files": []
+ },
+ "rosco": {
+  "controller_files_in_source": 3,
+  "files_in_s2": 3,
+  "missing_files": []
+ },
+ "kayenta": {
+  "controller_files_in_source": 20,
+  "files_in_s2": 20,
+  "missing_files": []
+ },
+ "keel": {
+  "controller_files_in_source": 15,
+  "files_in_s2": 15,
+  "missing_files": []
+ },
+ "_total_missing_method_mappings": 16
+}
