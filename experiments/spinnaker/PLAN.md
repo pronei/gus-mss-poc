@@ -46,7 +46,7 @@ triaged as a projection defect or a real inconsistency.
 
 ### Phase 0 — fix the decisions of §4 (you, one sitting)
 
-### Phase 1 — scouting (six agents in parallel, read-only, then a referee)
+### Phase 1 — scouting (six agents in parallel, read-only)
 
 All scouts: Opus, maximum effort, general-purpose (they need Bash for git
 clones, `javap`, registry queries). Each works in its own worktree under
@@ -152,7 +152,7 @@ ground truth itself; change the 50% threshold or the eight-pair minimum
 Everything lands under `experiments/spinnaker/` on the `experiments` branch,
 with a README that states the lossy steps first, as the other two do.
 
-## 4. Decisions (defaults; the referee revises)
+## 4. Decisions (defaults; the review pass revises)
 
 **D1. Source parsing vs reflection over artifacts.** Default: reflection.
 Compiled classes carry Java generic signatures, Kotlin nullability metadata,
