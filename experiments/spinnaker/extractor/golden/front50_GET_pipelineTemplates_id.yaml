@@ -1,0 +1,47 @@
+operationId: get_pipelineTemplates_id
+requestBody:
+  content:
+    application/json:
+      schema:
+        additionalProperties: true
+        properties:
+          params:
+            additionalProperties: true
+            properties:
+              id:
+                type: string
+            required:
+            - id
+            type: object
+        required:
+        - params
+        type: object
+  required: true
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          additionalProperties: true
+          properties:
+            createdAt:
+              format: int64
+              type: integer
+            digest:
+              type: string
+            id:
+              type: string
+            lastModified:
+              format: int64
+              type: integer
+            lastModifiedBy:
+              type: string
+            source:
+              type: string
+            tag:
+              type: string
+          type: object
+          x-java-type: com.netflix.spinnaker.front50.model.pipeline.PipelineTemplate
+          x-untyped: true
+    description: ''
+x-match-key: GET /pipelineTemplates/{}

@@ -261,6 +261,24 @@ review's script tests each leg on either side, not both). The per-leg and
 per-component numbers under this ruling are to be computed by the next
 review pass, after the S1 and S2 redos.
 
+*Owner's rulings (2026-09-12).* (i) The 30 kork-plugins `Front50Service`
+rows are **out** of the graph: the client is instantiated only when an
+operator sets `spinnaker.extensibility.repositories.front50.enabled`, which
+no shipped profile in the ten services does (S1-025), so a stock deployment
+never makes the call; the rows stay in `edges.tsv` and the extractor emits
+them behind `--kork-rows`, and the README records them as a declared but
+dormant client. (ii) The 36 indirect `FiatService` rows (Clouddriver, Echo,
+Igor, Keel, where no application code injects the client and the calls are
+issued by `FiatPermissionEvaluator` inside `fiat-api`) are **out** for the
+same reason of provenance: the declaration is a library's, not the service's;
+Gate's, Orca's and Front50's direct `FiatService` calls stay. (iii) The
+*declared* presence profile is **kept as a near-empty control** beside
+*none* (the extractor's `--presence` flag); the README reports both and
+states that on this corpus *declared* reduces to Java primitives on the
+return side. (iv) The claims stay as scoped in D12: caller-drift and
+type-level findings on live legs, with the vacuous share stated; the build
+proceeds on that basis.
+
 **D6. Parameters.** Revised. The checker models request bodies and the lowest
 2xx JSON response, so path, query and header parameters are folded into the
 request object under a fixed wrapper `{properties: {params, headers, body}}`,
@@ -394,4 +412,7 @@ motivated them. Filled by the review pass of 2026-09-11 (`scout/review.md`).
 | 2026-09-12 | R4 | SCOPED-GO (reconciled 88.2 %, untyped 50.6 % either-side) | GO after the S1/S2 redos: reconciled 93.1 %, untyped 0.8 % under the D5 ruling; live legs 24.7 % reported as the quality number; given-ups unchanged | review pass 2; S1-028; S2-030/037 |
 | 2026-09-12 | D3 | — | self-edges (caller = provider) dropped from the graph by G3 | S1-030 |
 | 2026-09-12 | D5 | — | G1 marks untyped sides (`x-untyped: true`); figures reported over live legs | review pass 2 R1(b) |
+| 2026-09-12 | D2/D3 (owner) | kork `Front50Service` rows and indirect `FiatService` rows undecided | both out of the graph, documented as dormant/library-issued clients; extractor flags `--kork-rows drop --indirect-fiat drop` | S1-025/028/030; G1 decisions A, B |
+| 2026-09-12 | D4 (owner) | *declared* profile listed among the given-ups | kept as a near-empty control beside *none*; both reported | G1 decisions C |
+| 2026-09-12 | D12 (owner) | — | claims as scoped: live legs only, vacuous share stated; the build proceeds | review pass 2 |
 

@@ -453,3 +453,40 @@ README must lead with: pair-relation evidence exists on a quarter of the legs
 at 1.38.0, and 57 % of edges have no live leg at all. The first tasks for
 G1–G3 above stand; the handoff documents under `handoff/` carry them with
 these updates.
+
+
+## Review pass 3 (2026-09-12) — G1 and G2
+
+**G1, the extractor: accepted.** `tools/accept.sh` reproduces in 53 s: 24
+unit tests; six documents (three services at both ends of the range) extract
+in about five seconds each with no flagged endpoint; provider endpoints equal
+S2's census on `x-match-key` (front50 90/90, gate 273/273 plus four `ANY`
+expansions, orca 45/45 plus two); caller endpoints equal S1's edges (13/13,
+241/241, 133/133); the five golden fragments match; `gus` loads all six and
+`gus consistent` returns YES on each. The D11 triage over a real pair (orca
+and front50, 1.30.0 to 1.38.0, 26 edges) leaves six baseline findings: four
+`presence-mismatch` from Retrofit-1 callers declaring `Response`/`Void`
+against providers that return a body (marked `x-response-opaque`; D6's
+"contentless on both sides" is G3's to apply), and two `REQ.2` on the kork
+`pinVersions` client, which leave with the owner's ruling. Seven things G1
+found that the rules did not cover are recorded in `review.json` → `pass3`
+and carried into the G3 handoff: path spelling versus `x-match-key`, the
+`ANY` expansion, same-key collisions, opaque responses, the single recursive
+component, provenance-based exclusion of framework routes, and unapplied
+validation. What G1 could not verify stands as the projection's largest
+open risk: custom `JsonSerializer`s make the declared type differ from the
+wire type and nothing static detects it; six of nine services and 48 of 50
+BOMs were never extracted.
+
+**G2, the fetcher: accepted.** 38 tests pass; `verify.py` finds 450 of 450
+manifest digests equal to S3's, no classpath/jar-set disagreement, and the
+two staged BOMs intact; the corpus of record on the external volume (50 BOMs,
+198 492 jars, 100.4 GiB) was written by an independent full re-fetch whose
+regenerated lock is byte-identical. Three corrections to the plan's guidance
+are recorded (HEAD semantics, the jar-naming boundary, the variable app-layer
+index). `corpus.lock` is 47 MiB in one file as asked; a per-BOM split is a
+few lines if the repository size matters.
+
+**Owner's rulings applied** (PLAN.md §4, changelog): kork rows out, indirect
+Fiat rows out, the *declared* profile kept as a near-empty control, claims as
+scoped, build proceeds. No further decision is required before G3.

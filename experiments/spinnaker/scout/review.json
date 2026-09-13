@@ -931,5 +931,79 @@
    ],
    "quality_statement": "pair-relation evidence exists on 24.7 % of legs (259 of 1048) at 1.38.0; 57 % of edges have no live leg; the README leads with this"
   }
+ },
+ "pass3": {
+  "review_date": "2026-09-12",
+  "scope": "G1 (extractor) and G2 (fetcher) deliverables; the owner's rulings of 2026-09-12 applied",
+  "G1": {
+   "acceptance_reproduced": "tools/accept.sh, 53 s: 24 unit tests; six documents (front50 2.28.0/2.41.0, gate 6.58.0/6.69.0, orca 8.31.0/8.64.0) extract in ~5 s each with 0 flagged endpoints; provider endpoints equal S2's census (front50 90/90, gate 273/273 + 4 ANY expansions, orca 45/45 + 2); caller endpoints equal S1's edges (front50 13/13, gate 241/241, orca 133/133); golden fragments 5/5; gus loads all six and gus consistent returns YES on each",
+   "d11_triage_real_pair": "orca+front50 1.30.0 -> 1.38.0, 26 edges: 6 residual baseline findings \u2014 4 presence-mismatch (Retrofit-1 Response/Void callers vs providers returning a body, marked x-response-opaque, D6 rule for G3) and 2 REQ.2 on the kork pinVersions client (@Query vs required @RequestParam), which leave the graph with the owner's ruling (kork rows out)",
+   "document_vocabulary": [
+    "x-role",
+    "x-provider",
+    "x-interface",
+    "x-resolved-by",
+    "x-match-key",
+    "x-method-any",
+    "x-response-opaque",
+    "x-untyped",
+    "x-non-null",
+    "x-java-type",
+    "x-validated"
+   ],
+   "flags": [
+    "--classpath",
+    "--service",
+    "--version",
+    "--mesh",
+    "--out",
+    "--diag",
+    "--presence declared|none",
+    "--kork-rows keep|drop",
+    "--indirect-fiat keep|drop",
+    "--sides"
+   ],
+   "findings_for_g3": [
+    "path spelling: emitted paths keep variable names and drop regexes; x-match-key carries the erased form; graph.yaml must use one spelling per edge and the caller document's /_calls path must equal it (rewrite the caller path to the provider's spelling)",
+    "ANY: emitted once per verb with x-method-any: true (gate 28, orca 14 operations); count endpoints on x-match-key, not operations",
+    "duplicate (path, method) keys: POST /ops in orca and POST /pipelines/{id}/evaluateExpression in gate collide on the checker's endpoint key; one wins deterministically, the collision is in diag.json",
+    "x-response-opaque: 34 caller operations in front50 alone; D6 says contentless on both sides \u2014 G3 zeroes the provider response for those edges or reports 'caller discards a body'",
+    "recursion: only orca's PipelineExecution becomes a component (side-neutral, a counted loss); everything else is inlined, documents are large (front50 7 700 lines)",
+    "framework routes excluded by jar provenance (only <service>-* jars), listed in diag.json; actuator/springdoc/error controllers never reach the graph",
+    "validation: @Valid-gated bodies marked x-validated but @NotNull not applied \u2014 the declared profile is Java primitives on the return side only"
+   ],
+   "unverified_by_g1": [
+    "wire shape vs custom JsonSerializer (74 sites in S5's sample) \u2014 largest projection risk, undetectable statically",
+    "the mapper recipe checked on front50 and orca only",
+    "kotlin.Metadata not parsed (Orca's two Kotlin types unconfirmed)",
+    "clouddriver, echo, igor, fiat, rosco, kayenta never extracted",
+    "the 48 BOMs between 1.30.0 and 1.38.0 never extracted"
+   ],
+   "reviewer_verdict": "accepted; no defect found in what was claimed; the untried services and BOMs are G3's first risk"
+  },
+  "G2": {
+   "tests": "38 unit tests pass (2 skipped, network); verify.py --materialised: 450/450 manifest digests equal boms.tsv, 0 classpath/jar-set disagreements, 18/18 staged entries ok (1.30.0, 1.38.0), the other 432 are on the external volume",
+   "corpus": "/Volumes/WDGDM/gus-spinnaker-corpus: 50 BOMs, 450 (bom, service) trees, 198 492 jars, 100.4 GiB (133 GiB on exFAT), written by an independent full re-fetch whose regenerated lock is byte-identical; stage.py moves one BOM (~2 GiB) to the local corpus/ for analysis",
+   "lock": "corpus.lock 47 MiB JSON, 450 entries, per-jar sha256; one-file format as the handoff asked; a per-BOM split is a few lines in lock.py if the size in git bothers anyone",
+   "corrections_to_plan": [
+    "HEAD on the Google registries is 200 with an Accept header, 404 without \u2014 not 405",
+    "jar naming flips at the GCR/GAR boundary, not inside the range (1.30.0 jars are versioned)",
+    "the app layer index varies per image (5/6 for six services, 12/13 clouddriver, 11/15 rosco); the config-blob history hint found it first time in 450/450"
+   ],
+   "unverified_by_g2": [
+    "no jar was opened (S3 did, on three images)",
+    "GHCR only proven to hand out a token; GCR exercised on two images",
+    "exFAT keeps no permission bits or checksums; corruption is caught only by re-hashing (stage.py --full, verify.py --full)"
+   ],
+   "reviewer_verdict": "accepted"
+  },
+  "owner_rulings_applied": {
+   "kork_rows": "out",
+   "indirect_fiat_rows": "out",
+   "presence_declared": "kept as near-empty control",
+   "claims": "as scoped (live legs)",
+   "build": "proceeds"
+  },
+  "next": "G3 (projection and harness) \u2014 handoff/G3-projection.md"
  }
 }

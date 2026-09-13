@@ -1,0 +1,104 @@
+operationId: patch_v2_applications_applicationName
+requestBody:
+  content:
+    application/json:
+      schema:
+        additionalProperties: true
+        properties:
+          body:
+            additionalProperties: true
+            properties:
+              cloudProviders:
+                type: string
+              createTs:
+                type: string
+              createdAt:
+                format: int64
+                type: integer
+              description:
+                type: string
+              email:
+                type: string
+              lastModifiedBy:
+                type: string
+              name:
+                type: string
+              trafficGuards:
+                items:
+                  additionalProperties: true
+                  properties:
+                    account:
+                      type: string
+                    detail:
+                      type: string
+                    enabled:
+                      type: boolean
+                    location:
+                      type: string
+                    stack:
+                      type: string
+                  type: object
+                  x-java-type: com.netflix.spinnaker.front50.model.application.Application$TrafficGuard
+                type: array
+              updateTs:
+                type: string
+            type: object
+            x-java-type: com.netflix.spinnaker.front50.model.application.Application
+          params:
+            additionalProperties: true
+            properties:
+              applicationName:
+                type: string
+            required:
+            - applicationName
+            type: object
+        required:
+        - body
+        - params
+        type: object
+  required: true
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          additionalProperties: true
+          properties:
+            cloudProviders:
+              type: string
+            createTs:
+              type: string
+            createdAt:
+              format: int64
+              type: integer
+            description:
+              type: string
+            email:
+              type: string
+            lastModifiedBy:
+              type: string
+            name:
+              type: string
+            trafficGuards:
+              items:
+                additionalProperties: true
+                properties:
+                  account:
+                    type: string
+                  detail:
+                    type: string
+                  enabled:
+                    type: boolean
+                  location:
+                    type: string
+                  stack:
+                    type: string
+                type: object
+                x-java-type: com.netflix.spinnaker.front50.model.application.Application$TrafficGuard
+              type: array
+            updateTs:
+              type: string
+          type: object
+          x-java-type: com.netflix.spinnaker.front50.model.application.Application
+    description: ''
+x-match-key: PATCH /v2/applications/{}

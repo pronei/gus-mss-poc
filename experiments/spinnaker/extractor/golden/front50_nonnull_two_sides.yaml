@@ -1,0 +1,7 @@
+accept.application:
+  type: string
+accept.required: null
+return.application:
+  type: string
+  x-non-null: true
+return.required: null

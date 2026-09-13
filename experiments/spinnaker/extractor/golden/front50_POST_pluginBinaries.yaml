@@ -1,0 +1,30 @@
+operationId: post_pluginBinaries_id_version
+requestBody:
+  content:
+    application/json:
+      schema:
+        additionalProperties: true
+        properties:
+          params:
+            additionalProperties: true
+            properties:
+              id:
+                type: string
+              sha512sum:
+                type: string
+              version:
+                type: string
+            required:
+            - id
+            - sha512sum
+            - version
+            type: object
+        required:
+        - params
+        type: object
+  required: true
+responses:
+  '200':
+    description: ''
+x-match-key: POST /pluginBinaries/{}/{}
+x-response-opaque: true

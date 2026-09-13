@@ -17,3 +17,11 @@ vendor/
 # Python bytecode from the experiment scripts
 __pycache__/
 *.pyc
+
+# experiments/spinnaker G1 (extractor): portable toolchain and fetched artifacts,
+# never committed.
+experiments/spinnaker/.jdk/
+experiments/spinnaker/.mvn-dist/
+experiments/spinnaker/corpus/
+experiments/spinnaker/extractor/target/
+experiments/spinnaker/extractor/out/

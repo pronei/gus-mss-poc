@@ -1,0 +1,158 @@
+operationId: get_pipelines
+requestBody:
+  content:
+    application/json:
+      schema:
+        additionalProperties: true
+        properties:
+          params:
+            additionalProperties: true
+            properties:
+              enabledPipelines:
+                type: boolean
+              enabledTriggers:
+                type: boolean
+              refresh:
+                default: true
+                type: boolean
+              restricted:
+                default: true
+                type: boolean
+              triggerTypes:
+                type: string
+            type: object
+        type: object
+  required: true
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          items:
+            additionalProperties: true
+            properties:
+              application:
+                type: string
+                x-non-null: true
+              config:
+                additionalProperties: true
+                type: object
+                x-non-null: true
+                x-untyped: true
+              constraints:
+                additionalProperties: true
+                type: object
+                x-non-null: true
+                x-untyped: true
+              createdAt:
+                format: int64
+                type: integer
+              disabled:
+                type: boolean
+                x-non-null: true
+              email:
+                type: string
+                x-non-null: true
+              executionEngine:
+                type: string
+                x-non-null: true
+              id:
+                type: string
+                x-non-null: true
+              index:
+                format: int32
+                type: integer
+                x-non-null: true
+              keepWaitingPipelines:
+                type: boolean
+                x-non-null: true
+              lastModifiedBy:
+                type: string
+                x-non-null: true
+              limitConcurrent:
+                type: boolean
+                x-non-null: true
+              maxConcurrentExecutions:
+                format: int32
+                type: integer
+                x-non-null: true
+              name:
+                type: string
+                x-non-null: true
+              parameterConfig:
+                items:
+                  additionalProperties: true
+                  type: object
+                  x-untyped: true
+                type: array
+                x-non-null: true
+                x-untyped: true
+              payloadConstraints:
+                additionalProperties: true
+                type: object
+                x-non-null: true
+                x-untyped: true
+              roles:
+                items:
+                  type: string
+                type: array
+                x-non-null: true
+              schema:
+                type: string
+                x-non-null: true
+              serviceAccount:
+                type: string
+                x-non-null: true
+              spelEvaluator:
+                type: string
+                x-non-null: true
+              stageCounter:
+                format: int32
+                type: integer
+                x-non-null: true
+              stages:
+                items:
+                  additionalProperties: true
+                  type: object
+                  x-untyped: true
+                type: array
+                x-non-null: true
+                x-untyped: true
+              template:
+                additionalProperties: true
+                type: object
+                x-non-null: true
+                x-untyped: true
+              triggers:
+                items:
+                  additionalProperties: true
+                  properties:
+                    empty:
+                      type: boolean
+                    enabled:
+                      type: boolean
+                    pipeline:
+                      type: string
+                    status:
+                      items:
+                        type: string
+                      type: array
+                    type:
+                      type: string
+                  type: object
+                  x-java-type: com.netflix.spinnaker.front50.api.model.pipeline.Trigger
+                  x-untyped: true
+                type: array
+                x-non-null: true
+                x-untyped: true
+              type:
+                type: string
+                x-non-null: true
+              updateTs:
+                type: string
+                x-non-null: true
+            type: object
+            x-java-type: com.netflix.spinnaker.front50.api.model.pipeline.Pipeline
+          type: array
+    description: ''
+x-match-key: GET /pipelines

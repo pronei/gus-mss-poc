@@ -1,0 +1,49 @@
+#!/bin/sh
+# Pinned Maven launcher.  No binary is committed: the distribution is fetched
+# once into experiments/spinnaker/.mvn-dist/ (gitignored) and verified against
+# the SHA-512 below before it is unpacked or used.  Java comes from the
+# portable JDK 17 under experiments/spinnaker/.jdk/ (D1: none is installed on
+# the host).
+set -eu
+
+MAVEN_VERSION=3.9.16
+MAVEN_SHA512=831a8591fe20c8243b1dbe7d71e3244f31d1665b0804b2e825e38cbbe5ce0cafb8338851f90780735568773e0a6cd07bbec107cda0b896b008b861075358b6f6
+MAVEN_URL="https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz"
+
+here=$(cd "$(dirname "$0")" && pwd)
+exp=$(cd "$here/.." && pwd)
+dist="$exp/.mvn-dist"
+mvn_home="$dist/apache-maven-${MAVEN_VERSION}"
+
+# JAVA_HOME: the portable JDK, unless the caller pinned one already.
+if [ -z "${JAVA_HOME:-}" ]; then
+  for cand in "$exp"/.jdk/*/Contents/Home "$exp"/.jdk/*; do
+    if [ -x "$cand/bin/java" ]; then JAVA_HOME="$cand"; break; fi
+  done
+fi
+if [ -z "${JAVA_HOME:-}" ] || [ ! -x "$JAVA_HOME/bin/java" ]; then
+  echo "mvnw: no JDK found under $exp/.jdk (see extractor/memo.md CLAIM-G1-001)" >&2
+  exit 1
+fi
+export JAVA_HOME
+
+if [ ! -x "$mvn_home/bin/mvn" ]; then
+  mkdir -p "$dist"
+  tgz="$dist/apache-maven-${MAVEN_VERSION}-bin.tar.gz"
+  echo "mvnw: fetching Maven ${MAVEN_VERSION}" >&2
+  curl -fsSL --max-time 600 -o "$tgz" "$MAVEN_URL"
+  actual=$(shasum -a 512 "$tgz" | cut -d' ' -f1)
+  if [ "$actual" != "$MAVEN_SHA512" ]; then
+    echo "mvnw: SHA-512 mismatch for $tgz" >&2
+    echo "  expected $MAVEN_SHA512" >&2
+    echo "  actual   $actual" >&2
+    rm -f "$tgz"
+    exit 1
+  fi
+  tar xzf "$tgz" -C "$dist"
+  rm -f "$tgz"
+fi
+
+# A project-local repository keeps the build reproducible and the home
+# directory untouched.
+exec "$mvn_home/bin/mvn" -Dmaven.repo.local="$dist/repository" -B "$@"
