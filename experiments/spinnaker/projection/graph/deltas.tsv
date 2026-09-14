@@ -1,0 +1,31 @@
+pair	from	to	change	edge	caller	provider	verb	provider_mpath	caller_mpath	provider_has_endpoint_at_other	caller_declares_at_other	reading
+P07	1.30.6	1.31.0	added	echo-front50/4	echo	front50	GET	/pipelines/{}/name/{}	/pipelines/{}/name/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P07	1.30.6	1.31.0	added	orca-front50/19	orca	front50	GET	/pipelines/triggeredBy/{}/{}	/pipelines/triggeredBy/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P11	1.31.3	1.32.0	added	gate-clouddriver/20	gate	clouddriver	GET	/artifacts/content-address/{}/{}	/artifacts/content-address/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P11	1.31.3	1.32.0	added	gate-echo/6	gate	echo	POST	/webhooks/cdevents/{}	/webhooks/cdevents/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P15	1.32.3	1.32.4	added	echo-igor/3	echo	igor	GET	/builds/artifacts/{}/{}	/builds/artifacts/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P15	1.32.3	1.32.4	added	echo-igor/5	echo	igor	GET	/builds/properties/{}/{}/{}	/builds/properties/{}/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P15	1.32.3	1.32.4	added	echo-igor/7	echo	igor	GET	/builds/status/{}/{}	/builds/status/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P15	1.32.3	1.32.4	added	orca-igor/2	orca	igor	GET	/builds/artifacts/{}/{}	/builds/artifacts/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P15	1.32.3	1.32.4	added	orca-igor/4	orca	igor	GET	/builds/properties/{}/{}/{}	/builds/properties/{}/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P15	1.32.3	1.32.4	added	orca-igor/7	orca	igor	GET	/builds/status/{}/{}	/builds/status/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P16	1.32.4	1.33.0	removed	echo-igor/3	echo	igor	GET	/builds/artifacts/{}/{}	/builds/artifacts/{}/{}	no	no	the endpoint and the call leave together; old callers still call it during the roll (callers first)
+P16	1.32.4	1.33.0	removed	echo-igor/5	echo	igor	GET	/builds/properties/{}/{}/{}	/builds/properties/{}/{}/{}	no	no	the endpoint and the call leave together; old callers still call it during the roll (callers first)
+P16	1.32.4	1.33.0	removed	echo-igor/7	echo	igor	GET	/builds/status/{}/{}	/builds/status/{}/{}	no	no	the endpoint and the call leave together; old callers still call it during the roll (callers first)
+P16	1.32.4	1.33.0	removed	orca-igor/2	orca	igor	GET	/builds/artifacts/{}/{}	/builds/artifacts/{}/{}	no	no	the endpoint and the call leave together; old callers still call it during the roll (callers first)
+P16	1.32.4	1.33.0	removed	orca-igor/4	orca	igor	GET	/builds/properties/{}/{}/{}	/builds/properties/{}/{}/{}	no	no	the endpoint and the call leave together; old callers still call it during the roll (callers first)
+P16	1.32.4	1.33.0	removed	orca-igor/7	orca	igor	GET	/builds/status/{}/{}	/builds/status/{}/{}	no	no	the endpoint and the call leave together; old callers still call it during the roll (callers first)
+P17	1.33.0	1.33.1	added	echo-igor/3	echo	igor	GET	/builds/artifacts/{}/{}	/builds/artifacts/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P17	1.33.0	1.33.1	added	echo-igor/5	echo	igor	GET	/builds/properties/{}/{}/{}	/builds/properties/{}/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P17	1.33.0	1.33.1	added	echo-igor/7	echo	igor	GET	/builds/status/{}/{}	/builds/status/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P17	1.33.0	1.33.1	added	orca-igor/2	orca	igor	GET	/builds/artifacts/{}/{}	/builds/artifacts/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P17	1.33.0	1.33.1	added	orca-igor/4	orca	igor	GET	/builds/properties/{}/{}/{}	/builds/properties/{}/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P17	1.33.0	1.33.1	added	orca-igor/7	orca	igor	GET	/builds/status/{}/{}	/builds/status/{}/{}	no	no	a new call to a new endpoint; the new caller against the old provider finds no endpoint (providers first)
+P20	1.33.3	1.34.0	added	orca-clouddriver/49	orca	clouddriver	PATCH	/{}/task/{}	/{}/task/{}	yes	no	a new call to an endpoint the old provider already exposes
+P20	1.33.3	1.34.0	added	orca-clouddriver/50	orca	clouddriver	GET	/{}/task/{}/owner	/{}/task/{}/owner	yes	no	a new call to an endpoint the old provider already exposes
+P20	1.33.3	1.34.0	added	orca-clouddriver/51	orca	clouddriver	POST	/{}/task/{}/restart	/{}/task/{}/restart	yes	no	a new call to an endpoint the old provider already exposes
+P33	1.35.5	1.36.0	added	gate-front50/13	gate	front50	GET	/pipelines/{}/get	/pipelines/{}/get	yes	no	a new call to an endpoint the old provider already exposes
+P33	1.35.5	1.36.0	added	gate-front50/15	gate	front50	GET	/pipelines/{}/name/{}	/pipelines/{}/name/{}	yes	no	a new call to an endpoint the old provider already exposes
+P33	1.35.5	1.36.0	added	orca-clouddriver/9	orca	clouddriver	GET	/applications/{}/kubernetes/pods/{}/{}/{}/{}	/applications/{}/kubernetes/pods/{}/{}/{}/{}	yes	no	a new call to an endpoint the old provider already exposes
+P33	1.35.5	1.36.0	added	orca-front50/18	orca	front50	POST	/pipelines/batchUpdate	/pipelines/batchUpdate	yes	no	a new call to an endpoint the old provider already exposes
+P37	1.36.3	1.37.0	added	orca-igor/15	orca	igor	POST	/gcb/builds/stop/{}/{}	/gcb/builds/stop/{}/{}	yes	no	a new call to an endpoint the old provider already exposes

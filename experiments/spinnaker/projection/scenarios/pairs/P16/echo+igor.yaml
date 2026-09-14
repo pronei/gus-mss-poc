@@ -1,0 +1,15 @@
+id: "P16-echo+igor"
+name: "1.32.4 -> 1.33.0: echo+igor"
+baseline:
+  clouddriver: "1.32.4"
+  echo: "1.32.4"
+  fiat: "1.32.4"
+  front50: "1.32.4"
+  gate: "1.32.4"
+  igor: "1.32.4"
+  kayenta: "1.32.4"
+  orca: "1.32.4"
+  rosco: "1.32.4"
+upgrades:
+  echo: "1.33.0"
+  igor: "1.33.0"

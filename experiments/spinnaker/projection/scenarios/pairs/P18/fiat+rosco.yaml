@@ -1,0 +1,15 @@
+id: "P18-fiat+rosco"
+name: "1.33.1 -> 1.33.2: fiat+rosco"
+baseline:
+  clouddriver: "1.33.1"
+  echo: "1.33.1"
+  fiat: "1.33.1"
+  front50: "1.33.1"
+  gate: "1.33.1"
+  igor: "1.33.1"
+  kayenta: "1.33.1"
+  orca: "1.33.1"
+  rosco: "1.33.1"
+upgrades:
+  fiat: "1.33.2"
+  rosco: "1.33.2"

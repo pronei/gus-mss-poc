@@ -1,0 +1,15 @@
+id: "P33-front50+igor"
+name: "1.35.5 -> 1.36.0: front50+igor"
+baseline:
+  clouddriver: "1.35.5"
+  echo: "1.35.5"
+  fiat: "1.35.5"
+  front50: "1.35.5"
+  gate: "1.35.5"
+  igor: "1.35.5"
+  kayenta: "1.35.5"
+  orca: "1.35.5"
+  rosco: "1.35.5"
+upgrades:
+  front50: "1.36.0"
+  igor: "1.36.0"

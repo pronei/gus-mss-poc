@@ -1,0 +1,15 @@
+id: "P19-clouddriver+orca"
+name: "1.33.2 -> 1.33.3: clouddriver+orca"
+baseline:
+  clouddriver: "1.33.2"
+  echo: "1.33.2"
+  fiat: "1.33.2"
+  front50: "1.33.2"
+  gate: "1.33.2"
+  igor: "1.33.2"
+  kayenta: "1.33.2"
+  orca: "1.33.2"
+  rosco: "1.33.2"
+upgrades:
+  clouddriver: "1.33.3"
+  orca: "1.33.3"

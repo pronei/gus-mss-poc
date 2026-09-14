@@ -1,0 +1,15 @@
+id: "P01-clouddriver+fiat"
+name: "1.30.0 -> 1.30.1: clouddriver+fiat"
+baseline:
+  clouddriver: "1.30.0"
+  echo: "1.30.0"
+  fiat: "1.30.0"
+  front50: "1.30.0"
+  gate: "1.30.0"
+  igor: "1.30.0"
+  kayenta: "1.30.0"
+  orca: "1.30.0"
+  rosco: "1.30.0"
+upgrades:
+  clouddriver: "1.30.1"
+  fiat: "1.30.1"

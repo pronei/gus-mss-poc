@@ -1,0 +1,14 @@
+id: "P44-echo"
+name: "1.37.6 -> 1.37.7: echo"
+baseline:
+  clouddriver: "1.37.6"
+  echo: "1.37.6"
+  fiat: "1.37.6"
+  front50: "1.37.6"
+  gate: "1.37.6"
+  igor: "1.37.6"
+  kayenta: "1.37.6"
+  orca: "1.37.6"
+  rosco: "1.37.6"
+upgrades:
+  echo: "1.37.7"

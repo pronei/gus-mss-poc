@@ -1,0 +1,14 @@
+id: "P29-echo"
+name: "1.35.1 -> 1.35.2: echo"
+baseline:
+  clouddriver: "1.35.1"
+  echo: "1.35.1"
+  fiat: "1.35.1"
+  front50: "1.35.1"
+  gate: "1.35.1"
+  igor: "1.35.1"
+  kayenta: "1.35.1"
+  orca: "1.35.1"
+  rosco: "1.35.1"
+upgrades:
+  echo: "1.35.2"

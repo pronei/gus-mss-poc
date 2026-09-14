@@ -1,0 +1,13 @@
+id: "G-1.30.4"
+name: "consistency gate at BOM 1.30.4"
+baseline:
+  clouddriver: "1.30.4"
+  echo: "1.30.4"
+  fiat: "1.30.4"
+  front50: "1.30.4"
+  gate: "1.30.4"
+  igor: "1.30.4"
+  kayenta: "1.30.4"
+  orca: "1.30.4"
+  rosco: "1.30.4"
+upgrades: {}

@@ -1,0 +1,15 @@
+id: "P33-echo+fiat"
+name: "1.35.5 -> 1.36.0: echo+fiat"
+baseline:
+  clouddriver: "1.35.5"
+  echo: "1.35.5"
+  fiat: "1.35.5"
+  front50: "1.35.5"
+  gate: "1.35.5"
+  igor: "1.35.5"
+  kayenta: "1.35.5"
+  orca: "1.35.5"
+  rosco: "1.35.5"
+upgrades:
+  echo: "1.36.0"
+  fiat: "1.36.0"

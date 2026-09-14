@@ -1,0 +1,15 @@
+id: "P12-clouddriver+front50"
+name: "1.32.0 -> 1.32.1: clouddriver+front50"
+baseline:
+  clouddriver: "1.32.0"
+  echo: "1.32.0"
+  fiat: "1.32.0"
+  front50: "1.32.0"
+  gate: "1.32.0"
+  igor: "1.32.0"
+  kayenta: "1.32.0"
+  orca: "1.32.0"
+  rosco: "1.32.0"
+upgrades:
+  clouddriver: "1.32.1"
+  front50: "1.32.1"

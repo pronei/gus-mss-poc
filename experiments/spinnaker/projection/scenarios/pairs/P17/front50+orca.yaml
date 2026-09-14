@@ -1,0 +1,15 @@
+id: "P17-front50+orca"
+name: "1.33.0 -> 1.33.1: front50+orca"
+baseline:
+  clouddriver: "1.33.0"
+  echo: "1.33.0"
+  fiat: "1.33.0"
+  front50: "1.33.0"
+  gate: "1.33.0"
+  igor: "1.33.0"
+  kayenta: "1.33.0"
+  orca: "1.33.0"
+  rosco: "1.33.0"
+upgrades:
+  front50: "1.33.1"
+  orca: "1.33.1"

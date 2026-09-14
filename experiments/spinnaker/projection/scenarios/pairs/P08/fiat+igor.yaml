@@ -1,0 +1,15 @@
+id: "P08-fiat+igor"
+name: "1.31.0 -> 1.31.1: fiat+igor"
+baseline:
+  clouddriver: "1.31.0"
+  echo: "1.31.0"
+  fiat: "1.31.0"
+  front50: "1.31.0"
+  gate: "1.31.0"
+  igor: "1.31.0"
+  kayenta: "1.31.0"
+  orca: "1.31.0"
+  rosco: "1.31.0"
+upgrades:
+  fiat: "1.31.1"
+  igor: "1.31.1"

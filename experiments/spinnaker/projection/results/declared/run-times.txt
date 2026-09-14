@@ -1,0 +1,1 @@
+declared: 49 pairs x 46 batches, check+mss 159s with 6 jobs; evolve 22s

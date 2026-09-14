@@ -1,0 +1,15 @@
+id: "P23-igor+rosco"
+name: "1.34.2 -> 1.34.3: igor+rosco"
+baseline:
+  clouddriver: "1.34.2"
+  echo: "1.34.2"
+  fiat: "1.34.2"
+  front50: "1.34.2"
+  gate: "1.34.2"
+  igor: "1.34.2"
+  kayenta: "1.34.2"
+  orca: "1.34.2"
+  rosco: "1.34.2"
+upgrades:
+  igor: "1.34.3"
+  rosco: "1.34.3"

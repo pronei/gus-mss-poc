@@ -1,0 +1,15 @@
+id: "P11-clouddriver+echo"
+name: "1.31.3 -> 1.32.0: clouddriver+echo"
+baseline:
+  clouddriver: "1.31.3"
+  echo: "1.31.3"
+  fiat: "1.31.3"
+  front50: "1.31.3"
+  gate: "1.31.3"
+  igor: "1.31.3"
+  kayenta: "1.31.3"
+  orca: "1.31.3"
+  rosco: "1.31.3"
+upgrades:
+  clouddriver: "1.32.0"
+  echo: "1.32.0"

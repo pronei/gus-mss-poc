@@ -1,0 +1,15 @@
+id: "P36-clouddriver+echo"
+name: "1.36.2 -> 1.36.3: clouddriver+echo"
+baseline:
+  clouddriver: "1.36.2"
+  echo: "1.36.2"
+  fiat: "1.36.2"
+  front50: "1.36.2"
+  gate: "1.36.2"
+  igor: "1.36.2"
+  kayenta: "1.36.2"
+  orca: "1.36.2"
+  rosco: "1.36.2"
+upgrades:
+  clouddriver: "1.36.3"
+  echo: "1.36.3"

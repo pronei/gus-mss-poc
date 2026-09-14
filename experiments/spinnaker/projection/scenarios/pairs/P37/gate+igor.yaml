@@ -1,0 +1,15 @@
+id: "P37-gate+igor"
+name: "1.36.3 -> 1.37.0: gate+igor"
+baseline:
+  clouddriver: "1.36.3"
+  echo: "1.36.3"
+  fiat: "1.36.3"
+  front50: "1.36.3"
+  gate: "1.36.3"
+  igor: "1.36.3"
+  kayenta: "1.36.3"
+  orca: "1.36.3"
+  rosco: "1.36.3"
+upgrades:
+  gate: "1.37.0"
+  igor: "1.37.0"

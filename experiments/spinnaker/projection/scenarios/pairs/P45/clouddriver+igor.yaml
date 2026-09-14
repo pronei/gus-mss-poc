@@ -1,0 +1,15 @@
+id: "P45-clouddriver+igor"
+name: "1.37.7 -> 1.37.8: clouddriver+igor"
+baseline:
+  clouddriver: "1.37.7"
+  echo: "1.37.7"
+  fiat: "1.37.7"
+  front50: "1.37.7"
+  gate: "1.37.7"
+  igor: "1.37.7"
+  kayenta: "1.37.7"
+  orca: "1.37.7"
+  rosco: "1.37.7"
+upgrades:
+  clouddriver: "1.37.8"
+  igor: "1.37.8"

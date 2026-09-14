@@ -1,0 +1,15 @@
+id: "P26-clouddriver+kayenta"
+name: "1.34.5 -> 1.34.6: clouddriver+kayenta"
+baseline:
+  clouddriver: "1.34.5"
+  echo: "1.34.5"
+  fiat: "1.34.5"
+  front50: "1.34.5"
+  gate: "1.34.5"
+  igor: "1.34.5"
+  kayenta: "1.34.5"
+  orca: "1.34.5"
+  rosco: "1.34.5"
+upgrades:
+  clouddriver: "1.34.6"
+  kayenta: "1.34.6"

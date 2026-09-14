@@ -1,0 +1,14 @@
+id: "P36-orca"
+name: "1.36.2 -> 1.36.3: orca"
+baseline:
+  clouddriver: "1.36.2"
+  echo: "1.36.2"
+  fiat: "1.36.2"
+  front50: "1.36.2"
+  gate: "1.36.2"
+  igor: "1.36.2"
+  kayenta: "1.36.2"
+  orca: "1.36.2"
+  rosco: "1.36.2"
+upgrades:
+  orca: "1.36.3"

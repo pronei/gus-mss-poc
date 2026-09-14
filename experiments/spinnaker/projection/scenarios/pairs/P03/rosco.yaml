@@ -1,0 +1,14 @@
+id: "P03-rosco"
+name: "1.30.2 -> 1.30.3: rosco"
+baseline:
+  clouddriver: "1.30.2"
+  echo: "1.30.2"
+  fiat: "1.30.2"
+  front50: "1.30.2"
+  gate: "1.30.2"
+  igor: "1.30.2"
+  kayenta: "1.30.2"
+  orca: "1.30.2"
+  rosco: "1.30.2"
+upgrades:
+  rosco: "1.30.3"

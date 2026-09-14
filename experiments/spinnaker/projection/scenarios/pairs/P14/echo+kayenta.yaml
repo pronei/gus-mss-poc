@@ -1,0 +1,15 @@
+id: "P14-echo+kayenta"
+name: "1.32.2 -> 1.32.3: echo+kayenta"
+baseline:
+  clouddriver: "1.32.2"
+  echo: "1.32.2"
+  fiat: "1.32.2"
+  front50: "1.32.2"
+  gate: "1.32.2"
+  igor: "1.32.2"
+  kayenta: "1.32.2"
+  orca: "1.32.2"
+  rosco: "1.32.2"
+upgrades:
+  echo: "1.32.3"
+  kayenta: "1.32.3"

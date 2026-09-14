@@ -1,0 +1,14 @@
+id: "P30-kayenta"
+name: "1.35.2 -> 1.35.3: kayenta"
+baseline:
+  clouddriver: "1.35.2"
+  echo: "1.35.2"
+  fiat: "1.35.2"
+  front50: "1.35.2"
+  gate: "1.35.2"
+  igor: "1.35.2"
+  kayenta: "1.35.2"
+  orca: "1.35.2"
+  rosco: "1.35.2"
+upgrades:
+  kayenta: "1.35.3"

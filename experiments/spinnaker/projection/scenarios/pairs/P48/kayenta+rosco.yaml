@@ -1,0 +1,15 @@
+id: "P48-kayenta+rosco"
+name: "1.37.10 -> 1.37.11: kayenta+rosco"
+baseline:
+  clouddriver: "1.37.10"
+  echo: "1.37.10"
+  fiat: "1.37.10"
+  front50: "1.37.10"
+  gate: "1.37.10"
+  igor: "1.37.10"
+  kayenta: "1.37.10"
+  orca: "1.37.10"
+  rosco: "1.37.10"
+upgrades:
+  kayenta: "1.37.11"
+  rosco: "1.37.11"

@@ -1,0 +1,15 @@
+id: "P28-front50+kayenta"
+name: "1.35.0 -> 1.35.1: front50+kayenta"
+baseline:
+  clouddriver: "1.35.0"
+  echo: "1.35.0"
+  fiat: "1.35.0"
+  front50: "1.35.0"
+  gate: "1.35.0"
+  igor: "1.35.0"
+  kayenta: "1.35.0"
+  orca: "1.35.0"
+  rosco: "1.35.0"
+upgrades:
+  front50: "1.35.1"
+  kayenta: "1.35.1"

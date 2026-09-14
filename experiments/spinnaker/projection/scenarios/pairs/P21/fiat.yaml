@@ -1,0 +1,14 @@
+id: "P21-fiat"
+name: "1.34.0 -> 1.34.1: fiat"
+baseline:
+  clouddriver: "1.34.0"
+  echo: "1.34.0"
+  fiat: "1.34.0"
+  front50: "1.34.0"
+  gate: "1.34.0"
+  igor: "1.34.0"
+  kayenta: "1.34.0"
+  orca: "1.34.0"
+  rosco: "1.34.0"
+upgrades:
+  fiat: "1.34.1"

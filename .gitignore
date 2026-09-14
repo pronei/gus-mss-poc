@@ -25,3 +25,11 @@ experiments/spinnaker/.mvn-dist/
 experiments/spinnaker/corpus/
 experiments/spinnaker/extractor/target/
 experiments/spinnaker/extractor/out/
+
+# experiments/spinnaker G3 (projection): extractor output (docs.lock records its
+# sha256s), loaded copies, graphs and raw checker output — all regenerable.
+experiments/spinnaker/projection/docs/
+experiments/spinnaker/projection/.work/
+experiments/spinnaker/projection/graph/*/loaded/
+experiments/spinnaker/projection/graph/*/*.yaml
+experiments/spinnaker/projection/results/*/P*/

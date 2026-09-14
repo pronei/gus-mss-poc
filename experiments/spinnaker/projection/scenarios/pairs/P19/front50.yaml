@@ -1,0 +1,14 @@
+id: "P19-front50"
+name: "1.33.2 -> 1.33.3: front50"
+baseline:
+  clouddriver: "1.33.2"
+  echo: "1.33.2"
+  fiat: "1.33.2"
+  front50: "1.33.2"
+  gate: "1.33.2"
+  igor: "1.33.2"
+  kayenta: "1.33.2"
+  orca: "1.33.2"
+  rosco: "1.33.2"
+upgrades:
+  front50: "1.33.3"

@@ -1,0 +1,41 @@
+presence	pair	from	to	edge	caller	provider	verb	path	caller_pin	changed	opacity	states_to	caller_conjunct_breaks	evidence_breaks
+declared	P05	1.30.4	1.30.5	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.31.5 -> 8.31.6	resp	typed -> typed	params contentless, body contentless, response live		0
+declared	P07	1.30.6	1.31.0	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.31.6 -> 8.33.0	resp	typed -> typed	params contentless, body contentless, response vacuous		0
+declared	P10	1.31.2	1.31.3	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.33.1 -> 8.33.2	resp	typed -> typed	params contentless, body contentless, response live		0
+declared	P11	1.31.3	1.32.0	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.33.2 -> 8.36.0	resp	typed -> typed	params contentless, body contentless, response vacuous		0
+declared	P14	1.32.2	1.32.3	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.36.0 -> 8.36.1	resp	typed -> typed	params contentless, body contentless, response live		0
+declared	P16	1.32.4	1.33.0	orca-clouddriver/4	orca	clouddriver	GET	/applications/{application}/clusters/{account}/{clusterName}/{cloudProvider}/{scope}/serverGroups/target/{target}	8.36.2 -> 8.48.0	resp	opaque -> typed	params live, body contentless, response live		0
+declared	P20	1.33.3	1.34.0	gate-echo/6	gate	echo	POST	/webhooks/cdevents/{source}	6.61.1 -> 6.62.0	headers	opaque -> opaque	params live, body live, response contentless		0
+declared	P33	1.35.5	1.36.0	gate-front50/11	gate	front50	GET	/pipelines/{application}	6.63.0 -> 6.64.0	params	typed -> typed	params live, body contentless, response vacuous		0
+declared	P33	1.35.5	1.36.0	orca-echo/2	orca	echo	POST	/notifications	8.54.1 -> 8.57.0	body	opaque -> opaque	params contentless, body live, response contentless-one-side		0
+declared	P37	1.36.3	1.37.0	front50-fiat/7	front50	fiat	POST	/roles/{userId}	2.37.2 -> 2.38.0	body	opaque -> opaque	params live, body contentless, response contentless		0
+declared	P37	1.36.3	1.37.0	gate-clouddriver/9	gate	clouddriver	GET	/applications/{application}/clusters/{account}/{clusterName}/{type}/serverGroups/{serverGroupName}	6.64.2 -> 6.66.0	resp	typed -> typed	params live, body contentless, response untyped	C4:response:kind-mismatch,TGT:response:kind-mismatch	0
+declared	P37	1.36.3	1.37.0	gate-fiat/8	gate	fiat	POST	/roles/{userId}	6.64.2 -> 6.66.0	body	opaque -> opaque	params live, body contentless, response contentless		0
+declared	P37	1.36.3	1.37.0	gate-igor/4	gate	igor	GET	/builds/all/{master}/**	6.64.2 -> 6.66.0	params	typed -> typed	params live, body contentless, response untyped		0
+declared	P37	1.36.3	1.37.0	gate-igor/17	gate	igor	GET	/jobs/{master}/**	6.64.2 -> 6.66.0	params	typed -> typed	params live, body contentless, response untyped		0
+declared	P37	1.36.3	1.37.0	orca-fiat/7	orca	fiat	POST	/roles/{userId}	8.57.2 -> 8.61.0	body	opaque -> opaque	params live, body contentless, response contentless		0
+declared	P37	1.36.3	1.37.0	orca-igor/3	orca	igor	GET	/builds/artifacts/{buildNumber}/{master}/**	8.57.2 -> 8.61.0	params	typed -> typed	params live, body contentless, response live		0
+declared	P37	1.36.3	1.37.0	orca-igor/5	orca	igor	GET	/builds/properties/{buildNumber}/{fileName}/{master}/**	8.57.2 -> 8.61.0	params	typed -> typed	params live, body contentless, response untyped		0
+declared	P37	1.36.3	1.37.0	orca-igor/8	orca	igor	GET	/builds/status/{buildNumber}/{master}/**	8.57.2 -> 8.61.0	params	typed -> typed	params live, body contentless, response vacuous		0
+declared	P37	1.36.3	1.37.0	orca-igor/22	orca	igor	PATCH	/masters/{name}/jobs/**/update/{buildNumber}	8.57.2 -> 8.61.0	params	opaque -> opaque	params live, body live, response contentless		0
+declared	P37	1.36.3	1.37.0	orca-igor/24	orca	igor	PUT	/masters/{name}/jobs/{jobName}/stop/{queuedBuild}/{buildNumber}	8.57.2 -> 8.61.0	params	typed -> typed	params live, body contentless-one-side, response live		0
+none	P05	1.30.4	1.30.5	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.31.5 -> 8.31.6	resp	typed -> typed	params contentless, body contentless, response live		0
+none	P07	1.30.6	1.31.0	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.31.6 -> 8.33.0	resp	typed -> typed	params contentless, body contentless, response vacuous		0
+none	P10	1.31.2	1.31.3	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.33.1 -> 8.33.2	resp	typed -> typed	params contentless, body contentless, response live		0
+none	P11	1.31.3	1.32.0	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.33.2 -> 8.36.0	resp	typed -> typed	params contentless, body contentless, response vacuous		0
+none	P14	1.32.2	1.32.3	orca-clouddriver/44	orca	clouddriver	GET	/vpcs	8.36.0 -> 8.36.1	resp	typed -> typed	params contentless, body contentless, response live		0
+none	P16	1.32.4	1.33.0	orca-clouddriver/4	orca	clouddriver	GET	/applications/{application}/clusters/{account}/{clusterName}/{cloudProvider}/{scope}/serverGroups/target/{target}	8.36.2 -> 8.48.0	resp	opaque -> typed	params live, body contentless, response live		0
+none	P20	1.33.3	1.34.0	gate-echo/6	gate	echo	POST	/webhooks/cdevents/{source}	6.61.1 -> 6.62.0	headers	opaque -> opaque	params live, body live, response contentless		0
+none	P33	1.35.5	1.36.0	gate-front50/11	gate	front50	GET	/pipelines/{application}	6.63.0 -> 6.64.0	params	typed -> typed	params live, body contentless, response vacuous		0
+none	P33	1.35.5	1.36.0	orca-echo/2	orca	echo	POST	/notifications	8.54.1 -> 8.57.0	body	opaque -> opaque	params contentless, body live, response contentless-one-side		0
+none	P37	1.36.3	1.37.0	front50-fiat/7	front50	fiat	POST	/roles/{userId}	2.37.2 -> 2.38.0	body	opaque -> opaque	params live, body contentless, response contentless		0
+none	P37	1.36.3	1.37.0	gate-clouddriver/9	gate	clouddriver	GET	/applications/{application}/clusters/{account}/{clusterName}/{type}/serverGroups/{serverGroupName}	6.64.2 -> 6.66.0	resp	typed -> typed	params live, body contentless, response untyped	C4:response:kind-mismatch,TGT:response:kind-mismatch	0
+none	P37	1.36.3	1.37.0	gate-fiat/8	gate	fiat	POST	/roles/{userId}	6.64.2 -> 6.66.0	body	opaque -> opaque	params live, body contentless, response contentless		0
+none	P37	1.36.3	1.37.0	gate-igor/4	gate	igor	GET	/builds/all/{master}/**	6.64.2 -> 6.66.0	params	typed -> typed	params live, body contentless, response untyped		0
+none	P37	1.36.3	1.37.0	gate-igor/17	gate	igor	GET	/jobs/{master}/**	6.64.2 -> 6.66.0	params	typed -> typed	params live, body contentless, response untyped		0
+none	P37	1.36.3	1.37.0	orca-fiat/7	orca	fiat	POST	/roles/{userId}	8.57.2 -> 8.61.0	body	opaque -> opaque	params live, body contentless, response contentless		0
+none	P37	1.36.3	1.37.0	orca-igor/3	orca	igor	GET	/builds/artifacts/{buildNumber}/{master}/**	8.57.2 -> 8.61.0	params	typed -> typed	params live, body contentless, response live		0
+none	P37	1.36.3	1.37.0	orca-igor/5	orca	igor	GET	/builds/properties/{buildNumber}/{fileName}/{master}/**	8.57.2 -> 8.61.0	params	typed -> typed	params live, body contentless, response untyped		0
+none	P37	1.36.3	1.37.0	orca-igor/8	orca	igor	GET	/builds/status/{buildNumber}/{master}/**	8.57.2 -> 8.61.0	params	typed -> typed	params live, body contentless, response vacuous		0
+none	P37	1.36.3	1.37.0	orca-igor/22	orca	igor	PATCH	/masters/{name}/jobs/**/update/{buildNumber}	8.57.2 -> 8.61.0	params	opaque -> opaque	params live, body live, response contentless		0
+none	P37	1.36.3	1.37.0	orca-igor/24	orca	igor	PUT	/masters/{name}/jobs/{jobName}/stop/{queuedBuild}/{buildNumber}	8.57.2 -> 8.61.0	params	typed -> typed	params live, body contentless-one-side, response live		0

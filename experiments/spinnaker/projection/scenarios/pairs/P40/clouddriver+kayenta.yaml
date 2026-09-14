@@ -1,0 +1,15 @@
+id: "P40-clouddriver+kayenta"
+name: "1.37.2 -> 1.37.3: clouddriver+kayenta"
+baseline:
+  clouddriver: "1.37.2"
+  echo: "1.37.2"
+  fiat: "1.37.2"
+  front50: "1.37.2"
+  gate: "1.37.2"
+  igor: "1.37.2"
+  kayenta: "1.37.2"
+  orca: "1.37.2"
+  rosco: "1.37.2"
+upgrades:
+  clouddriver: "1.37.3"
+  kayenta: "1.37.3"

@@ -1,0 +1,14 @@
+id: "P12-fiat"
+name: "1.32.0 -> 1.32.1: fiat"
+baseline:
+  clouddriver: "1.32.0"
+  echo: "1.32.0"
+  fiat: "1.32.0"
+  front50: "1.32.0"
+  gate: "1.32.0"
+  igor: "1.32.0"
+  kayenta: "1.32.0"
+  orca: "1.32.0"
+  rosco: "1.32.0"
+upgrades:
+  fiat: "1.32.1"

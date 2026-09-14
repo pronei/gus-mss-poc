@@ -1,0 +1,15 @@
+id: "P15-gate+rosco"
+name: "1.32.3 -> 1.32.4: gate+rosco"
+baseline:
+  clouddriver: "1.32.3"
+  echo: "1.32.3"
+  fiat: "1.32.3"
+  front50: "1.32.3"
+  gate: "1.32.3"
+  igor: "1.32.3"
+  kayenta: "1.32.3"
+  orca: "1.32.3"
+  rosco: "1.32.3"
+upgrades:
+  gate: "1.32.4"
+  rosco: "1.32.4"

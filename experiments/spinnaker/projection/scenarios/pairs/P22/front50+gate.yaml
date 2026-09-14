@@ -1,0 +1,15 @@
+id: "P22-front50+gate"
+name: "1.34.1 -> 1.34.2: front50+gate"
+baseline:
+  clouddriver: "1.34.1"
+  echo: "1.34.1"
+  fiat: "1.34.1"
+  front50: "1.34.1"
+  gate: "1.34.1"
+  igor: "1.34.1"
+  kayenta: "1.34.1"
+  orca: "1.34.1"
+  rosco: "1.34.1"
+upgrades:
+  front50: "1.34.2"
+  gate: "1.34.2"

@@ -1,0 +1,14 @@
+id: "P39-clouddriver"
+name: "1.37.1 -> 1.37.2: clouddriver"
+baseline:
+  clouddriver: "1.37.1"
+  echo: "1.37.1"
+  fiat: "1.37.1"
+  front50: "1.37.1"
+  gate: "1.37.1"
+  igor: "1.37.1"
+  kayenta: "1.37.1"
+  orca: "1.37.1"
+  rosco: "1.37.1"
+upgrades:
+  clouddriver: "1.37.2"
