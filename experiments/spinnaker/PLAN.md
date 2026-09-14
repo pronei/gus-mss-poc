@@ -279,6 +279,33 @@ return side. (iv) The claims stay as scoped in D12: caller-drift and
 type-level findings on live legs, with the vacuous share stated; the build
 proceeds on that basis.
 
+*Owner's rulings (2026-09-14), after G3.* (v) **Framing.** The range holds
+no payload-level break, so the Spinnaker run is reported for what it shows:
+specificity on a real mesh (no false alarm on a live leg over 49 pairs and
+4 508 scenarios), observed caller drift, and what the gate says about the
+corpus; the two documented breaks in range are client construction and path
+encoding, outside every declaration, and the README says so before any
+number. (vi) **A declared parameter is sent.** A Retrofit `@Query`/`@Header`
+that the caller declares is projected `required` on the caller's Send —
+Retrofit omits it only for a null argument, and null arguments are outside
+declarations; a caller that does not declare a parameter the provider
+requires stays a REQ.1 finding. This is a projection statement about what
+the caller guarantees, not a change to the pair relation; it lets the 53
+"real inconsistency" edges of G3's gate enter the pairs. (vii) **Untyped
+sides are Any.** D5's "never `{}`" is withdrawn: an untyped side (`Map`,
+`Object`, `JsonNode`, raw generic, Map-subclass model) projects to `{}` and
+carries `x-untyped: true`; the harness classifies legs from the flag, the
+checker compares nothing against Any. A catch-all query map is an open
+object of its value type, not Any. (viii) **The headline live-leg reading is
+the body-and-response reading** (16.0 % of legs at 1.38.0), reported beside
+the per-component table (params 68 %, body 8 %, response 24 %); the
+whole-wrapper figure is not used as a headline, and review pass 2's 24.7 %
+on the scout tables is superseded. (ix) **D6 on the caller side** is
+acknowledged (G3 decisions 5): the opaque caller expects Any where its
+provider returns a body; the rule's provider-side replacement was not
+expressible on shared endpoints. (x) **Date-ordered pairs** are planned as a
+second mode, not run now (§7).
+
 **D6. Parameters.** Revised. The checker models request bodies and the lowest
 2xx JSON response, so path, query and header parameters are folded into the
 request object under a fixed wrapper `{properties: {params, headers, body}}`,
@@ -389,6 +416,18 @@ edges, stated in the README before any number (§5).
 * Path normalization needing per-endpoint hand rules → D3 becomes a manual
   table; acceptable up to a few dozen rows.
 
+## 7. Later: version-ordered against date-ordered pairs
+
+D2 orders pairs by version. G3 showed patch trains overlapping in time
+(1.32.4 was built after 1.33.0, and a change present at 1.32.4 and 1.33.1 is
+absent at 1.33.0), so a version-ordered pair can be an upgrade nobody
+shipped. A second mode orders BOMs by their `timestamp` and pairs
+consecutive releases in time; the two modes share extraction, gate and
+loaded copies and differ only in `pairs.tsv`, the S4 label mapping (a label
+maps to the pair whose interval contains the release) and the delta
+channel. Deliverable: both modes' `compare.md`, and the set of pairs that
+exist in one mode only. Not before the G1 fixes and the re-run.
+
 ## 6. Changelog
 
 Decisions revised by the review pass are recorded here with the claims that
@@ -415,4 +454,10 @@ motivated them. Filled by the review pass of 2026-09-11 (`scout/review.md`).
 | 2026-09-12 | D2/D3 (owner) | kork `Front50Service` rows and indirect `FiatService` rows undecided | both out of the graph, documented as dormant/library-issued clients; extractor flags `--kork-rows drop --indirect-fiat drop` | S1-025/028/030; G1 decisions A, B |
 | 2026-09-12 | D4 (owner) | *declared* profile listed among the given-ups | kept as a near-empty control beside *none*; both reported | G1 decisions C |
 | 2026-09-12 | D12 (owner) | — | claims as scoped: live legs only, vacuous share stated; the build proceeds | review pass 2 |
+| 2026-09-14 | D12 (owner) | — | Spinnaker reported as specificity and caller-drift evidence; no recall claim; documented breaks in range are outside declarations | G3 CLAIM-G3-021/023 |
+| 2026-09-14 | D6 (owner) | `@Query` optional on the caller | a declared parameter is sent (required on Send); undeclared required parameters stay REQ.1 | G3 decisions 8; gate REQ.2 rows |
+| 2026-09-14 | D5 (owner) | untyped side → open object, never `{}` | untyped side → `{}` (Any) with `x-untyped: true`; catch-all query maps stay open objects | G3 CLAIM-G3-015, README item 2 |
+| 2026-09-14 | D5/D12 (owner) | three live-leg readings | headline = body-and-response reading (16.0 %), per-component table beside it | G3 counts |
+| 2026-09-14 | D6 (owner) | provider-side contentless replacement | caller-side Any acknowledged as the applied rule | G3 decisions 5 |
+| 2026-09-14 | D2 (owner) | version order only | date-ordered mode planned (§7) | G3 CLAIM-G3-024 |
 
